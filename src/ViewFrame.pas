@@ -54,7 +54,7 @@ type
     procedure pb1Paint(Sender: TObject);
     procedure vtLogEnter(Sender: TObject);
     procedure chkTwoWindowsClick(Sender: TObject);
-    procedure vtLogDblClick(Sender: TObject);
+    procedure vtLogClick(Sender: TObject);
   private
     FOriginRows: TMyStringList;
     FFiltered: Boolean;
@@ -86,6 +86,9 @@ implementation
 
 uses
   StrUtils, uGraphicUtils;
+
+const
+  cSelectableSymbols = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM_0123456789';
 
 { TViewFrm }
 
@@ -188,19 +191,18 @@ var
     end;
   end;
 begin
+  vText := GetText(Sender, Column, Node.Index);
+  vRect := CellRect;
+  vMargin := TVirtualStringTree(Sender).Margin + TVirtualStringTree(Sender).TextMargin;
+  for i := 0 to FTags.Count - 1 do
   begin
-    vText := GetText(Sender, Column, Node.Index);
-    vRect := CellRect;
-    vMargin := TVirtualStringTree(Sender).Margin + TVirtualStringTree(Sender).TextMargin;
-    for i := 0 to FTags.Count - 1 do
-    begin
-      vTag := FTags[i];
-      if (vTag.Enabled) then
-        DrawSelection(vTag.Color, vTag.Name);
-    end;
+    vTag := FTags[i];
+    if (vTag.Enabled) then
+      DrawSelection(vTag.Color, vTag.Name);
   end;
+
   DrawSelection(clGray, edtSearch.Text);
-  DrawSelection(clGray, FSelectedWord);
+  DrawSelection(clMaroon, FSelectedWord);
 end;
 
 procedure TViewFrm.vtFullLogKeyDown(Sender: TObject; var Key: Word;
@@ -510,10 +512,47 @@ begin
     lblCount.Caption := lblCount.Caption + IntToStr(FOriginRows.Count);
 end;
 
-procedure TViewFrm.vtLogDblClick(Sender: TObject);
+procedure TViewFrm.vtLogClick(Sender: TObject);
+var
+  vVST: TVirtualStringTree;
+  vNode: PVirtualNode;
+  vRowText: WideString;
+  vPos: TPoint;
+  vCellRect: TRect;
+  vMargin: Integer;
+  function TextAt(const AX: Integer): string;
+  var
+    c, i: Integer;
+    vStr: string;
+  begin
+    c := 0; i := 1; vStr := '';
+    while c < AX do
+    begin
+      vStr := vStr + vRowText[i];
+      c := vVST.Canvas.TextWidth(vStr);
+      Inc(i);
+    end;
+    Dec(i);
+    while (i > 1) and (Pos(vRowText[i], cSelectableSymbols) > 0) do
+      Dec(i);
+    Result := Copy(vRowText, i + 1, Length(vRowText)); // cut from left
+    i := 1;
+    while (i < Length(Result)) and (Pos(Result[i], cSelectableSymbols) > 0) do
+      Inc(i);
+    Result := Copy(Result, 0, i - 1); // cut from right
+  end;
 begin
-  FSelectedWord := 'Application';
+  if not (Sender is TVirtualStringTree) then Exit;
+  
+  vVST := TVirtualStringTree(Sender);
+  vPos := vVST.ScreenToClient(Mouse.CursorPos);
+  vNode := vVST.GetNodeAt(vPos.X, vPos.Y);
+  vVST.GetTextInfo(vNode, 1, vVST.Font, vCellRect, vRowText);
+  vMargin := vVST.Margin + vVST.TextMargin;
+
+  FSelectedWord := TextAt(vPos.X - vCellRect.Left);
   vtLog.Invalidate;
+  vtFullLog.Invalidate;
 end;
 
 end.

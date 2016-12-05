@@ -246,6 +246,7 @@ object ViewFrm: TViewFrm
             TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection, toShowFilteredNodes]
             TreeOptions.SelectionOptions = [toFullRowSelect, toMiddleClickSelect, toMultiSelect, toRightClickSelect]
             OnBeforeCellPaint = vtFullLogBeforeCellPaint
+            OnClick = vtLogClick
             OnDblClick = vtFullLogDblClick
             OnEditing = vtFullLogEditing
             OnEnter = vtLogEnter
@@ -298,7 +299,7 @@ object ViewFrm: TViewFrm
         TreeOptions.SelectionOptions = [toFullRowSelect, toMiddleClickSelect, toMultiSelect, toRightClickSelect]
         Visible = False
         OnBeforeCellPaint = vtFullLogBeforeCellPaint
-        OnDblClick = vtLogDblClick
+        OnClick = vtLogClick
         OnEditing = vtFullLogEditing
         OnEnter = vtLogEnter
         OnGetText = vtFullLogGetText
