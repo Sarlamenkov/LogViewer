@@ -5,7 +5,8 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, VirtualTrees, ComCtrls, ActnList,
-  ViewFrame, StructsUnit, ShellAPI, StdCtrls, Menus, ImgList, ToolWin;
+  ViewFrame, StructsUnit, ShellAPI, StdCtrls, Menus, ImgList, ToolWin,
+  TagListFrame;
 
 const
   WM_CommandArrived = WM_USER + 1;  
@@ -17,22 +18,9 @@ type
   end;
 
   TMainFm = class(TForm)
-    pnlLeft: TPanel;
-    vtTags: TVirtualStringTree;
-    ToolBar2: TToolBar;
-    ToolButton2: TToolButton;
-    ToolButton3: TToolButton;
-    ToolButton5: TToolButton;
     Splitter1: TSplitter;
-    ActionList2: TActionList;
-    actAdd: TAction;
-    actEdit: TAction;
-    actDelete: TAction;
-    actCloseTab: TAction;
-    edSkipText: TEdit;
-    Label1: TLabel;
     dlgOpen1: TOpenDialog;
-    mm1: TMainMenu;
+    MainMenu: TMainMenu;
     File1: TMenuItem;
     Options1: TMenuItem;
     About1: TMenuItem;
@@ -41,32 +29,13 @@ type
     Exit1: TMenuItem;
     Closecurrent1: TMenuItem;
     Closeall1: TMenuItem;
-    pnl1: TPanel;
-    il1: TImageList;
-    pm1: TPopupMenu;
-    miUncheckAll: TMenuItem;
-    miCheckAll: TMenuItem;
     PageControl1: TPageControl;
-
-    procedure vtTagsGetNodeDataSize(Sender: TBaseVirtualTree;
-      var NodeDataSize: Integer);
-    procedure vtTagsChecking(Sender: TBaseVirtualTree; Node: PVirtualNode;
-      var NewState: TCheckState; var Allowed: Boolean);
+    tlTags: TTagListFrm;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-
-    procedure actAddExecute(Sender: TObject);
     procedure actCloseTabExecute(Sender: TObject);
-    procedure actDeleteExecute(Sender: TObject);
-    procedure actEditExecute(Sender: TObject);
-
-    procedure edSkipTextChange(Sender: TObject);
-    procedure vtTagsBeforeCellPaint(Sender: TBaseVirtualTree;
-      TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
-      CellPaintMode: TVTCellPaintMode; CellRect: TRect;
-      var ContentRect: TRect);
     procedure PageControl1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure btn3Click(Sender: TObject);
@@ -74,38 +43,26 @@ type
     procedure Closeall1Click(Sender: TObject);
     procedure About1Click(Sender: TObject);
     procedure Options1Click(Sender: TObject);
-    procedure vtTagsResize(Sender: TObject);
-    procedure miCheckAllClick(Sender: TObject);
-    procedure miUncheckAllClick(Sender: TObject);
-    procedure vtTagsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
     procedure PageControl1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+
   private
-    FTags: TTagList;
-    procedure FillTags;
-    function GetSelectedTag: TTagInfo;
     procedure ActivateTab(const AFileName: string);
-    procedure CloseCurrentTab;
+    procedure CloseCurrentTab(const AQuick: Boolean = False);
     procedure ActualizeCurrentView;
     procedure WMCommandArrived(var AMessage: TMessage); message WM_CommandArrived;
     procedure GoToForeground;
     function ReadStringFromMailslot: string;
     procedure UpdateCaption(const AFileName: string);
-    procedure SaveOptions;
-    procedure LoadOptions;
-    procedure CheckAll(const ACheck: Boolean);
+    procedure RefillFileNames;
+    procedure OnChangeTag;
   protected
     procedure WMDropFiles(var Msg: TMessage); message wm_DropFiles;
   public
   end;
 
-  TNodeData = record
-    Data: TTagInfo;
-    GroupName: string;
-  end;
 
 var
   MainFm: TMainFm;
@@ -116,7 +73,7 @@ implementation
 {$R *.dfm}
 
 uses
-  uConsts, EditTagForm, uGraphicUtils, AboutForm, IniFiles, OptionsForm;
+  uConsts, EditTagForm, AboutForm, IniFiles, OptionsForm;
 
 { TEventWaitThread }
 
@@ -130,124 +87,36 @@ begin
   end;
 end;
 
-function CheckState(const AValue: Boolean): TCheckState;
-begin
-  if AValue then
-    Result := csCheckedNormal
-  else
-    Result := csUncheckedNormal;  
-end;
-
-procedure TMainFm.FillTags;
-var
-  i: Integer;
-  vTag: TTagInfo;
-  vNode: PVirtualNode;
-  vNodeData: ^TNodeData;
-  function GetNodeByGroup: PVirtualNode;
-  var
-    vN, vGroupNode: PVirtualNode;
-  begin
-    if vTag.GroupName = '' then
-      Result := vtTags.AddChild(nil)
-    else
-    begin
-      vN := vtTags.GetFirst;
-      while Assigned(vN) do  //find group node
-      begin
-        vNodeData := vtTags.GetNodeData(vN);
-        if vNodeData.GroupName = vTag.GroupName then
-        begin
-          vGroupNode := vN;
-          Break;
-        end;
-        vN := vtTags.GetNext(vN);
-      end;
-      if vN = nil then //group node not found
-      begin
-        vGroupNode := vtTags.AddChild(nil);
-        vGroupNode.CheckType := ctTriStateCheckBox;
-        vNodeData := vtTags.GetNodeData(vGroupNode);
-        vNodeData.GroupName := vTag.GroupName;
-      end;
-      Result := vtTags.AddChild(vGroupNode);
-    end;
-  end;
-begin
-  vtTags.Clear;
-  for i := 0 to FTags.Count - 1 do
-  begin
-    vTag := FTags[i];
-    vNode := GetNodeByGroup;
-    vNode.CheckType := ctTriStateCheckBox;
-    vNode.CheckState := CheckState(vTag.Enabled);
-    vNodeData := vtTags.GetNodeData(vNode);
-    vNodeData.Data := vTag;
-  end;
-  vtTags.FullExpand;
-end;
-
 procedure TMainFm.FormShow(Sender: TObject);
+var
+  i: Integer; 
 begin
   UpdateCaption('');
   gSettingsFileName := ExtractFilePath(Application.ExeName) + 'settings.ini';
-  FTags := TTagList.Create;
-  FTags.Load;
-  edSkipText.Text := FTags.SkipText;
-  FillTags;
+  Options.LoadOptions;
+  tlTags.Init('tags');
+  tlTags.OnChangeTag := OnChangeTag;
+  for i := 0 to Options.FileNames.Count - 1 do
+    ActivateTab(Options.FileNames[i]);
+
   if ParamCount > 0 then
     ActivateTab(ParamStr(1));
   TEventWaitThread.Create(False);
-  LoadOptions;
 end;
 
-procedure TMainFm.actAddExecute(Sender: TObject);
+procedure TMainFm.RefillFileNames;
 var
-  vTag: TTagInfo;
+  i: Integer;
 begin
-  vTag := TTagInfo.Create('', True, clHighlight, '');
-  if not EditTagFm.Edit(vTag) then
-  begin
-    vTag.Free;
-    Exit;
-  end;
-
-  FTags.Add(vTag);
-  try
-    FTags.Save; // могли добавить некорректный тэг, должна быть возможность его удалить потом
-  finally
-    FillTags;
-    ActualizeCurrentView;
-  end;
-end;
-
-procedure TMainFm.vtTagsGetNodeDataSize(Sender: TBaseVirtualTree;
-  var NodeDataSize: Integer);
-begin
-  NodeDataSize := SizeOf(TNodeData);
-end;
-
-procedure TMainFm.vtTagsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
-  TextType: TVSTTextType; var CellText: WideString);
-var
-  vNodeData: ^TNodeData;
-  vTag: TTagInfo;
-begin
-  vNodeData := vtTags.GetNodeData(Node);
-  vTag := vNodeData.Data;
-  if vTag = nil then
-    CellText := vNodeData.GroupName
-  else
-    CellText := vTag.Name;
+  Options.FileNames.Clear;
+  for i := 0 to PageControl1.PageCount - 1 do
+    Options.FileNames.Add(TViewFrm(PageControl1.Pages[i].Tag).FileName);
 end;
 
 procedure TMainFm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  try
-    if (FTags.SaveOnExit) then
-      FTags.Save;
-  except;
-  end;  
+  RefillFileNames;
+  Options.SaveOptions;
 end;
 
 procedure TMainFm.ActivateTab(const AFileName: string);
@@ -287,56 +156,13 @@ begin
   vPrevCursor := Screen.Cursor;
   Screen.Cursor := crHourGlass;
   try
-    vView.Init(AFileName, FTags);
+    vView.Init(AFileName, tlTags.Tags);
   finally
     Screen.Cursor := vPrevCursor;
   end;
   PageControl1.ActivePage := vTabSheet;
   
   UpdateCaption(vView.FileName);
-end;
-
-procedure TMainFm.vtTagsChecking(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; var NewState: TCheckState; var Allowed: Boolean);
-var
-  vNodeData: ^TNodeData;
-  vTag: TTagInfo;
-begin
-  vNodeData := vtTags.GetNodeData(Node);
-  vTag := vNodeData.Data;
-  if Assigned(vTag) then
-  begin
-    vTag.Enabled := not(NewState = csUncheckedNormal);
-    ActualizeCurrentView;
-  end;
-end;
-
-procedure TMainFm.actEditExecute(Sender: TObject);
-var
-  vTag: TTagInfo;
-begin
-  vTag := GetSelectedTag;
-  if vTag = nil then Exit;
-
-  if EditTagFm.Edit(vTag) then
-  begin
-    FTags.Save;
-    FillTags;
-    ActualizeCurrentView;
-  end;  
-end;
-
-function TMainFm.GetSelectedTag: TTagInfo;
-var
-  vNodeData: ^TNodeData;
-  vNode: PVirtualNode;
-begin
-  Result := nil;
-  vNode := vtTags.FocusedNode;
-  if vNode = nil then Exit;
-
-  vNodeData := vtTags.GetNodeData(vtTags.FocusedNode);
-  Result := vNodeData.data;
 end;
 
 procedure TMainFm.WMDropFiles(var Msg: TMessage);
@@ -354,7 +180,7 @@ begin
     ActivateTab(vFile);
   end;
   DragFinish(THandle(Msg.WParam));
-  SaveOptions;
+//  SaveOptions;
 end;
 
 procedure TMainFm.FormCreate(Sender: TObject);
@@ -362,31 +188,23 @@ begin
   DragAcceptFiles(Handle, True); // разрешаем форме принимать файлы
 end;
 
-procedure TMainFm.CloseCurrentTab;
+procedure TMainFm.CloseCurrentTab(const AQuick: Boolean = False);
 begin
   if PageControl1.PageCount = 0 then Exit;
 
   TViewFrm(PageControl1.ActivePage.Tag).Deinit;
   TViewFrm(PageControl1.ActivePage.Tag).Free;
   PageControl1.ActivePage.Free;
-  ActualizeCurrentView;
-  SaveOptions;
+  if not AQuick then
+  begin
+    ActualizeCurrentView;
+    Options.SaveOptions;
+  end;  
 end;
 
 procedure TMainFm.actCloseTabExecute(Sender: TObject);
 begin
   CloseCurrentTab;
-end;
-
-procedure TMainFm.actDeleteExecute(Sender: TObject);
-begin
-  if Application.MessageBox(PChar('Delete tag?'), PChar('Confirm'), MB_YESNO) = ID_YES then
-  begin
-    FTags.Remove(GetSelectedTag);
-    FTags.Save;
-    FillTags;
-    ActualizeCurrentView;  
-  end;
 end;
 
 procedure TMainFm.ActualizeCurrentView;
@@ -401,33 +219,6 @@ begin
   vView := TViewFrm(PageControl1.ActivePage.Tag);
   vView.Actualize;
   UpdateCaption(vView.FileName);
-end;
-
-procedure TMainFm.edSkipTextChange(Sender: TObject);
-begin
-  FTags.SkipText := edSkipText.Text;
-  ActualizeCurrentView;
-end;
-
-procedure TMainFm.vtTagsBeforeCellPaint(Sender: TBaseVirtualTree;
-  TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
-  CellPaintMode: TVTCellPaintMode; CellRect: TRect;
-  var ContentRect: TRect);
-var
-  vNodeData: ^TNodeData;
-  vRect: TRect;
-begin
-  vNodeData := vtTags.GetNodeData(Node);
-  if Assigned(vNodeData.Data) and vNodeData.Data.Enabled then
-  begin
-    vRect := vtTags.GetDisplayRect(Node, Column, True);
-    CellRect.Left := vRect.Left;
-    CellRect.Right := vRect.Right;
-    FillGradientRoundRect(TargetCanvas, CellRect,
-      CalcBrightColor(vNodeData.Data.Color, 85),//RGB(207, 221, 204),
-      CalcBrightColor(vNodeData.Data.Color, 70), //RGB(207, 221, 204),
-      vNodeData.Data.Color);
-  end;
 end;
 
 procedure TMainFm.WMCommandArrived(var AMessage: TMessage);
@@ -448,7 +239,7 @@ begin
     end;
     Letter := ReadStringFromMailslot;
   end;
-  SaveOptions;
+//  SaveOptions;
 end;
 
 procedure TMainFm.GoToForeground;
@@ -513,7 +304,8 @@ begin
   for i := 0 to dlgOpen1.Files.Count - 1 do
     ActivateTab(dlgOpen1.Files[i]);
 
-  SaveOptions;  
+  RefillFileNames;
+  Options.SaveOptions;
 end;
 
 procedure TMainFm.UpdateCaption(const AFileName: string);
@@ -532,7 +324,9 @@ end;
 procedure TMainFm.Closeall1Click(Sender: TObject);
 begin
   while PageControl1.PageCount > 0 do
-    CloseCurrentTab;
+    CloseCurrentTab(True);
+  RefillFileNames;
+  Options.SaveOptions;  
 end;
 
 procedure TMainFm.About1Click(Sender: TObject);
@@ -540,78 +334,13 @@ begin
   AboutFm.ShowModal;
 end;
 
-procedure TMainFm.LoadOptions;
-var
-  vIni: TIniFile;
-  vNames: TStringList;
-  i: Integer;
-begin
-  vIni := TIniFile.Create(gSettingsFileName);
-  vNames := TStringList.Create;
-  vIni.ReadSection('files', vNames);
-  for i := 0 to vNames.Count - 1 do
-    ActivateTab(vIni.ReadString('files', vNames[i], ''));
-  vNames.Free;
-  vIni.Free;
-end;
-
-procedure TMainFm.SaveOptions;
-var
-  vIni: TIniFile;
-  i: Integer;
-begin
-  vIni := TIniFile.Create(gSettingsFileName);
-  vIni.EraseSection('files');
-  for i := 0 to PageControl1.PageCount - 1 do
-    vIni.WriteString('files', 'file' + IntToStr(i), TViewFrm(PageControl1.Pages[i].Tag).FileName);
-  vIni.Free;
-end;
-
 procedure TMainFm.Options1Click(Sender: TObject);
 begin
-  if OptionsFm.Edit(FTags) then
+  if OptionsFm.Edit then
   begin
-    FTags.Save;
+    Options.SaveOptions;
     ActualizeCurrentView;
   end;
-end;
-
-procedure TMainFm.vtTagsResize(Sender: TObject);
-begin
-  vtTags.Header.Columns[0].Width := vtTags.Width - 4;
-end;
-
-procedure TMainFm.CheckAll(const ACheck: Boolean);
-var
-  vNode: PVirtualNode;
-  vNodeData: ^TNodeData;
-  vTag: TTagInfo;
-begin
-  vNode := vtTags.GetFirst;
-  while Assigned(vNode) do
-  begin
-    vNodeData := vtTags.GetNodeData(vNode);
-    vTag := vNodeData.Data;
-    if Assigned(vTag) then
-      vTag.Enabled := ACheck;
-    if ACheck then
-      vNode.CheckState := csCheckedNormal
-    else
-      vNode.CheckState := csUncheckedNormal;
-    vNode := vtTags.GetNext(vNode);
-  end;
-  vtTags.Invalidate;
-  ActualizeCurrentView;
-end;
-
-procedure TMainFm.miCheckAllClick(Sender: TObject);
-begin
-  CheckAll(True);
-end;
-
-procedure TMainFm.miUncheckAllClick(Sender: TObject);
-begin
-  CheckAll(False);
 end;
 
 procedure TMainFm.FormKeyDown(Sender: TObject; var Key: Word;
@@ -621,6 +350,11 @@ begin
   begin
     TViewFrm(PageControl1.ActivePage.Tag).SwitchFilter;
   end;
+end;
+
+procedure TMainFm.OnChangeTag;
+begin
+  ActualizeCurrentView;
 end;
 
 initialization

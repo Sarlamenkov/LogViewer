@@ -22,7 +22,7 @@ type
     procedure SetFont(AFont: TFont);
     { Private declarations }
   public
-    function Edit(const AOptions: TTagList): Boolean;
+    function Edit: Boolean;
   end;
 
 var
@@ -36,23 +36,23 @@ uses SysUtils;
 
 { TOptionsFm }
 
-function TOptionsFm.Edit(const AOptions: TTagList): Boolean;
+function TOptionsFm.Edit: Boolean;
 begin
-  dlgFont1.Font.Name := AOptions.FontName;
-  dlgFont1.Font.Size := AOptions.FontSize;
+  dlgFont1.Font.Name := Options.FontName;
+  dlgFont1.Font.Size := Options.FontSize;
   SetFont(dlgFont1.Font);
-  chkCaseSensitive.Checked := AOptions.CaseSens;
-  chkTwoWindow.Checked := AOptions.TwoWindow;
-  chkSaveOnExit.Checked := AOptions.SaveOnExit;
+  chkCaseSensitive.Checked := Options.CaseSens;
+  chkTwoWindow.Checked := Options.TwoWindow;
+  chkSaveOnExit.Checked := Options.SaveOnExit;
   Result := ShowModal = mrOk;
   if Result then
   begin
-    AOptions.FontName := dlgFont1.Font.Name;
-    AOptions.FontSize := dlgFont1.Font.Size;
-    AOptions.CaseSens := chkCaseSensitive.Checked;
-    AOptions.TwoWindow := chkTwoWindow.Checked;
-    AOptions.SaveOnExit := chkSaveOnExit.Checked;
-    ShowMessage('The changes will be applied after program restart');
+    Options.FontName := dlgFont1.Font.Name;
+    Options.FontSize := dlgFont1.Font.Size;
+    Options.CaseSens := chkCaseSensitive.Checked;
+    Options.TwoWindow := chkTwoWindow.Checked;
+    Options.SaveOnExit := chkSaveOnExit.Checked;
+ //   ShowMessage('The changes will be applied after program restart');
   end;
 end;
 

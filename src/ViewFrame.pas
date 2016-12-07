@@ -109,13 +109,13 @@ begin
   FOriginRows := TMyStringList.Create;
   FOriginRows.LoadFromFile(AFileName);
   FFindNextNode := nil;
-  vtLog.Font.Name := ATags.FontName;
-  vtLog.Font.Size := ATags.FontSize;
-  vtFullLog.Font.Name := ATags.FontName;
-  vtFullLog.Font.Size := ATags.FontSize;
-  vrtlstrngtrFullLog2.Font.Name := ATags.FontName;
-  vrtlstrngtrFullLog2.Font.Size := ATags.FontSize;
-  chkTwoWindows.Checked := ATags.TwoWindow;
+  vtLog.Font.Name := Options.FontName;
+  vtLog.Font.Size := Options.FontSize;
+  vtFullLog.Font.Name := Options.FontName;
+  vtFullLog.Font.Size := Options.FontSize;
+  vrtlstrngtrFullLog2.Font.Name := Options.FontName;
+  vrtlstrngtrFullLog2.Font.Size := Options.FontSize;
+  chkTwoWindows.Checked := Options.TwoWindow;
 
   Actualize;
 end;
@@ -170,7 +170,7 @@ var
   begin
     if Length(ASelText) > 0 then
     begin
-      if FTags.CaseSens then
+      if Options.CaseSens then
         vPos := Pos(ASelText, vText)
       else
         vPos := Pos(UpperCase(ASelText), UpperCase(vText));
@@ -183,7 +183,7 @@ var
         TargetCanvas.Pen.Color := AColor;
         TargetCanvas.RoundRect(vRect.Left, vRect.Top + 1, vRect.Right, vRect.Bottom - 1, 5, 5);
 //        FillGradientRoundRect(TargetCanvas, vRect, CalcBrightColor(AColor, 90), CalcBrightColor(AColor, 70), AColor);
-        if FTags.CaseSens then
+        if Options.CaseSens then
           vPos := PosEx(ASelText, vText, vPos + 1)
         else
           vPos := PosEx(UpperCase(ASelText), UpperCase(vText), vPos + 1);
@@ -271,7 +271,7 @@ begin
       row := vNode.Index
     else
       row := GetRowNumber(vNode.Index);
-    if FTags.CaseSens then
+    if Options.CaseSens then
       vPos := Pos(AText, FOriginRows[row])
     else
       vPos := Pos(UpperCase(AText), UpperCase(FOriginRows[row]));
@@ -490,9 +490,9 @@ end;
 
 procedure TViewFrm.chkTwoWindowsClick(Sender: TObject);
 begin
-  FTags.TwoWindow := chkTwoWindows.Checked;
-  vtLog.Visible := FTags.TwoWindow;
-  spl1.Visible := FTags.TwoWindow;
+  Options.TwoWindow := chkTwoWindows.Checked;
+  vtLog.Visible := Options.TwoWindow;
+  spl1.Visible := Options.TwoWindow;
   spl1.Top := vtLog.Top + vtLog.Height + 2;
   if vtLog.Visible then
   begin

@@ -11,7 +11,8 @@ uses
   uGraphicUtils in 'uGraphicUtils.pas',
   AboutForm in 'AboutForm.pas' {AboutFm},
   uConsts in 'uConsts.pas',
-  OptionsForm in 'OptionsForm.pas' {OptionsFm};
+  OptionsForm in 'OptionsForm.pas' {OptionsFm},
+  TagListFrame in 'TagListFrame.pas' {TagListFrm: TFrame};
 
 {$R *.res}
 
@@ -60,10 +61,10 @@ begin
     Application.Initialize;
     Application.Title := 'Log Viewer';
     Application.CreateForm(TMainFm, MainFm);
-    Application.CreateForm(TEditTagFm, EditTagFm);
-    Application.CreateForm(TAboutFm, AboutFm);
-    Application.CreateForm(TOptionsFm, OptionsFm);
-    Application.Run;
+  Application.CreateForm(TEditTagFm, EditTagFm);
+  Application.CreateForm(TAboutFm, AboutFm);
+  Application.CreateForm(TOptionsFm, OptionsFm);
+  Application.Run;
     CloseHandle(ServerMailslotHandle);
     CloseHandle(CommandEvent);
   end;

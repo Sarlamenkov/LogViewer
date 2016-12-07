@@ -26,14 +26,10 @@ type
 
   TTagList = class
   private
+    FSectionName: string;
     FList: TList;
     FActiveTags: TList;
     FSkip: TStringList;
-    FCaseSens: Boolean;
-    FFontName: String;
-    FFontSize: Integer;
-    FTwoWindow: Boolean;
-    FSaveOnExit: Boolean;
     function GetItem(const AIndex: Integer): TTagInfo;
     function GetSkipText: string;
     procedure SetSkipText(const Value: string);
@@ -41,7 +37,7 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure Load;
+    procedure Load(const ASectionName: string);
     procedure Save;
 
     procedure Add(const ATagInfo: TTagInfo);
@@ -55,11 +51,25 @@ type
     property Items[const AIndex: Integer]: TTagInfo read GetItem; default;
     property SkipText: string read GetSkipText write SetSkipText;
     property Skip: TStringList read FSkip;
-    property FontName: String read FFontName write FFontName;
-    property FontSize: Integer read FFontSize write FFontSize;
-    property CaseSens: Boolean read FCaseSens write FCaseSens;
-    property TwoWindow: Boolean read FTwoWindow write FTwoWindow;
-    property SaveOnExit: Boolean read FSaveOnExit write FSaveOnExit;
+  end;
+
+  TOptions = class
+  private
+    FFileNames: TStrings;
+  public
+    CaseSens: Boolean;
+    FontName: string;
+    FontSize: Integer;
+    TwoWindow: Boolean;
+    SaveOnExit: Boolean;
+
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure SaveOptions;
+    procedure LoadOptions;
+
+    property FileNames: TStrings read FFileNames;
   end;
 
   TMyStringList = class (TStringList)
@@ -67,8 +77,15 @@ type
     procedure LoadFromStream(Stream: TStream); override;
   end;
 
+  TNodeData = record
+    Data: TTagInfo;
+    GroupName: string;
+  end;
+
 var
   gSettingsFileName: string;
+
+function Options: TOptions;
 
 implementation
 
@@ -78,6 +95,16 @@ uses
 const
   cLeftBrace = '(_';
   cRightBrace = '_)';
+
+var
+  gOptions: TOptions;
+
+function Options: TOptions;
+begin
+  if gOptions = nil then
+    gOptions := TOptions.Create;
+  Result := gOptions;  
+end;
 
 { TTagInfo }
 
@@ -171,12 +198,12 @@ var
   tagName: string;
 begin
   Result := nil;
-  if not FCaseSens then
+  if not Options.CaseSens then
     ATextRow := UpperCase(ATextRow);
   for i := 0 to FActiveTags.Count - 1 do
   begin
     tagName := TTagInfo(FActiveTags[i]).Name;
-    if not FCaseSens then
+    if not Options.CaseSens then
       tagName := UpperCase(tagName);
     if Pos(tagName, ATextRow) > 0 then
     begin
@@ -186,7 +213,7 @@ begin
   end;
 end;
 
-procedure TTagList.Load;
+procedure TTagList.Load(const ASectionName: string);
 var
   i: Integer;
   vIni: TMemIniFile;
@@ -195,17 +222,19 @@ var
 begin
   if not FileExists(gSettingsFileName) then Exit;
 
+  FSectionName := ASectionName;
+
   FList.Clear;
 
   vIni := TMemIniFile.Create(gSettingsFileName);
   vValues := TStringList.Create;
   vSplit := TStringList.Create;
   vSplit.Delimiter := ';';
-  vIni.ReadSection('tags', vValues);
+  vIni.ReadSection(FSectionName, vValues);
   for i := 0 to vValues.Count - 1 do
   begin
     vName := vValues[i];
-    vSplit.DelimitedText := vIni.ReadString('tags', vName, '0;0;[dt]');
+    vSplit.DelimitedText := vIni.ReadString(FSectionName, vName, '0;0;[dt]');
     if (Pos(cLeftBrace, vName) > 0) or (Pos(cRightBrace, vName) > 0) then
     begin
       vName := AnsiReplaceText(vName, cLeftBrace, '[');
@@ -213,12 +242,6 @@ begin
     end;
     Add(TTagInfo.Create(vName, vSplit[0] = '1', StrToIntDef(vSplit[1], 0), vSplit[2]));
   end;
-
-  FFontName := vIni.ReadString('options', 'font', 'Courier');
-  FFontSize := vIni.ReadInteger('options', 'font_size', 8);
-  FCaseSens := vIni.ReadBool('options', 'case_sens', False);
-  FTwoWindow := vIni.ReadBool('options', 'two_window', False);
-  FSaveOnExit := True;
 
   vIni.Free;
   vValues.Free;
@@ -245,7 +268,7 @@ var
 begin
   vIni := TIniFile.Create(gSettingsFileName);
 
-  vIni.EraseSection('tags');
+  vIni.EraseSection(FSectionName);
 
   for i := 0 to FList.Count - 1 do
   begin
@@ -255,13 +278,8 @@ begin
       vName := AnsiReplaceText(vName, '[', cLeftBrace);
       vName := AnsiReplaceText(vName, ']', cRightBrace);
     end;
-    vIni.WriteString('tags', vName, IfThen(Items[i].Enabled, '1', '0') + ';' + IntToStr(Items[i].Color) + ';' + Items[i].GroupName);
+    vIni.WriteString(FSectionName, vName, IfThen(Items[i].Enabled, '1', '0') + ';' + IntToStr(Items[i].Color) + ';' + Items[i].GroupName);
   end;
-
-  vIni.WriteString('options', 'font', FFontName);
-  vIni.WriteInteger('options', 'font_size', FFontSize);
-  vIni.WriteBool('options', 'case_sens', FCaseSens);
-  vIni.WriteBool('options', 'two_window', FTwoWindow);
 
   vIni.Free;
 end;
@@ -300,6 +318,53 @@ begin
   finally
     EndUpdate;
   end;
+end;
+
+{ TOptions }
+
+constructor TOptions.Create;
+begin
+  FFileNames := TStringList.Create;
+end;
+
+destructor TOptions.Destroy;
+begin
+  FreeAndNil(FFileNames);
+  inherited;
+end;
+
+procedure TOptions.LoadOptions;
+var
+  vIni: TIniFile;
+  i: Integer;
+begin
+  vIni := TIniFile.Create(gSettingsFileName);
+
+  FontName := vIni.ReadString('options', 'font', 'Courier');
+  FontSize := vIni.ReadInteger('options', 'font_size', 8);
+  CaseSens := vIni.ReadBool('options', 'case_sens', False);
+  TwoWindow := vIni.ReadBool('options', 'two_window', False);
+  SaveOnExit := True;
+
+  vIni.ReadSection('files', FFileNames);
+  vIni.Free;
+end;
+
+procedure TOptions.SaveOptions;
+var
+  vIni: TIniFile;
+  i: Integer;
+begin
+  vIni := TIniFile.Create(gSettingsFileName);
+  vIni.WriteString('options', 'font', FontName);
+  vIni.WriteInteger('options', 'font_size', FontSize);
+  vIni.WriteBool('options', 'case_sens', CaseSens);
+  vIni.WriteBool('options', 'two_window', TwoWindow);
+
+  vIni.EraseSection('files');
+  for i := 0 to FFileNames.Count - 1 do
+    vIni.WriteString('files', 'file' + IntToStr(i), FFileNames[i]);
+  vIni.Free;
 end;
 
 end.
