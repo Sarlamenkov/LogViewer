@@ -6,14 +6,15 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, VirtualTrees, ComCtrls, ToolWin, ActnList, ImgList,
 
-  StructsUnit, StdCtrls, ExtCtrls, Menus;
+  StructsUnit, StdCtrls, ExtCtrls, Menus, CheckLst;
 
 type
   TTagChangeEvent = procedure() of object;
+  TSortType = (stAlphaSort, stCheckedSort, stNoSort);
 
   TTagListFrm = class(TFrame)
     ImageList: TImageList;
-    actlst1: TActionList;
+    alEdit: TActionList;
     actAdd: TAction;
     actEdit: TAction;
     actDelete: TAction;
@@ -29,6 +30,18 @@ type
     pm1: TPopupMenu;
     miCheckAll: TMenuItem;
     miUncheckAll: TMenuItem;
+    pgc1: TPageControl;
+    ts1: TTabSheet;
+    ts2: TTabSheet;
+    chklst1: TCheckListBox;
+    tlb2: TToolBar;
+    alSort: TActionList;
+    actAlphabeticalSort: TAction;
+    actCheckedSort: TAction;
+    actNoSort: TAction;
+    btnAlphabeticalSort: TToolButton;
+    btnCheckedSort: TToolButton;
+    btnNoSort: TToolButton;
     procedure actAddExecute(Sender: TObject);
     procedure vtTagsGetNodeDataSize(Sender: TBaseVirtualTree;
       var NodeDataSize: Integer);
@@ -47,10 +60,20 @@ type
     procedure miCheckAllClick(Sender: TObject);
     procedure miUncheckAllClick(Sender: TObject);
     procedure edSkipTextChange(Sender: TObject);
+    procedure actAlphabeticalSortExecute(Sender: TObject);
+    procedure actCheckedSortExecute(Sender: TObject);
+    procedure chklst1ClickCheck(Sender: TObject);
   private
     FTags: TTagList;
+    FSortedTags: TList;//array of Integer;
+    FSort: TSortType;
     FOnChangeTag: TTagChangeEvent;
-    procedure FillTags;
+    procedure FillTreeTags;
+    procedure FillListTags;
+    procedure Sort;
+    procedure ReallocSortedTags;
+    procedure SyncTreeChecks;
+    procedure SyncListChecks;    
     function GetSelectedTag: TTagInfo;
     procedure CheckAll(const ACheck: Boolean);
     procedure DoOnChangeTag;
@@ -79,7 +102,7 @@ begin
     Result := csUncheckedNormal;
 end;
 
-procedure TTagListFrm.FillTags;
+procedure TTagListFrm.FillTreeTags;
 var
   i: Integer;
   vTag: TTagInfo;
@@ -116,6 +139,7 @@ var
   end;
 begin
   vtTags.Clear;
+  chklst1.Clear;
   for i := 0 to FTags.Count - 1 do
   begin
     vTag := FTags[i];
@@ -124,8 +148,13 @@ begin
     vNode.CheckState := CheckState(vTag.Enabled);
     vNodeData := vtTags.GetNodeData(vNode);
     vNodeData.Data := vTag;
+
+    chklst1.AddItem(vTag.Name, vTag);
+    chklst1.Checked[i] := vTag.Enabled;
   end;
   vtTags.FullExpand;
+
+  FillListTags;
 end;
 
 procedure TTagListFrm.Init(const ATagsSection: string);
@@ -133,8 +162,10 @@ begin
   Deinit;
   FTags := TTagList.Create;
   FTags.Load(ATagsSection);
+  FSortedTags := TList.Create;
   edSkipText.Text := FTags.SkipText;
-  FillTags;
+  ReallocSortedTags;  
+  FillTreeTags;
 end;
 
 procedure TTagListFrm.actAddExecute(Sender: TObject);
@@ -152,7 +183,8 @@ begin
   try
     FTags.Save; // могли добавить некорректный тэг, должна быть возможность его удалить потом
   finally
-    FillTags;
+    ReallocSortedTags;  
+    FillTreeTags;
     DoOnChangeTag;
   end;
 end;
@@ -189,6 +221,7 @@ begin
   if Assigned(vTag) then
   begin
     vTag.Enabled := not(NewState = csUncheckedNormal);
+    SyncListChecks;
     DoOnChangeTag;
   end;
 end;
@@ -203,7 +236,7 @@ begin
   if EditTagFm.Edit(vTag) then
   begin
     FTags.Save;
-    FillTags;
+    FillTreeTags;
     DoOnChangeTag;
   end;
 end;
@@ -227,7 +260,8 @@ begin
   begin
     FTags.Remove(GetSelectedTag);
     FTags.Save;
-    FillTags;
+    ReallocSortedTags;
+    FillTreeTags;
     DoOnChangeTag;
   end;
 end;
@@ -235,6 +269,7 @@ end;
 procedure TTagListFrm.Deinit;
 begin
   FreeAndNil(FTags);
+  FreeAndNil(FSortedTags);
 end;
 
 procedure TTagListFrm.vtTagsBeforeCellPaint(Sender: TBaseVirtualTree;
@@ -306,6 +341,101 @@ procedure TTagListFrm.edSkipTextChange(Sender: TObject);
 begin
   FTags.SkipText := edSkipText.Text;
   DoOnChangeTag;
+end;
+
+procedure TTagListFrm.FillListTags;
+var
+  i: Integer;
+begin
+  chklst1.Clear;
+  for i := 0 to FSortedTags.Count - 1 do
+  begin
+    chklst1.AddItem(TTagInfo(FSortedTags[i]).Name, FSortedTags[i]);
+    chklst1.Checked[i] := TTagInfo(FSortedTags[i]).Enabled;
+  end;
+end;
+
+procedure TTagListFrm.ReallocSortedTags;
+begin
+  FTags.CopyTo(FSortedTags);
+  Sort;
+end;
+
+function SortAlpha(Item1, Item2: Pointer): Integer;
+begin
+  Result := CompareText(TTagInfo(Item1).Name, TTagInfo(Item2).Name);
+end;
+
+function SortChecked(Item1, Item2: Pointer): Integer;
+begin
+  if TTagInfo(Item1).Enabled = TTagInfo(Item2).Enabled then
+    Result := 0
+  else if TTagInfo(Item1).Enabled then
+    Result := -1
+  else
+    Result := 1;  
+end;
+
+procedure TTagListFrm.Sort;
+begin
+  case FSort of
+    stAlphaSort: FSortedTags.Sort(SortAlpha);
+    stCheckedSort: FSortedTags.Sort(SortChecked);
+    stNoSort:;
+  end;  
+end;
+
+procedure TTagListFrm.actAlphabeticalSortExecute(Sender: TObject);
+begin
+  FSort := stAlphaSort;
+  Sort;
+  FillListTags;
+end;
+
+procedure TTagListFrm.actCheckedSortExecute(Sender: TObject);
+begin
+  FSort := stCheckedSort;
+  Sort;
+  FillListTags;
+end;
+
+procedure TTagListFrm.chklst1ClickCheck(Sender: TObject);
+begin
+  TTagInfo(chklst1.Items.Objects[chklst1.ItemIndex]).Enabled := chklst1.Checked[chklst1.ItemIndex];
+  SyncTreeChecks;
+  DoOnChangeTag;
+end;
+
+procedure TTagListFrm.SyncTreeChecks;
+var
+  vNode: PVirtualNode;
+  vNodeData: ^TNodeData;
+  vTag: TTagInfo;
+begin
+  vNode := vtTags.GetFirst;
+  while Assigned(vNode) do
+  begin
+    vNodeData := vtTags.GetNodeData(vNode);
+    vTag := vNodeData.Data;
+    if Assigned(vTag) then
+    begin
+      if vTag.Enabled then
+        vNode.CheckState := csCheckedNormal
+      else
+        vNode.CheckState := csUncheckedNormal;
+    end;    
+    vNode := vtTags.GetNext(vNode);
+  end;
+  vtTags.Invalidate;
+end;
+
+procedure TTagListFrm.SyncListChecks;
+var
+  i: Integer;
+begin
+  for i := 0 to chklst1.Count - 1 do
+    if TTagInfo(chklst1.Items.Objects[i]).Enabled <> chklst1.Checked[i] then
+      chklst1.Checked[i] := TTagInfo(chklst1.Items.Objects[i]).Enabled;
 end;
 
 end.

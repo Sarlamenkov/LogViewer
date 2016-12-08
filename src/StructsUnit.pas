@@ -43,6 +43,7 @@ type
     procedure Add(const ATagInfo: TTagInfo);
     procedure Remove(const ATagInfo: TTagInfo);
 
+    procedure CopyTo(const AList: TList);
     procedure Actualize;
     function DoSkip(const AText: string): string;
 
@@ -146,6 +147,15 @@ end;
 procedure TTagList.Add(const ATagInfo: TTagInfo);
 begin
   FList.Add(ATagInfo);
+end;
+
+procedure TTagList.CopyTo(const AList: TList);
+var
+  i: Integer;
+begin
+  AList.Clear;
+  for i := 0 to FList.Count - 1 do
+    AList.Add(FList[i]);
 end;
 
 function TTagList.Count: Integer;
@@ -336,6 +346,7 @@ end;
 procedure TOptions.LoadOptions;
 var
   vIni: TIniFile;
+  vFiles: TStrings;
   i: Integer;
 begin
   vIni := TIniFile.Create(gSettingsFileName);
@@ -345,9 +356,13 @@ begin
   CaseSens := vIni.ReadBool('options', 'case_sens', False);
   TwoWindow := vIni.ReadBool('options', 'two_window', False);
   SaveOnExit := True;
-
-  vIni.ReadSection('files', FFileNames);
+  vFiles := TStringList.Create;
+  vIni.ReadSectionValues('files', vFiles);
+  FFileNames.Clear;
+  for i := 0 to vFiles.Count - 1 do
+    FFileNames.Add(vFiles.ValueFromIndex[i]);
   vIni.Free;
+  vFiles.Free;
 end;
 
 procedure TOptions.SaveOptions;

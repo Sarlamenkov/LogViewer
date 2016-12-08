@@ -519,7 +519,7 @@ var
   vRowText: WideString;
   vPos: TPoint;
   vCellRect: TRect;
-  vMargin: Integer;
+//  vMargin: Integer;
   function TextAt(const AX: Integer): string;
   var
     c, i: Integer;
@@ -537,7 +537,7 @@ var
       Dec(i);
     Result := Copy(vRowText, i + 1, Length(vRowText)); // cut from left
     i := 1;
-    while (i < Length(Result)) and (Pos(Result[i], cSelectableSymbols) > 0) do
+    while (i < (Length(Result) + 1)) and (Pos(Result[i], cSelectableSymbols) > 0) do
       Inc(i);
     Result := Copy(Result, 0, i - 1); // cut from right
   end;
@@ -547,12 +547,16 @@ begin
   vVST := TVirtualStringTree(Sender);
   vPos := vVST.ScreenToClient(Mouse.CursorPos);
   vNode := vVST.GetNodeAt(vPos.X, vPos.Y);
-  vVST.GetTextInfo(vNode, 1, vVST.Font, vCellRect, vRowText);
-  vMargin := vVST.Margin + vVST.TextMargin;
-
-  FSelectedWord := TextAt(vPos.X - vCellRect.Left);
-  vtLog.Invalidate;
-  vtFullLog.Invalidate;
+  try
+    if vNode = nil then Exit;
+    vVST.GetTextInfo(vNode, 1, vVST.Font, vCellRect, vRowText);
+  //  vMargin := vVST.Margin + vVST.TextMargin;
+    if Length(vRowText) = 0 then Exit;
+    FSelectedWord := TextAt(vPos.X - vCellRect.Left);
+  finally
+    vtLog.Invalidate;
+    vtFullLog.Invalidate;
+  end;   
 end;
 
 end.
