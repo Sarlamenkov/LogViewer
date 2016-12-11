@@ -24,13 +24,15 @@ type
     File1: TMenuItem;
     Options1: TMenuItem;
     About1: TMenuItem;
-    Open1: TMenuItem;
+    miOpen: TMenuItem;
     N1: TMenuItem;
     Exit1: TMenuItem;
     Closecurrent1: TMenuItem;
     Closeall1: TMenuItem;
     PageControl1: TPageControl;
     tlTags: TTagListFrm;
+    miReopen: TMenuItem;
+    N2: TMenuItem;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -56,8 +58,10 @@ type
     procedure GoToForeground;
     function ReadStringFromMailslot: string;
     procedure UpdateCaption(const AFileName: string);
-    procedure RefillFileNames;
+    procedure RefillOpenedFileNames;
+    procedure RefillHistoryFileNames;
     procedure OnChangeTag;
+    procedure OnSelectHistoryFile(Sender: TObject);
   protected
     procedure WMDropFiles(var Msg: TMessage); message wm_DropFiles;
   public
@@ -96,26 +100,28 @@ begin
   Options.LoadOptions;
   tlTags.Init('tags');
   tlTags.OnChangeTag := OnChangeTag;
-  for i := 0 to Options.FileNames.Count - 1 do
-    ActivateTab(Options.FileNames[i]);
+  for i := 0 to Options.OpenedFileNames.Count - 1 do
+    ActivateTab(Options.OpenedFileNames[i]);
 
   if ParamCount > 0 then
     ActivateTab(ParamStr(1));
   TEventWaitThread.Create(False);
+
+  RefillHistoryFileNames;
 end;
 
-procedure TMainFm.RefillFileNames;
+procedure TMainFm.RefillOpenedFileNames;
 var
   i: Integer;
 begin
-  Options.FileNames.Clear;
+  Options.OpenedFileNames.Clear;
   for i := 0 to PageControl1.PageCount - 1 do
-    Options.FileNames.Add(TViewFrm(PageControl1.Pages[i].Tag).FileName);
+    Options.OpenedFileNames.Add(TViewFrm(PageControl1.Pages[i].Tag).FileName);
 end;
 
 procedure TMainFm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  RefillFileNames;
+  RefillOpenedFileNames;
   Options.SaveOptions;
 end;
 
@@ -189,14 +195,21 @@ begin
 end;
 
 procedure TMainFm.CloseCurrentTab(const AQuick: Boolean = False);
+var
+  vView: TViewFrm;
 begin
   if PageControl1.PageCount = 0 then Exit;
 
-  TViewFrm(PageControl1.ActivePage.Tag).Deinit;
-  TViewFrm(PageControl1.ActivePage.Tag).Free;
+  vView := TViewFrm(PageControl1.ActivePage.Tag);
+
+  Options.AddToHistory(vView.FileName);
+
+  vView.Deinit;
+  vView.Free;
   PageControl1.ActivePage.Free;
   if not AQuick then
   begin
+    RefillHistoryFileNames;
     ActualizeCurrentView;
     Options.SaveOptions;
   end;  
@@ -213,7 +226,7 @@ var
 begin
   if PageControl1.ActivePage = nil then
   begin
-    UpdateCaption('');  
+    UpdateCaption('');                        
     Exit;
   end;
   vView := TViewFrm(PageControl1.ActivePage.Tag);
@@ -304,7 +317,7 @@ begin
   for i := 0 to dlgOpen1.Files.Count - 1 do
     ActivateTab(dlgOpen1.Files[i]);
 
-  RefillFileNames;
+  RefillOpenedFileNames;
   Options.SaveOptions;
 end;
 
@@ -325,7 +338,8 @@ procedure TMainFm.Closeall1Click(Sender: TObject);
 begin
   while PageControl1.PageCount > 0 do
     CloseCurrentTab(True);
-  RefillFileNames;
+  RefillOpenedFileNames;
+  RefillHistoryFileNames;
   Options.SaveOptions;  
 end;
 
@@ -355,6 +369,39 @@ end;
 procedure TMainFm.OnChangeTag;
 begin
   ActualizeCurrentView;
+end;
+
+procedure TMainFm.RefillHistoryFileNames;
+var
+  i: Integer;
+  vMI: TMenuItem;
+begin
+//  for i := 0 to miReopen.Count - 1 do
+ //   miReopen.Items[i].Free;
+  miReopen.Clear;
+
+  for i := 0 to Options.HistoryFileNames.Count - 1 do
+  begin
+    vMI := TMenuItem.Create(nil);
+    vMI.OnClick := OnSelectHistoryFile;
+    vMI.Caption := Options.HistoryFileNames[i];
+    vMI.Hint := Options.HistoryFileNames[i];
+    miReopen.Add(vMI);
+  end;
+end;
+
+procedure TMainFm.OnSelectHistoryFile(Sender: TObject);
+var
+  i: Integer;
+begin
+  ActivateTab(TMenuItem(Sender).Hint);
+  i := Options.HistoryFileNames.IndexOf(TMenuItem(Sender).Hint);
+  if i > -1 then
+  begin
+    Options.HistoryFileNames.Delete(i);
+    RefillHistoryFileNames;
+    Options.SaveOptions;
+  end;  
 end;
 
 initialization

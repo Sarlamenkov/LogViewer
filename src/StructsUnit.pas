@@ -56,7 +56,7 @@ type
 
   TOptions = class
   private
-    FFileNames: TStrings;
+    FOpenedFileNames, FHistoryFileNames: TStrings;
   public
     CaseSens: Boolean;
     FontName: string;
@@ -70,7 +70,10 @@ type
     procedure SaveOptions;
     procedure LoadOptions;
 
-    property FileNames: TStrings read FFileNames;
+    procedure AddToHistory(const AFileName: string);
+
+    property OpenedFileNames: TStrings read FOpenedFileNames;
+    property HistoryFileNames: TStrings read FHistoryFileNames;
   end;
 
   TMyStringList = class (TStringList)
@@ -332,14 +335,24 @@ end;
 
 { TOptions }
 
+procedure TOptions.AddToHistory(const AFileName: string);
+begin
+  if HistoryFileNames.IndexOf(AFileName) < 0 then
+    HistoryFileNames.Add(AFileName);
+  if HistoryFileNames.Count > 10 then
+    HistoryFileNames.Delete(0);
+end;
+
 constructor TOptions.Create;
 begin
-  FFileNames := TStringList.Create;
+  FOpenedFileNames := TStringList.Create;
+  FHistoryFileNames := TStringList.Create;
 end;
 
 destructor TOptions.Destroy;
 begin
-  FreeAndNil(FFileNames);
+  FreeAndNil(FHistoryFileNames);
+  FreeAndNil(FOpenedFileNames);
   inherited;
 end;
 
@@ -358,9 +371,15 @@ begin
   SaveOnExit := True;
   vFiles := TStringList.Create;
   vIni.ReadSectionValues('files', vFiles);
-  FFileNames.Clear;
+  FOpenedFileNames.Clear;
   for i := 0 to vFiles.Count - 1 do
-    FFileNames.Add(vFiles.ValueFromIndex[i]);
+    FOpenedFileNames.Add(vFiles.ValueFromIndex[i]);
+
+  vIni.ReadSectionValues('history', vFiles);
+  FHistoryFileNames.Clear;
+  for i := 0 to vFiles.Count - 1 do
+    FHistoryFileNames.Add(vFiles.ValueFromIndex[i]);
+
   vIni.Free;
   vFiles.Free;
 end;
@@ -377,8 +396,13 @@ begin
   vIni.WriteBool('options', 'two_window', TwoWindow);
 
   vIni.EraseSection('files');
-  for i := 0 to FFileNames.Count - 1 do
-    vIni.WriteString('files', 'file' + IntToStr(i), FFileNames[i]);
+  for i := 0 to FOpenedFileNames.Count - 1 do
+    vIni.WriteString('files', 'file' + IntToStr(i), FOpenedFileNames[i]);
+
+  vIni.EraseSection('history');
+  for i := 0 to FHistoryFileNames.Count - 1 do
+    vIni.WriteString('history', 'file' + IntToStr(i), FHistoryFileNames[i]);
+
   vIni.Free;
 end;
 
