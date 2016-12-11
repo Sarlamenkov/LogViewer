@@ -63,6 +63,8 @@ type
     procedure actAlphabeticalSortExecute(Sender: TObject);
     procedure actCheckedSortExecute(Sender: TObject);
     procedure chklst1ClickCheck(Sender: TObject);
+    procedure chklst1DrawItem(Control: TWinControl; Index: Integer;
+      Rect: TRect; State: TOwnerDrawState);
   private
     FTags: TTagList;
     FSortedTags: TList;//array of Integer;
@@ -90,7 +92,7 @@ implementation
 uses
   EditTagForm,
   
-  uGraphicUtils;
+  uGraphicUtils, Types;
 
 {$R *.dfm}
 
@@ -436,6 +438,39 @@ begin
   for i := 0 to chklst1.Count - 1 do
     if TTagInfo(chklst1.Items.Objects[i]).Enabled <> chklst1.Checked[i] then
       chklst1.Checked[i] := TTagInfo(chklst1.Items.Objects[i]).Enabled;
+end;
+
+procedure TTagListFrm.chklst1DrawItem(Control: TWinControl; Index: Integer;
+  Rect: TRect; State: TOwnerDrawState);
+var
+  vList: TCheckListBox;
+  vColor: TColor;
+begin
+  vList := Control as TCheckListBox;
+  vColor := TTagInfo(vList.Items.Objects[Index]).Color;
+  with vList.Canvas, Rect do
+  begin
+    if odSelected in State then
+    begin
+      Brush.Color := clHighlight;
+      Font.Color := clHighlightText;
+    end
+    else
+    begin
+      Brush.Color := clWindow;
+      Font.Color := clWindowText;
+    end;
+   // FillRect(Rect);
+
+    if odFocused in State then Windows.DrawFocusRect(vList.Canvas.Handle, Rect);
+    TextOut(Left + 14, Top, vList.Items[Index]);
+    if TTagInfo(vList.Items.Objects[Index]).Enabled then
+    begin
+      Brush.Color := vColor;
+      RoundRect(Rect.Left + 10, Rect.Top, 14, Rect.Bottom, 3, 3);
+    end;  
+  end;
+///  TCheckListBox(Control).Canvas.TextRect(Rect, 20, 0, chklst1.Items[Index]);
 end;
 
 end.
