@@ -169,6 +169,7 @@ begin
   PageControl1.ActivePage := vTabSheet;
   
   UpdateCaption(vView.FileName);
+  tlTags.UpdateLists;
 end;
 
 procedure TMainFm.WMDropFiles(var Msg: TMessage);
@@ -226,12 +227,13 @@ var
 begin
   if PageControl1.ActivePage = nil then
   begin
-    UpdateCaption('');                        
+    UpdateCaption('');
     Exit;
   end;
   vView := TViewFrm(PageControl1.ActivePage.Tag);
   vView.Actualize;
   UpdateCaption(vView.FileName);
+  tlTags.UpdateLists;
 end;
 
 procedure TMainFm.WMCommandArrived(var AMessage: TMessage);

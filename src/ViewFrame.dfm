@@ -64,9 +64,9 @@ object ViewFrm: TViewFrm
         OnClick = chkFilteredClick
       end
       object btn1: TButton
-        Left = 637
-        Top = 6
-        Width = 75
+        Left = 535
+        Top = 5
+        Width = 59
         Height = 25
         Caption = 'Cut text'
         TabOrder = 3
@@ -93,7 +93,7 @@ object ViewFrm: TViewFrm
     object pnl2: TPanel
       Left = 0
       Top = 33
-      Width = 822
+      Width = 808
       Height = 473
       Align = alClient
       BevelOuter = bvNone
@@ -101,7 +101,7 @@ object ViewFrm: TViewFrm
       object spl1: TSplitter
         Left = 0
         Top = 221
-        Width = 822
+        Width = 808
         Height = 6
         Cursor = crVSplit
         Align = alTop
@@ -110,47 +110,12 @@ object ViewFrm: TViewFrm
       object pnl3: TPanel
         Left = 0
         Top = 227
-        Width = 822
+        Width = 808
         Height = 246
         Align = alClient
         BevelOuter = bvNone
         Caption = 'pnl3'
         TabOrder = 1
-        object pnl4: TPanel
-          Left = 808
-          Top = 0
-          Width = 14
-          Height = 246
-          Align = alRight
-          BevelOuter = bvNone
-          TabOrder = 0
-          object pb1: TPaintBox
-            Left = 0
-            Top = 17
-            Width = 14
-            Height = 195
-            Align = alClient
-            OnPaint = pb1Paint
-          end
-          object pnl5: TPanel
-            Left = 0
-            Top = 0
-            Width = 14
-            Height = 17
-            Align = alTop
-            BevelOuter = bvNone
-            TabOrder = 0
-          end
-          object pnl6: TPanel
-            Left = 0
-            Top = 212
-            Width = 14
-            Height = 34
-            Align = alBottom
-            BevelOuter = bvNone
-            TabOrder = 1
-          end
-        end
         object pnl8: TPanel
           Left = 0
           Top = 0
@@ -159,7 +124,7 @@ object ViewFrm: TViewFrm
           Align = alClient
           BevelOuter = bvNone
           Caption = 'pnl8'
-          TabOrder = 1
+          TabOrder = 0
           object spl2: TSplitter
             Left = 801
             Top = 0
@@ -272,7 +237,7 @@ object ViewFrm: TViewFrm
       object vtLog: TVirtualStringTree
         Left = 0
         Top = 0
-        Width = 822
+        Width = 808
         Height = 221
         Align = alTop
         ClipboardFormats.Strings = (
@@ -318,6 +283,33 @@ object ViewFrm: TViewFrm
             Width = 500
             WideText = 'Text'
           end>
+      end
+    end
+    object pnl4: TPanel
+      Left = 808
+      Top = 33
+      Width = 14
+      Height = 473
+      Align = alRight
+      BevelOuter = bvNone
+      TabOrder = 2
+      object pb1: TPaintBox
+        Left = 0
+        Top = 0
+        Width = 14
+        Height = 457
+        Align = alClient
+        OnMouseUp = pb1MouseUp
+        OnPaint = pb1Paint
+      end
+      object pnl6: TPanel
+        Left = 0
+        Top = 457
+        Width = 14
+        Height = 16
+        Align = alBottom
+        BevelOuter = bvNone
+        TabOrder = 0
       end
     end
   end

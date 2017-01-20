@@ -22,7 +22,6 @@ type
     spl1: TSplitter;
     vtLog: TVirtualStringTree;
     pnl4: TPanel;
-    pnl5: TPanel;
     pnl6: TPanel;
     btnFindPrev: TButton;
     chkTwoWindows: TCheckBox;
@@ -55,6 +54,8 @@ type
     procedure vtLogEnter(Sender: TObject);
     procedure chkTwoWindowsClick(Sender: TObject);
     procedure vtLogClick(Sender: TObject);
+    procedure pb1MouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
   private
     FOriginRows: TMyStringList;
     FFiltered: Boolean;
@@ -336,6 +337,7 @@ begin
       tagInfo := FTags.IsMatch(FOriginRows[i]);
       if tagInfo <> nil then
       begin
+        tagInfo.Matched;      
         FOriginRows.Objects[i] := Pointer(ColorToRGB(tagInfo.Color) or $FF000000);
         FFilteredRows[FFilteredRowCount] := i;
         Inc(FFilteredRowCount);
@@ -364,7 +366,7 @@ begin
   end;
   vtFullLog.FocusedNode := curNode;
   vtFullLog.ClearSelection;
-  vtFullLog.Selected[curNode] := true;
+  vtFullLog.Selected[curNode] := True;
   vtFullLog.ScrollIntoView(curNode, True);
   vtFullLog.Invalidate;
   if vtFullLog.CanFocus then
@@ -557,6 +559,22 @@ begin
     vtLog.Invalidate;
     vtFullLog.Invalidate;
   end;   
+end;
+
+procedure TViewFrm.pb1MouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+var
+  vCount: Integer;
+  vCurNode: PVirtualNode;
+begin
+  vCount := FOriginRows.Count;
+  if FFiltered then
+    vCount := FFilteredRowCount;
+  vCurNode := GetNodeByIndex(vtFullLog, Trunc(vCount * (Y/pb1.Height)));
+ // vtFullLog.Selected[vCurNode] := True;
+  vtFullLog.FocusedNode := vCurNode;
+  vtFullLog.ScrollIntoView(vCurNode, True);
+  vtFullLogDblClick(vtFullLog);
 end;
 
 end.

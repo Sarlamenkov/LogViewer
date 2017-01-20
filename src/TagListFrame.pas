@@ -83,6 +83,7 @@ type
     procedure Init(const ATagsSection: string);
     procedure Deinit;
 
+    procedure UpdateLists;
     property Tags: TTagList read FTags;
     property OnChangeTag: TTagChangeEvent read FOnChangeTag write FOnChangeTag;
   end;
@@ -203,13 +204,19 @@ procedure TTagListFrm.vtTagsGetText(Sender: TBaseVirtualTree;
 var
   vNodeData: ^TNodeData;
   vTag: TTagInfo;
+  vText: string;
 begin
   vNodeData := vtTags.GetNodeData(Node);
   vTag := vNodeData.Data;
   if vTag = nil then
     CellText := vNodeData.GroupName
   else
-    CellText := vTag.Name;
+  begin
+    vText := vTag.Name;
+    if vTag.MatchCount > 0 then
+      vText := vText + '  (' + IntToStr(vTag.MatchCount) + ')';
+    CellText := vText;
+  end;
 end;
 
 procedure TTagListFrm.vtTagsChecking(Sender: TBaseVirtualTree;
@@ -225,6 +232,7 @@ begin
     vTag.Enabled := not(NewState = csUncheckedNormal);
     SyncListChecks;
     DoOnChangeTag;
+    vtTags.Invalidate;
   end;
 end;
 
@@ -348,12 +356,18 @@ end;
 procedure TTagListFrm.FillListTags;
 var
   i: Integer;
+  vText: string;
+  vTag: TTagInfo;
 begin
   chklst1.Clear;
   for i := 0 to FSortedTags.Count - 1 do
   begin
-    chklst1.AddItem(TTagInfo(FSortedTags[i]).Name, FSortedTags[i]);
-    chklst1.Checked[i] := TTagInfo(FSortedTags[i]).Enabled;
+    vTag := TTagInfo(FSortedTags[i]);
+    vText := vTag.Name;
+    if vTag.MatchCount > 0 then
+      vText := vText + '  (' + IntToStr(vTag.MatchCount) + ')';
+    chklst1.AddItem(vText, vTag);
+    chklst1.Checked[i] := vTag.Enabled;
   end;
 end;
 
@@ -471,6 +485,12 @@ begin
     end;  
   end;
 ///  TCheckListBox(Control).Canvas.TextRect(Rect, 20, 0, chklst1.Items[Index]);
+end;
+
+procedure TTagListFrm.UpdateLists;
+begin
+  FillListTags;
+  FillTreeTags;
 end;
 
 end.

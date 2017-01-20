@@ -50,9 +50,9 @@ object MainFm: TMainFm
     end
     inherited pgc1: TPageControl
       Height = 572
-      inherited ts2: TTabSheet
-        inherited chklst1: TCheckListBox
-          Height = 514
+      inherited ts1: TTabSheet
+        inherited vtTags: TVirtualStringTree
+          Height = 544
         end
       end
     end

@@ -12,12 +12,16 @@ type
     FColor: TColor;
     FEnabled: Boolean;
     FGroupName: string;
+    FMatchCount: Integer;
     procedure SetColor(const Value: TColor);
     procedure SetEnabled(const Value: Boolean);
   public
     constructor Create(const AName: string = ''; const AEnabled: Boolean = True;
       const AColor: TColor = clHighlightText; const AGroupName: string = '');
 
+    procedure Matched;  
+
+    property MatchCount: Integer read FMatchCount;  
     property Name: string read FName write FName;
     property Enabled: Boolean read FEnabled write SetEnabled;
     property Color: TColor read FColor write SetColor;
@@ -121,6 +125,11 @@ begin
   FGroupName := AGroupName;
 end;
 
+procedure TTagInfo.Matched;
+begin
+  Inc(FMatchCount);
+end;
+
 procedure TTagInfo.SetColor(const Value: TColor);
 begin
   FColor := Value;
@@ -142,6 +151,7 @@ begin
   for i := 0 to FList.Count - 1 do
   begin
     vMatchedTag := GetItem(i);
+    vMatchedTag.FMatchCount := 0;
     if vMatchedTag.Enabled then
       FActiveTags.Add(vMatchedTag);
   end;
