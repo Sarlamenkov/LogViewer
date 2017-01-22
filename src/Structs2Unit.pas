@@ -1,40 +1,43 @@
-unit StructsUnit;
+unit Structs2Unit;
 
 interface
 
 uses
-  Graphics, Classes, IniFiles, uConsts;
+  Graphics, Classes, IniFiles;
 
 type
-  TTagInfo = class
+  TTagInfo2 = class
   private
     FName: string;
     FColor: TColor;
     FEnabled: Boolean;
     FGroupName: string;
     FMatchCount: Integer;
+    FIndexRows: TList;
     procedure SetColor(const Value: TColor);
     procedure SetEnabled(const Value: Boolean);
   public
     constructor Create(const AName: string = ''; const AEnabled: Boolean = True;
       const AColor: TColor = clHighlightText; const AGroupName: string = '');
+    destructor Destroy; override;
 
-    procedure Matched;  
+    procedure DoIndex(const AText: string; const ARowIndex: Integer);
 
-    property MatchCount: Integer read FMatchCount;  
+    property MatchCount: Integer read FMatchCount;
     property Name: string read FName write FName;
     property Enabled: Boolean read FEnabled write SetEnabled;
     property Color: TColor read FColor write SetColor;
     property GroupName: string read FGroupName write FGroupName;
   end;
 
-  TTagList = class
+  TTagList2 = class
   private
     FSectionName: string;
     FList: TList;
     FActiveTags: TList;
     FSkip: TStringList;
-    function GetItem(const AIndex: Integer): TTagInfo;
+
+    function GetItem(const AIndex: Integer): TTagInfo2;
     function GetSkipText: string;
     procedure SetSkipText(const Value: string);
   public
@@ -44,40 +47,18 @@ type
     procedure Load(const ASectionName: string);
     procedure Save;
 
-    procedure Add(const ATagInfo: TTagInfo);
-    procedure Remove(const ATagInfo: TTagInfo);
+    procedure Add(const ATagInfo: TTagInfo2);
+    procedure Remove(const ATagInfo: TTagInfo2);
 
     procedure CopyTo(const AList: TList);
     procedure Actualize;
     function DoSkip(const AText: string): string;
 
-    function IsMatch(ATextRow: string): TTagInfo;
+    function IsMatch(ATextRow: string): TTagInfo2;
     function Count: Integer;
-    property Items[const AIndex: Integer]: TTagInfo read GetItem; default;
+    property Items[const AIndex: Integer]: TTagInfo2 read GetItem; default;
     property SkipText: string read GetSkipText write SetSkipText;
     property Skip: TStringList read FSkip;
-  end;
-
-  TOptions = class
-  private
-    FOpenedFileNames, FHistoryFileNames: TStrings;
-  public
-    CaseSens: Boolean;
-    FontName: string;
-    FontSize: Integer;
-    TwoWindow: Boolean;
-    SaveOnExit: Boolean;
-
-    constructor Create;
-    destructor Destroy; override;
-
-    procedure SaveOptions;
-    procedure LoadOptions;
-
-    procedure AddToHistory(const AFileName: string);
-
-    property OpenedFileNames: TStrings read FOpenedFileNames;
-    property HistoryFileNames: TStrings read FHistoryFileNames;
   end;
 
   TMyStringList = class (TStringList)
@@ -86,63 +67,83 @@ type
   end;
 
   TNodeData = record
-    Data: TTagInfo;
+    Data: TTagInfo2;
     GroupName: string;
   end;
 
-function Options: TOptions;
+  TDataList = class
+  private
+    FTagList: TTagList2;
+    FData: TMyStringList;
+    FFilteredInds: TList;
+    function GetFilteredRowCount: Integer;
+    function GetRowCount: Integer;
+    function GetFilteredRow(const AIndex: Integer): string;
+    function GetRow(const AIndex: Integer): string;
+    procedure BuildIndexForTag(const ATag: TTagInfo2);
+    procedure BuildFilteredIndex;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure LoadFromFile(const AFileName: string);
+
+    property Rows[const AIndex: Integer]: string read GetRow;
+    property RowCount: Integer read GetRowCount;
+    property FilteredRows[const AIndex: Integer]: string read GetFilteredRow;
+    property FilteredRowCount: Integer read GetFilteredRowCount;
+  end;
 
 implementation
 
 uses
-  SysUtils, StrUtils;
+  SysUtils, StrUtils, uConsts, StructsUnit;
 
 const
   cLeftBrace = '(_';
   cRightBrace = '_)';
 
-var
-  gOptions: TOptions;
-
-function Options: TOptions;
-begin
-  if gOptions = nil then
-    gOptions := TOptions.Create;
-  Result := gOptions;  
-end;
-
 { TTagInfo }
 
-constructor TTagInfo.Create(const AName: string = ''; const AEnabled: Boolean = True; const AColor: TColor = clHighlightText;
+constructor TTagInfo2.Create(const AName: string = ''; const AEnabled: Boolean = True; const AColor: TColor = clHighlightText;
   const AGroupName: string = '');
 begin
   FName := AName;
   FEnabled := AEnabled;
   FColor := AColor;
   FGroupName := AGroupName;
+  FIndexRows := TList.Create;  
 end;
 
-procedure TTagInfo.Matched;
+destructor TTagInfo2.Destroy;
 begin
-  Inc(FMatchCount);
+  FreeAndNil(FIndexRows);
+  inherited;
 end;
 
-procedure TTagInfo.SetColor(const Value: TColor);
+procedure TTagInfo2.DoIndex(const AText: string; const ARowIndex: Integer);
+begin
+  if (Options.CaseSens and (Pos(Name, AText) > 0))
+    or ((not Options.CaseSens) and (Pos(UpperCase(Name), UpperCase(AText)) > 0))  then
+    FIndexRows.Add(TObject(ARowIndex));
+end;
+
+procedure TTagInfo2.SetColor(const Value: TColor);
 begin
   FColor := Value;
 end;
 
-procedure TTagInfo.SetEnabled(const Value: Boolean);
+procedure TTagInfo2.SetEnabled(const Value: Boolean);
 begin
   FEnabled := Value;
 end;
 
 { TTagList }
 
-procedure TTagList.Actualize;
+procedure TTagList2.Actualize;
 var
   i: Integer;
-  vMatchedTag: TTagInfo;
+  vMatchedTag: TTagInfo2;
 begin
   FActiveTags.Clear;
   for i := 0 to FList.Count - 1 do
@@ -154,12 +155,12 @@ begin
   end;
 end;
 
-procedure TTagList.Add(const ATagInfo: TTagInfo);
+procedure TTagList2.Add(const ATagInfo: TTagInfo2);
 begin
   FList.Add(ATagInfo);
 end;
 
-procedure TTagList.CopyTo(const AList: TList);
+procedure TTagList2.CopyTo(const AList: TList);
 var
   i: Integer;
 begin
@@ -168,32 +169,33 @@ begin
     AList.Add(FList[i]);
 end;
 
-function TTagList.Count: Integer;
+function TTagList2.Count: Integer;
 begin
   Result := FList.Count;
 end;
 
-constructor TTagList.Create;
+constructor TTagList2.Create;
 begin
   FList := TList.Create;
   FActiveTags := TList.Create;
   FSkip := TStringList.Create;
   FSkip.Delimiter := ';';
+
 end;
 
-destructor TTagList.Destroy;
+destructor TTagList2.Destroy;
 var
   i: Integer;
 begin
   for i := 0 to FList.Count - 1 do
-    TTagInfo(FList[i]).Free;
+    TTagInfo2(FList[i]).Free;
   FreeAndNil(FList);
   FreeAndNil(FActiveTags);
   FreeAndNil(FSkip);
   inherited;
 end;
 
-function TTagList.DoSkip(const AText: string): string;
+function TTagList2.DoSkip(const AText: string): string;
 var
   i: Integer; 
 begin
@@ -202,17 +204,17 @@ begin
     Result := AnsiReplaceText(Result, FSkip[i], '');
 end;
 
-function TTagList.GetItem(const AIndex: Integer): TTagInfo;
+function TTagList2.GetItem(const AIndex: Integer): TTagInfo2;
 begin
-  Result := TTagInfo(FList[AIndex]);
+  Result := TTagInfo2(FList[AIndex]);
 end;
 
-function TTagList.GetSkipText: string;
+function TTagList2.GetSkipText: string;
 begin
   Result := FSkip.DelimitedText;
 end;
 
-function TTagList.IsMatch(ATextRow: string): TTagInfo;
+function TTagList2.IsMatch(ATextRow: string): TTagInfo2;
 var
   i: Integer;
   tagName: string;
@@ -222,7 +224,7 @@ begin
     ATextRow := UpperCase(ATextRow);
   for i := 0 to FActiveTags.Count - 1 do
   begin
-    tagName := TTagInfo(FActiveTags[i]).Name;
+    tagName := TTagInfo2(FActiveTags[i]).Name;
     if not Options.CaseSens then
       tagName := UpperCase(tagName);
     if Pos(tagName, ATextRow) > 0 then
@@ -233,7 +235,7 @@ begin
   end;
 end;
 
-procedure TTagList.Load(const ASectionName: string);
+procedure TTagList2.Load(const ASectionName: string);
 var
   i: Integer;
   vIni: TMemIniFile;
@@ -260,7 +262,7 @@ begin
       vName := AnsiReplaceText(vName, cLeftBrace, '[');
       vName := AnsiReplaceText(vName, cRightBrace, ']');
     end;
-    Add(TTagInfo.Create(vName, vSplit[0] = '1', StrToIntDef(vSplit[1], 0), vSplit[2]));
+    Add(TTagInfo2.Create(vName, vSplit[0] = '1', StrToIntDef(vSplit[1], 0), vSplit[2]));
   end;
 
   vIni.Free;
@@ -268,7 +270,7 @@ begin
   vSplit.Free;
 end;
 
-procedure TTagList.Remove(const ATagInfo: TTagInfo);
+procedure TTagList2.Remove(const ATagInfo: TTagInfo2);
 var
   i: Integer;
 begin
@@ -280,7 +282,7 @@ begin
   end;
 end;
 
-procedure TTagList.Save;
+procedure TTagList2.Save;
 var
   vIni: TIniFile;
   i: Integer;
@@ -304,7 +306,7 @@ begin
   vIni.Free;
 end;
 
-procedure TTagList.SetSkipText(const Value: string);
+procedure TTagList2.SetSkipText(const Value: string);
 begin
   FSkip.DelimitedText := Value;
 end;
@@ -340,77 +342,76 @@ begin
   end;
 end;
 
-{ TOptions }
+{ TDataList }
 
-procedure TOptions.AddToHistory(const AFileName: string);
+function SortAsc(Item1, Item2: Pointer): Integer;
 begin
-  if HistoryFileNames.IndexOf(AFileName) < 0 then
-    HistoryFileNames.Add(AFileName);
-  if HistoryFileNames.Count > 10 then
-    HistoryFileNames.Delete(0);
+  Result := Integer(Item1) - Integer(Item2);
 end;
 
-constructor TOptions.Create;
+procedure TDataList.BuildFilteredIndex;
+var
+  i: Integer;
 begin
-  FOpenedFileNames := TStringList.Create;
-  FHistoryFileNames := TStringList.Create;
+  FFilteredInds.Clear;
+  for i := 0 to FTagList.Count - 1 do
+    if FTagList.Items[i].Enabled then
+    begin
+      BuildIndexForTag(FTagList.Items[i]);
+      FFilteredInds.Assign(FTagList.Items[i].FIndexRows, laOr);
+    end;
+  FFilteredInds.Sort(SortAsc);
 end;
 
-destructor TOptions.Destroy;
+procedure TDataList.BuildIndexForTag(const ATag: TTagInfo2);
+var
+  i: Integer;
 begin
-  FreeAndNil(FHistoryFileNames);
-  FreeAndNil(FOpenedFileNames);
+  if ATag.FIndexRows.Count > 0 then Exit; // index already builded
+  for i := 0 to FData.Count - 1 do
+    ATag.DoIndex(FData[i], i);
+end;
+
+constructor TDataList.Create;
+begin
+  FData := TMyStringList.Create;
+  FTagList := TTagList2.Create;
+  FFilteredInds := TList.Create;
+end;
+
+destructor TDataList.Destroy;
+begin
+  FreeAndNil(FFilteredInds);
+  FreeAndNil(FTagList);
+  FreeAndNil(FData);
   inherited;
 end;
 
-procedure TOptions.LoadOptions;
-var
-  vIni: TIniFile;
-  vFiles: TStrings;
-  i: Integer;
+function TDataList.GetFilteredRow(const AIndex: Integer): string;
 begin
-  vIni := TIniFile.Create(gSettingsFileName);
-
-  FontName := vIni.ReadString('options', 'font', 'Courier');
-  FontSize := vIni.ReadInteger('options', 'font_size', 8);
-  CaseSens := vIni.ReadBool('options', 'case_sens', False);
-  TwoWindow := vIni.ReadBool('options', 'two_window', False);
-  SaveOnExit := True;
-  vFiles := TStringList.Create;
-  vIni.ReadSectionValues('files', vFiles);
-  FOpenedFileNames.Clear;
-  for i := 0 to vFiles.Count - 1 do
-    FOpenedFileNames.Add(vFiles.ValueFromIndex[i]);
-
-  vIni.ReadSectionValues('history', vFiles);
-  FHistoryFileNames.Clear;
-  for i := 0 to vFiles.Count - 1 do
-    FHistoryFileNames.Add(vFiles.ValueFromIndex[i]);
-
-  vIni.Free;
-  vFiles.Free;
+  Result := FData[Integer(FFilteredInds[AIndex])];
 end;
 
-procedure TOptions.SaveOptions;
-var
-  vIni: TIniFile;
-  i: Integer;
+function TDataList.GetFilteredRowCount: Integer;
 begin
-  vIni := TIniFile.Create(gSettingsFileName);
-  vIni.WriteString('options', 'font', FontName);
-  vIni.WriteInteger('options', 'font_size', FontSize);
-  vIni.WriteBool('options', 'case_sens', CaseSens);
-  vIni.WriteBool('options', 'two_window', TwoWindow);
+  Result := FFilteredInds.Count;
+end;
 
-  vIni.EraseSection('files');
-  for i := 0 to FOpenedFileNames.Count - 1 do
-    vIni.WriteString('files', 'file' + IntToStr(i), FOpenedFileNames[i]);
+function TDataList.GetRow(const AIndex: Integer): string;
+begin
+  Result := FData[AIndex];
+end;
 
-  vIni.EraseSection('history');
-  for i := 0 to FHistoryFileNames.Count - 1 do
-    vIni.WriteString('history', 'file' + IntToStr(i), FHistoryFileNames[i]);
+function TDataList.GetRowCount: Integer;
+begin
+  Result := FData.Count;
+end;
 
-  vIni.Free;
+procedure TDataList.LoadFromFile(const AFileName: string);
+begin
+  FData.LoadFromFile(AFileName);
+  FTagList.Load('tags');
+  BuildFilteredIndex;
 end;
 
 end.

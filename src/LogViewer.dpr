@@ -12,7 +12,8 @@ uses
   AboutForm in 'AboutForm.pas' {AboutFm},
   uConsts in 'uConsts.pas',
   OptionsForm in 'OptionsForm.pas' {OptionsFm},
-  TagListFrame in 'TagListFrame.pas' {TagListFrm: TFrame};
+  TagListFrame in 'TagListFrame.pas' {TagListFrm: TFrame},
+  Structs2Unit in 'Structs2Unit.pas';
 
 {$R *.res}
 

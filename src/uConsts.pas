@@ -2,6 +2,9 @@ unit uConsts;
 
 interface
 
+var
+  gSettingsFileName: string;
+
 function GetFileVersion: string;
 
 implementation

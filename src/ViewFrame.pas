@@ -4,7 +4,9 @@ interface
 
 uses
   Windows, SysUtils, Classes, Graphics, Controls, Forms,
-  VirtualTrees, ExtCtrls, StructsUnit, StdCtrls, Buttons, Clipbrd;
+  VirtualTrees, ExtCtrls, StdCtrls, Buttons, Clipbrd,
+
+  StructsUnit, Structs2Unit;
 
 type
   TViewFrm = class(TFrame)
@@ -66,6 +68,7 @@ type
     FFindNextNode: PVirtualNode;
     FFindWindow: TVirtualStringTree;
     FSelectedWord: string;
+    FDataList: TDataList;
     function FindOriginNodeByText(const AFromNode: PVirtualNode; const AText: string): PVirtualNode;
     procedure DoFilter;
     function GetText(Sender: TBaseVirtualTree; Column: TColumnIndex; NodeIndex: Integer): string;
@@ -102,6 +105,8 @@ begin
 end;
 
 procedure TViewFrm.Init(const AFileName: string; const ATags: TTagList);
+var
+  vTime: Cardinal;
 begin
   Deinit;
 
@@ -109,6 +114,7 @@ begin
   FTags := ATags;
   FOriginRows := TMyStringList.Create;
   FOriginRows.LoadFromFile(AFileName);
+
   FFindNextNode := nil;
   vtLog.Font.Name := Options.FontName;
   vtLog.Font.Size := Options.FontSize;
@@ -119,6 +125,13 @@ begin
   chkTwoWindows.Checked := Options.TwoWindow;
 
   Actualize;
+
+ { vTime := GetTickCount;
+  FDataList := TDataList.Create;
+  FDataList.LoadFromFile(AFileName);
+  Application.MessageBox(PAnsiChar(IntToStr(GetTickCount - vTime)), '');
+  Assert(FDataList.RowCount = FOriginRows.Count);   }
+//  Assert(FDataList.FilteredRowCount = FFilteredRowCount, IntToStr(FDataList.FilteredRowCount) + ' ' + IntToStr(FFilteredRowCount));
 end;
 
 procedure TViewFrm.Actualize;
