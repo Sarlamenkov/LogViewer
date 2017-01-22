@@ -14,7 +14,6 @@ type
     FGroupName: string;
     FMatchCount: Integer;
     FIndexRows: TList;
-    procedure SetColor(const Value: TColor);
     procedure SetEnabled(const Value: Boolean);
   public
     constructor Create(const AName: string = ''; const AEnabled: Boolean = True;
@@ -26,7 +25,7 @@ type
     property MatchCount: Integer read FMatchCount;
     property Name: string read FName write FName;
     property Enabled: Boolean read FEnabled write SetEnabled;
-    property Color: TColor read FColor write SetColor;
+    property Color: TColor read FColor write FColor;
     property GroupName: string read FGroupName write FGroupName;
   end;
 
@@ -36,7 +35,6 @@ type
     FList: TList;
     FActiveTags: TList;
     FSkip: TStringList;
-
     function GetItem(const AIndex: Integer): TTagInfo2;
     function GetSkipText: string;
     procedure SetSkipText(const Value: string);
@@ -82,16 +80,22 @@ type
     function GetRow(const AIndex: Integer): string;
     procedure BuildIndexForTag(const ATag: TTagInfo2);
     procedure BuildFilteredIndex;
+    function GetTag(const AIndex: Integer): TTagInfo2;
+    function GetTagCount: Integer;
   public
     constructor Create;
     destructor Destroy; override;
 
     procedure LoadFromFile(const AFileName: string);
 
+    function GetFilteredRowNumber(const ACurrentRow: Integer): Integer;
+
     property Rows[const AIndex: Integer]: string read GetRow;
     property RowCount: Integer read GetRowCount;
     property FilteredRows[const AIndex: Integer]: string read GetFilteredRow;
     property FilteredRowCount: Integer read GetFilteredRowCount;
+    property Tags[const AIndex: Integer]: TTagInfo2 read GetTag;
+    property TagCount: Integer read GetTagCount;
   end;
 
 implementation
@@ -126,11 +130,6 @@ begin
   if (Options.CaseSens and (Pos(Name, AText) > 0))
     or ((not Options.CaseSens) and (Pos(UpperCase(Name), UpperCase(AText)) > 0))  then
     FIndexRows.Add(TObject(ARowIndex));
-end;
-
-procedure TTagInfo2.SetColor(const Value: TColor);
-begin
-  FColor := Value;
 end;
 
 procedure TTagInfo2.SetEnabled(const Value: Boolean);
@@ -397,6 +396,12 @@ begin
   Result := FFilteredInds.Count;
 end;
 
+function TDataList.GetFilteredRowNumber(
+  const ACurrentRow: Integer): Integer;
+begin
+  Result := Integer(FFilteredInds[ACurrentRow]);
+end;
+
 function TDataList.GetRow(const AIndex: Integer): string;
 begin
   Result := FData[AIndex];
@@ -405,6 +410,16 @@ end;
 function TDataList.GetRowCount: Integer;
 begin
   Result := FData.Count;
+end;
+
+function TDataList.GetTag(const AIndex: Integer): TTagInfo2;
+begin
+  Result := FTagList.Items[AIndex];
+end;
+
+function TDataList.GetTagCount: Integer;
+begin
+  Result := FTagList.Count;
 end;
 
 procedure TDataList.LoadFromFile(const AFileName: string);

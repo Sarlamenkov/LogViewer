@@ -6,7 +6,7 @@ uses
   Windows, SysUtils, Classes, Graphics, Controls, Forms,
   VirtualTrees, ExtCtrls, StdCtrls, Buttons, Clipbrd,
 
-  StructsUnit, Structs2Unit;
+  StructsUnit, Structs2Unit, View2Frame;
 
 type
   TViewFrm = class(TFrame)
@@ -32,6 +32,7 @@ type
     vrtlstrngtrFullLog2: TVirtualStringTree;
     spl2: TSplitter;
     pnl8: TPanel;
+    View2Frm1: TView2Frm;
     procedure vtFullLogKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure vtFullLogEditing(Sender: TBaseVirtualTree;
@@ -126,6 +127,7 @@ begin
 
   Actualize;
 
+  View2Frm1.Init(AFileName);
  { vTime := GetTickCount;
   FDataList := TDataList.Create;
   FDataList.LoadFromFile(AFileName);

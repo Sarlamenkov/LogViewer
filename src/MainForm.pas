@@ -72,6 +72,7 @@ var
   MainFm: TMainFm;
   CommandEvent, ServerMailslotHandle: THandle;
 
+
 implementation
 
 {$R *.dfm}

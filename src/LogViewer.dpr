@@ -13,7 +13,8 @@ uses
   uConsts in 'uConsts.pas',
   OptionsForm in 'OptionsForm.pas' {OptionsFm},
   TagListFrame in 'TagListFrame.pas' {TagListFrm: TFrame},
-  Structs2Unit in 'Structs2Unit.pas';
+  Structs2Unit in 'Structs2Unit.pas',
+  View2Frame in 'View2Frame.pas' {View2Frm: TFrame};
 
 {$R *.res}
 
