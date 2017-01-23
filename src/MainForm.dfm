@@ -1,6 +1,6 @@
 object MainFm: TMainFm
-  Left = 362
-  Top = 164
+  Left = 361
+  Top = 199
   Width = 948
   Height = 678
   Caption = 'Log Viewer'
@@ -21,41 +21,14 @@ object MainFm: TMainFm
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object Splitter1: TSplitter
-    Left = 249
-    Top = 0
-    Width = 8
-    Height = 632
-  end
   object PageControl1: TPageControl
-    Left = 257
+    Left = 0
     Top = 0
-    Width = 683
+    Width = 940
     Height = 632
     Align = alClient
     TabOrder = 0
     OnMouseUp = PageControl1MouseUp
-  end
-  inline tlTags: TTagListFrm
-    Left = 0
-    Top = 0
-    Width = 249
-    Height = 632
-    Align = alLeft
-    TabOrder = 1
-    inherited pnl1: TPanel
-      inherited lbl1: TLabel
-        Width = 45
-      end
-    end
-    inherited pgc1: TPageControl
-      Height = 572
-      inherited ts1: TTabSheet
-        inherited vtTags: TVirtualStringTree
-          Height = 544
-        end
-      end
-    end
   end
   object dlgOpen1: TOpenDialog
     Options = [ofHideReadOnly, ofAllowMultiSelect, ofFileMustExist, ofEnableSizing]

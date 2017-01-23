@@ -165,7 +165,6 @@ object ViewFrm: TViewFrm
             OnDblClick = vtFullLogDblClick
             OnEditing = vtFullLogEditing
             OnEnter = vtLogEnter
-            OnGetText = vtFullLogGetText
             OnKeyDown = vtFullLogKeyDown
             OnMouseUp = vtFullLogMouseDown
             Columns = <
@@ -215,7 +214,6 @@ object ViewFrm: TViewFrm
             OnDblClick = vtFullLogDblClick
             OnEditing = vtFullLogEditing
             OnEnter = vtLogEnter
-            OnGetText = vtFullLogGetText
             OnKeyDown = vtFullLogKeyDown
             OnMouseUp = vtFullLogMouseDown
             Columns = <
@@ -267,7 +265,6 @@ object ViewFrm: TViewFrm
         OnClick = vtLogClick
         OnEditing = vtFullLogEditing
         OnEnter = vtLogEnter
-        OnGetText = vtFullLogGetText
         OnKeyDown = vtFullLogKeyDown
         OnMouseUp = vtFullLogMouseDown
         Columns = <
@@ -290,57 +287,27 @@ object ViewFrm: TViewFrm
         Width = 662
         Height = 481
         TabOrder = 2
+        ExplicitLeft = 127
+        ExplicitTop = 30
+        ExplicitWidth = 662
+        ExplicitHeight = 481
+        inherited spl3: TSplitter
+          Height = 459
+        end
         inherited pnlWork: TPanel
-          inherited pnl1: TPanel
-            inherited edtSearch: TEdit
-              OnChange = nil
-              OnKeyUp = nil
-            end
-            inherited btnFindNext: TButton
-              OnClick = nil
-            end
-            inherited chkFiltered: TCheckBox
-              OnClick = nil
-            end
-            inherited chkTwoWindows: TCheckBox
-              OnClick = nil
-            end
-          end
-          inherited pnl2: TPanel
-            inherited pnl3: TPanel
-              inherited pnl8: TPanel
-                inherited vtFilteredLog2: TVirtualStringTree
-                  OnBeforeCellPaint = nil
-                  OnDblClick = nil
-                  OnEditing = nil
-                  OnEnter = nil
-                  OnGetText = nil
-                  OnKeyDown = nil
-                  OnMouseUp = nil
-                end
-                inherited vtFilteredLog: TVirtualStringTree
-                  OnClick = nil
-                  OnDblClick = nil
-                  OnEditing = nil
-                  OnEnter = nil
-                  OnKeyDown = nil
-                  OnMouseUp = nil
-                end
-              end
-            end
-            inherited vtLog: TVirtualStringTree
-              OnClick = nil
-              OnEditing = nil
-              OnEnter = nil
-              OnKeyDown = nil
-              OnMouseUp = nil
-            end
-          end
-          inherited pnl4: TPanel
-            inherited pb1: TPaintBox
-              OnMouseUp = nil
-              OnPaint = nil
-            end
+          Width = 407
+          Height = 459
+        end
+        inherited pnl7: TPanel
+          Top = 459
+          Width = 662
+        end
+        inherited tl1: TTagListFrm
+          Height = 459
+          ExplicitHeight = 459
+          inherited pgc1: TPageControl
+            Height = 429
+            ExplicitHeight = 429
           end
         end
       end

@@ -243,7 +243,7 @@ begin
         Clipboard.Close;
       end;
     finally
-      vSelection.Free;
+   //   vSelection.Free;
       vText.Free;
     end;
   end

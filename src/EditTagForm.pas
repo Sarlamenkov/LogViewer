@@ -6,7 +6,7 @@ uses
   Windows, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls,
 
-  StructsUnit;
+  Structs2Unit;
 
 type
   TEditTagFm = class(TForm)
@@ -28,7 +28,7 @@ type
     procedure UpdateView;
     procedure SetTagColor(cl: TColor);
   public
-    function Edit(const ATag: TTagInfo): Boolean;
+    function Edit(const ATag: TTagInfo2): Boolean;
 
   end;
 
@@ -48,7 +48,7 @@ begin
     pnlColor.Font.Color := clWhite;
 end;
 
-function TEditTagFm.Edit(const ATag: TTagInfo): Boolean;
+function TEditTagFm.Edit(const ATag: TTagInfo2): Boolean;
 begin
   edtName.Text := ATag.Name;
   SetTagColor(ATag.Color);

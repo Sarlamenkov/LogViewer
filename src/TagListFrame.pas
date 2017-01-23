@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, VirtualTrees, ComCtrls, ToolWin, ActnList, ImgList,
 
-  StructsUnit, StdCtrls, ExtCtrls, Menus, CheckLst;
+  Structs2Unit, StdCtrls, ExtCtrls, Menus, CheckLst;
 
 type
   TTagChangeEvent = procedure() of object;
@@ -24,9 +24,6 @@ type
     btnEdit: TToolButton;
     btnDelete: TToolButton;
     vtTags: TVirtualStringTree;
-    pnl1: TPanel;
-    lbl1: TLabel;
-    edSkipText: TEdit;
     pm1: TPopupMenu;
     miCheckAll: TMenuItem;
     miUncheckAll: TMenuItem;
@@ -66,7 +63,7 @@ type
     procedure chklst1DrawItem(Control: TWinControl; Index: Integer;
       Rect: TRect; State: TOwnerDrawState);
   private
-    FTags: TTagList;
+    FTags: TTagList2;
     FSortedTags: TList;//array of Integer;
     FSort: TSortType;
     FOnChangeTag: TTagChangeEvent;
@@ -75,16 +72,16 @@ type
     procedure Sort;
     procedure ReallocSortedTags;
     procedure SyncTreeChecks;
-    procedure SyncListChecks;    
-    function GetSelectedTag: TTagInfo;
+    procedure SyncListChecks;
+    function GetSelectedTag: TTagInfo2;
     procedure CheckAll(const ACheck: Boolean);
     procedure DoOnChangeTag;
   public
-    procedure Init(const ATagsSection: string);
+    procedure Init(const ATagList: TTagList2);
     procedure Deinit;
 
     procedure UpdateLists;
-    property Tags: TTagList read FTags;
+    property Tags: TTagList2 read FTags;
     property OnChangeTag: TTagChangeEvent read FOnChangeTag write FOnChangeTag;
   end;
 
@@ -108,7 +105,7 @@ end;
 procedure TTagListFrm.FillTreeTags;
 var
   i: Integer;
-  vTag: TTagInfo;
+  vTag: TTagInfo2;
   vNode: PVirtualNode;
   vNodeData: ^TNodeData;
   function GetNodeByGroup: PVirtualNode;
@@ -152,7 +149,7 @@ begin
     vNodeData := vtTags.GetNodeData(vNode);
     vNodeData.Data := vTag;
 
-    chklst1.AddItem(vTag.Name, vTag);
+    chklst1.AddItem(vTag.FullName, vTag);
     chklst1.Checked[i] := vTag.Enabled;
   end;
   vtTags.FullExpand;
@@ -160,22 +157,20 @@ begin
   FillListTags;
 end;
 
-procedure TTagListFrm.Init(const ATagsSection: string);
+procedure TTagListFrm.Init(const ATagList: TTagList2);
 begin
   Deinit;
-  FTags := TTagList.Create;
-  FTags.Load(ATagsSection);
+  FTags := ATagList;
   FSortedTags := TList.Create;
-  edSkipText.Text := FTags.SkipText;
   ReallocSortedTags;  
   FillTreeTags;
 end;
 
 procedure TTagListFrm.actAddExecute(Sender: TObject);
 var
-  vTag: TTagInfo;
+  vTag: TTagInfo2;
 begin
-  vTag := TTagInfo.Create('', True, clHighlight, '');
+  vTag := TTagInfo2.Create('', True, clHighlight, '');
   if not EditTagFm.Edit(vTag) then
   begin
     vTag.Free;
@@ -203,7 +198,7 @@ procedure TTagListFrm.vtTagsGetText(Sender: TBaseVirtualTree;
   var CellText: WideString);
 var
   vNodeData: ^TNodeData;
-  vTag: TTagInfo;
+  vTag: TTagInfo2;
   vText: string;
 begin
   vNodeData := vtTags.GetNodeData(Node);
@@ -212,10 +207,7 @@ begin
     CellText := vNodeData.GroupName
   else
   begin
-    vText := vTag.Name;
-    if vTag.MatchCount > 0 then
-      vText := vText + '  (' + IntToStr(vTag.MatchCount) + ')';
-    CellText := vText;
+    CellText := vTag.FullName;
   end;
 end;
 
@@ -223,7 +215,7 @@ procedure TTagListFrm.vtTagsChecking(Sender: TBaseVirtualTree;
   Node: PVirtualNode; var NewState: TCheckState; var Allowed: Boolean);
 var
   vNodeData: ^TNodeData;
-  vTag: TTagInfo;
+  vTag: TTagInfo2;
 begin
   vNodeData := vtTags.GetNodeData(Node);
   vTag := vNodeData.Data;
@@ -238,7 +230,7 @@ end;
 
 procedure TTagListFrm.actEditExecute(Sender: TObject);
 var
-  vTag: TTagInfo;
+  vTag: TTagInfo2;
 begin
   vTag := GetSelectedTag;
   if vTag = nil then Exit;
@@ -251,7 +243,7 @@ begin
   end;
 end;
 
-function TTagListFrm.GetSelectedTag: TTagInfo;
+function TTagListFrm.GetSelectedTag: TTagInfo2;
 var
   vNodeData: ^TNodeData;
   vNode: PVirtualNode;
@@ -278,7 +270,6 @@ end;
 
 procedure TTagListFrm.Deinit;
 begin
-  FreeAndNil(FTags);
   FreeAndNil(FSortedTags);
 end;
 
@@ -312,23 +303,21 @@ procedure TTagListFrm.CheckAll(const ACheck: Boolean);
 var
   vNode: PVirtualNode;
   vNodeData: ^TNodeData;
-  vTag: TTagInfo;
+  vTag: TTagInfo2;
 begin
   vNode := vtTags.GetFirst;
   while Assigned(vNode) do
   begin
     vNodeData := vtTags.GetNodeData(vNode);
     vTag := vNodeData.Data;
-    if Assigned(vTag) then
-      vTag.Enabled := ACheck;
     if ACheck then
       vNode.CheckState := csCheckedNormal
     else
       vNode.CheckState := csUncheckedNormal;
     vNode := vtTags.GetNext(vNode);
   end;
+  FTags.CheckAll(ACheck);
   vtTags.Invalidate;
-  DoOnChangeTag;
 end;
 
 procedure TTagListFrm.miCheckAllClick(Sender: TObject);
@@ -349,7 +338,6 @@ end;
 
 procedure TTagListFrm.edSkipTextChange(Sender: TObject);
 begin
-  FTags.SkipText := edSkipText.Text;
   DoOnChangeTag;
 end;
 
@@ -357,15 +345,13 @@ procedure TTagListFrm.FillListTags;
 var
   i: Integer;
   vText: string;
-  vTag: TTagInfo;
+  vTag: TTagInfo2;
 begin
   chklst1.Clear;
   for i := 0 to FSortedTags.Count - 1 do
   begin
-    vTag := TTagInfo(FSortedTags[i]);
-    vText := vTag.Name;
-    if vTag.MatchCount > 0 then
-      vText := vText + '  (' + IntToStr(vTag.MatchCount) + ')';
+    vTag := TTagInfo2(FSortedTags[i]);
+    vText := vTag.FullName;
     chklst1.AddItem(vText, vTag);
     chklst1.Checked[i] := vTag.Enabled;
   end;
@@ -379,14 +365,14 @@ end;
 
 function SortAlpha(Item1, Item2: Pointer): Integer;
 begin
-  Result := CompareText(TTagInfo(Item1).Name, TTagInfo(Item2).Name);
+  Result := CompareText(TTagInfo2(Item1).Name, TTagInfo2(Item2).Name);
 end;
 
 function SortChecked(Item1, Item2: Pointer): Integer;
 begin
-  if TTagInfo(Item1).Enabled = TTagInfo(Item2).Enabled then
+  if TTagInfo2(Item1).Enabled = TTagInfo2(Item2).Enabled then
     Result := 0
-  else if TTagInfo(Item1).Enabled then
+  else if TTagInfo2(Item1).Enabled then
     Result := -1
   else
     Result := 1;  
@@ -417,7 +403,7 @@ end;
 
 procedure TTagListFrm.chklst1ClickCheck(Sender: TObject);
 begin
-  TTagInfo(chklst1.Items.Objects[chklst1.ItemIndex]).Enabled := chklst1.Checked[chklst1.ItemIndex];
+  TTagInfo2(chklst1.Items.Objects[chklst1.ItemIndex]).Enabled := chklst1.Checked[chklst1.ItemIndex];
   SyncTreeChecks;
   DoOnChangeTag;
 end;
@@ -426,7 +412,7 @@ procedure TTagListFrm.SyncTreeChecks;
 var
   vNode: PVirtualNode;
   vNodeData: ^TNodeData;
-  vTag: TTagInfo;
+  vTag: TTagInfo2;
 begin
   vNode := vtTags.GetFirst;
   while Assigned(vNode) do
@@ -450,8 +436,8 @@ var
   i: Integer;
 begin
   for i := 0 to chklst1.Count - 1 do
-    if TTagInfo(chklst1.Items.Objects[i]).Enabled <> chklst1.Checked[i] then
-      chklst1.Checked[i] := TTagInfo(chklst1.Items.Objects[i]).Enabled;
+    if TTagInfo2(chklst1.Items.Objects[i]).Enabled <> chklst1.Checked[i] then
+      chklst1.Checked[i] := TTagInfo2(chklst1.Items.Objects[i]).Enabled;
 end;
 
 procedure TTagListFrm.chklst1DrawItem(Control: TWinControl; Index: Integer;
@@ -461,7 +447,7 @@ var
   vColor: TColor;
 begin
   vList := Control as TCheckListBox;
-  vColor := TTagInfo(vList.Items.Objects[Index]).Color;
+  vColor := TTagInfo2(vList.Items.Objects[Index]).Color;
   with vList.Canvas, Rect do
   begin
     if odSelected in State then
@@ -478,7 +464,7 @@ begin
 
     if odFocused in State then Windows.DrawFocusRect(vList.Canvas.Handle, Rect);
     TextOut(Left + 14, Top, vList.Items[Index]);
-    if TTagInfo(vList.Items.Objects[Index]).Enabled then
+    if TTagInfo2(vList.Items.Objects[Index]).Enabled then
     begin
       Brush.Color := vColor;
       RoundRect(Rect.Left + 10, Rect.Top, 14, Rect.Bottom, 3, 3);

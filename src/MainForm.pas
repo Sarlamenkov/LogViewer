@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, VirtualTrees, ComCtrls, ActnList,
-  ViewFrame, StructsUnit, ShellAPI, StdCtrls, Menus, ImgList, ToolWin,
+  View2Frame, StructsUnit, ShellAPI, StdCtrls, Menus, ImgList, ToolWin,
   TagListFrame;
 
 const
@@ -18,7 +18,6 @@ type
   end;
 
   TMainFm = class(TForm)
-    Splitter1: TSplitter;
     dlgOpen1: TOpenDialog;
     MainMenu: TMainMenu;
     File1: TMenuItem;
@@ -30,7 +29,6 @@ type
     Closecurrent1: TMenuItem;
     Closeall1: TMenuItem;
     PageControl1: TPageControl;
-    tlTags: TTagListFrm;
     miReopen: TMenuItem;
     N2: TMenuItem;
 
@@ -99,8 +97,6 @@ begin
   UpdateCaption('');
   gSettingsFileName := ExtractFilePath(Application.ExeName) + 'settings.ini';
   Options.LoadOptions;
-  tlTags.Init('tags');
-  tlTags.OnChangeTag := OnChangeTag;
   for i := 0 to Options.OpenedFileNames.Count - 1 do
     ActivateTab(Options.OpenedFileNames[i]);
 
@@ -117,7 +113,7 @@ var
 begin
   Options.OpenedFileNames.Clear;
   for i := 0 to PageControl1.PageCount - 1 do
-    Options.OpenedFileNames.Add(TViewFrm(PageControl1.Pages[i].Tag).FileName);
+    Options.OpenedFileNames.Add(TView2Frm(PageControl1.Pages[i].Tag).FileName);
 end;
 
 procedure TMainFm.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -129,7 +125,7 @@ end;
 procedure TMainFm.ActivateTab(const AFileName: string);
 var
   vTabSheet: TTabSheet;
-  vView: TViewFrm;
+  vView: TView2Frm;
   vPrevCursor: TCursor;
   function GetTab: TTabSheet;
   var
@@ -137,7 +133,7 @@ var
   begin
     Result := nil;
     for i := 0 to PageControl1.PageCount - 1 do
-      if TViewFrm(PageControl1.Pages[i].Tag).FileName = AFileName then
+      if TView2Frm(PageControl1.Pages[i].Tag).FileName = AFileName then
       begin
         Result := PageControl1.Pages[i];
         Break;
@@ -152,25 +148,24 @@ begin
     vTabSheet := TTabSheet.Create(nil);
     vTabSheet.PageControl := PageControl1;
     vTabSheet.Caption := ExtractFileName(AFileName);
-    vView := TViewFrm.Create(nil);
+    vView := TView2Frm.Create(nil);
     vView.Parent := vTabSheet;
     vView.Align := alClient;
     vTabSheet.Tag := Integer(vView);
   end
   else
-    vView := TViewFrm(vTabSheet.Tag);
+    vView := TView2Frm(vTabSheet.Tag);
 
   vPrevCursor := Screen.Cursor;
   Screen.Cursor := crHourGlass;
   try
-    vView.Init(AFileName, tlTags.Tags);
+    vView.Init(AFileName);
   finally
     Screen.Cursor := vPrevCursor;
   end;
   PageControl1.ActivePage := vTabSheet;
   
   UpdateCaption(vView.FileName);
-  tlTags.UpdateLists;
 end;
 
 procedure TMainFm.WMDropFiles(var Msg: TMessage);
@@ -198,11 +193,11 @@ end;
 
 procedure TMainFm.CloseCurrentTab(const AQuick: Boolean = False);
 var
-  vView: TViewFrm;
+  vView: TView2Frm;
 begin
   if PageControl1.PageCount = 0 then Exit;
 
-  vView := TViewFrm(PageControl1.ActivePage.Tag);
+  vView := TView2Frm(PageControl1.ActivePage.Tag);
 
   Options.AddToHistory(vView.FileName);
 
@@ -224,17 +219,16 @@ end;
 
 procedure TMainFm.ActualizeCurrentView;
 var
-  vView: TViewFrm;
+  vView: TView2Frm;
 begin
   if PageControl1.ActivePage = nil then
   begin
     UpdateCaption('');
     Exit;
   end;
-  vView := TViewFrm(PageControl1.ActivePage.Tag);
-  vView.Actualize;
+  vView := TView2Frm(PageControl1.ActivePage.Tag);
+//  vView.Actualize;
   UpdateCaption(vView.FileName);
-  tlTags.UpdateLists;
 end;
 
 procedure TMainFm.WMCommandArrived(var AMessage: TMessage);
@@ -365,7 +359,7 @@ procedure TMainFm.FormKeyDown(Sender: TObject; var Key: Word;
 begin
   if (Key = Ord('F')) and (Shift = [ssCtrl]) then
   begin
-    TViewFrm(PageControl1.ActivePage.Tag).SwitchFilter;
+  //  TView2Frm(PageControl1.ActivePage.Tag).SwitchFilter;
   end;
 end;
 

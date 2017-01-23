@@ -5,7 +5,6 @@ uses
   Windows,
   SysUtils,
   MainForm in 'MainForm.pas' {MainFm},
-  ViewFrame in 'ViewFrame.pas' {ViewFrm: TFrame},
   EditTagForm in 'EditTagForm.pas' {EditTagFm},
   StructsUnit in 'StructsUnit.pas',
   uGraphicUtils in 'uGraphicUtils.pas',

@@ -1,14 +1,20 @@
 object View2Frm: TView2Frm
   Left = 0
   Top = 0
-  Width = 662
-  Height = 481
+  Width = 861
+  Height = 498
   TabOrder = 0
-  object pnlWork: TPanel
-    Left = 0
+  object spl3: TSplitter
+    Left = 249
     Top = 0
-    Width = 662
-    Height = 459
+    Width = 8
+    Height = 476
+  end
+  object pnlWork: TPanel
+    Left = 257
+    Top = 0
+    Width = 604
+    Height = 476
     Align = alClient
     BevelOuter = bvNone
     Caption = 'pnlWork'
@@ -16,7 +22,7 @@ object View2Frm: TView2Frm
     object pnl1: TPanel
       Left = 0
       Top = 0
-      Width = 662
+      Width = 604
       Height = 33
       Align = alTop
       BevelOuter = bvNone
@@ -51,8 +57,8 @@ object View2Frm: TView2Frm
         TabOrder = 1
       end
       object chkFiltered: TCheckBox
-        Left = 320
-        Top = 9
+        Left = 408
+        Top = 10
         Width = 65
         Height = 17
         TabStop = False
@@ -68,9 +74,9 @@ object View2Frm: TView2Frm
         TabOrder = 3
       end
       object chkTwoWindows: TCheckBox
-        Left = 395
+        Left = 314
         Top = 9
-        Width = 97
+        Width = 88
         Height = 17
         Caption = '2 windows'
         TabOrder = 4
@@ -79,15 +85,15 @@ object View2Frm: TView2Frm
     object pnl2: TPanel
       Left = 0
       Top = 33
-      Width = 648
-      Height = 426
+      Width = 590
+      Height = 443
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
       object spl1: TSplitter
         Left = 0
         Top = 221
-        Width = 648
+        Width = 590
         Height = 6
         Cursor = crVSplit
         Align = alTop
@@ -96,8 +102,8 @@ object View2Frm: TView2Frm
       object pnl3: TPanel
         Left = 0
         Top = 227
-        Width = 648
-        Height = 199
+        Width = 590
+        Height = 216
         Align = alClient
         BevelOuter = bvNone
         Caption = 'pnl3'
@@ -105,25 +111,25 @@ object View2Frm: TView2Frm
         object pnl8: TPanel
           Left = 0
           Top = 0
-          Width = 648
-          Height = 199
+          Width = 590
+          Height = 216
           Align = alClient
           BevelOuter = bvNone
           Caption = 'pnl8'
           TabOrder = 0
           object spl2: TSplitter
-            Left = 641
+            Left = 583
             Top = 0
             Width = 6
-            Height = 199
+            Height = 216
             Align = alRight
             MinSize = 1
           end
           object vtFilteredLog2: TVirtualStringTree
-            Left = 647
+            Left = 589
             Top = 0
             Width = 1
-            Height = 199
+            Height = 216
             Align = alRight
             ClipboardFormats.Strings = (
               'Plain text')
@@ -164,8 +170,8 @@ object View2Frm: TView2Frm
           object vtFilteredLog: TVirtualStringTree
             Left = 0
             Top = 0
-            Width = 641
-            Height = 199
+            Width = 583
+            Height = 216
             Align = alClient
             ClipboardFormats.Strings = (
               'Plain text')
@@ -210,7 +216,7 @@ object View2Frm: TView2Frm
       object vtLog: TVirtualStringTree
         Left = 0
         Top = 0
-        Width = 648
+        Width = 590
         Height = 221
         Align = alTop
         ClipboardFormats.Strings = (
@@ -253,10 +259,10 @@ object View2Frm: TView2Frm
       end
     end
     object pnl4: TPanel
-      Left = 648
+      Left = 590
       Top = 33
       Width = 14
-      Height = 426
+      Height = 443
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 2
@@ -264,12 +270,12 @@ object View2Frm: TView2Frm
         Left = 0
         Top = 0
         Width = 14
-        Height = 410
+        Height = 427
         Align = alClient
       end
       object pnl6: TPanel
         Left = 0
-        Top = 410
+        Top = 427
         Width = 14
         Height = 16
         Align = alBottom
@@ -280,8 +286,8 @@ object View2Frm: TView2Frm
   end
   object pnl7: TPanel
     Left = 0
-    Top = 459
-    Width = 662
+    Top = 476
+    Width = 861
     Height = 22
     Align = alBottom
     BevelOuter = bvNone
@@ -292,6 +298,31 @@ object View2Frm: TView2Frm
       Width = 39
       Height = 13
       Caption = 'lblCount'
+    end
+    object pb2: TProgressBar
+      Left = 237
+      Top = 4
+      Width = 406
+      Height = 16
+      Smooth = True
+      Step = 1
+      TabOrder = 0
+    end
+  end
+  inline tl1: TTagListFrm
+    Left = 0
+    Top = 0
+    Width = 249
+    Height = 476
+    Align = alLeft
+    TabOrder = 2
+    inherited pgc1: TPageControl
+      Height = 446
+      inherited ts1: TTabSheet
+        inherited vtTags: TVirtualStringTree
+          Height = 418
+        end
+      end
     end
   end
 end

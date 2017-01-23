@@ -6,7 +6,7 @@ object TagListFrm: TTagListFrm
   TabOrder = 0
   object tlb1: TToolBar
     Left = 0
-    Top = 30
+    Top = 0
     Width = 249
     Height = 30
     AutoSize = True
@@ -34,52 +34,21 @@ object TagListFrm: TTagListFrm
       Action = actDelete
     end
   end
-  object pnl1: TPanel
-    Left = 0
-    Top = 0
-    Width = 249
-    Height = 30
-    Align = alTop
-    BevelOuter = bvNone
-    TabOrder = 1
-    object lbl1: TLabel
-      Left = 0
-      Top = 6
-      Width = 44
-      Height = 13
-      Caption = 'Skip Text'
-      Layout = tlCenter
-    end
-    object edSkipText: TEdit
-      Left = 60
-      Top = 3
-      Width = 110
-      Height = 24
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -13
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
-      ParentFont = False
-      TabOrder = 0
-      OnChange = edSkipTextChange
-    end
-  end
   object pgc1: TPageControl
     Left = 0
-    Top = 60
+    Top = 30
     Width = 249
-    Height = 422
+    Height = 452
     ActivePage = ts1
     Align = alClient
-    TabOrder = 2
+    TabOrder = 1
     object ts1: TTabSheet
       Caption = 'Tree'
       object vtTags: TVirtualStringTree
         Left = 0
         Top = 0
         Width = 241
-        Height = 394
+        Height = 424
         Align = alClient
         Header.AutoSizeIndex = 0
         Header.Font.Charset = DEFAULT_CHARSET
@@ -112,7 +81,7 @@ object TagListFrm: TTagListFrm
         Left = 0
         Top = 30
         Width = 241
-        Height = 364
+        Height = 394
         OnClickCheck = chklst1ClickCheck
         Align = alClient
         Font.Charset = DEFAULT_CHARSET

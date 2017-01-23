@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, ExtCtrls, VirtualTrees, StdCtrls,
   
-  Structs2Unit;
+  Structs2Unit, ComCtrls, ToolWin, CheckLst, TagListFrame;
 
 type
   TView2Frm = class(TFrame)
@@ -31,6 +31,9 @@ type
     pnl6: TPanel;
     pnl7: TPanel;
     lblCount: TLabel;
+    spl3: TSplitter;
+    tl1: TTagListFrm;
+    pb2: TProgressBar;
     procedure vtLogGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType;
       var CellText: WideString);
@@ -42,6 +45,8 @@ type
     FFileName: string;
     FDataList: TDataList;
     function GetText(Sender: TBaseVirtualTree; Column: TColumnIndex; NodeIndex: Integer): string;
+    procedure OnChangeTags(Sender: TObject);
+    procedure OnLoading(const APercent: Byte);
   public
     procedure Init(const AFileName: string);
     procedure Deinit;
@@ -91,11 +96,11 @@ procedure TView2Frm.Init(const AFileName: string);
 begin
   Deinit;
   FDataList := TDataList.Create;
+  FDataList.OnChanged := OnChangeTags;
+  FDataList.OnLoading := OnLoading;
   FDataList.LoadFromFile(AFileName);
-  vtLog.RootNodeCount := 0;
-  vtLog.RootNodeCount := FDataList.RowCount;
-  vtFilteredLog.RootNodeCount := 0;
-  vtFilteredLog.RootNodeCount := FDataList.FilteredRowCount;
+  tl1.Init(FDataList.TagList);
+
   
   vtLog.Font.Name := Options.FontName;
   vtLog.Font.Size := Options.FontSize;
@@ -159,6 +164,19 @@ begin
 
   DrawSelection(clGray, edtSearch.Text);
  // DrawSelection(clMaroon, FSelectedWord);
+end;
+
+procedure TView2Frm.OnChangeTags(Sender: TObject);
+begin
+  vtLog.RootNodeCount := 0;
+  vtLog.RootNodeCount := FDataList.RowCount;
+  vtFilteredLog.RootNodeCount := 0;
+  vtFilteredLog.RootNodeCount := FDataList.FilteredRowCount;
+end;
+
+procedure TView2Frm.OnLoading(const APercent: Byte);
+begin
+  pb2.Position := APercent;
 end;
 
 end.
