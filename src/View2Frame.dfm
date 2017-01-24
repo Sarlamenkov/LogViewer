@@ -85,7 +85,7 @@ object View2Frm: TView2Frm
     object pnl2: TPanel
       Left = 0
       Top = 33
-      Width = 590
+      Width = 586
       Height = 443
       Align = alClient
       BevelOuter = bvNone
@@ -93,7 +93,7 @@ object View2Frm: TView2Frm
       object spl1: TSplitter
         Left = 0
         Top = 221
-        Width = 590
+        Width = 586
         Height = 6
         Cursor = crVSplit
         Align = alTop
@@ -102,7 +102,7 @@ object View2Frm: TView2Frm
       object pnl3: TPanel
         Left = 0
         Top = 227
-        Width = 590
+        Width = 586
         Height = 216
         Align = alClient
         BevelOuter = bvNone
@@ -111,14 +111,14 @@ object View2Frm: TView2Frm
         object pnl8: TPanel
           Left = 0
           Top = 0
-          Width = 590
+          Width = 586
           Height = 216
           Align = alClient
           BevelOuter = bvNone
           Caption = 'pnl8'
           TabOrder = 0
           object spl2: TSplitter
-            Left = 583
+            Left = 579
             Top = 0
             Width = 6
             Height = 216
@@ -126,7 +126,7 @@ object View2Frm: TView2Frm
             MinSize = 1
           end
           object vtFilteredLog2: TVirtualStringTree
-            Left = 589
+            Left = 585
             Top = 0
             Width = 1
             Height = 216
@@ -170,7 +170,7 @@ object View2Frm: TView2Frm
           object vtFilteredLog: TVirtualStringTree
             Left = 0
             Top = 0
-            Width = 583
+            Width = 579
             Height = 216
             Align = alClient
             ClipboardFormats.Strings = (
@@ -196,6 +196,8 @@ object View2Frm: TView2Frm
             TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection, toShowFilteredNodes]
             TreeOptions.SelectionOptions = [toFullRowSelect, toMiddleClickSelect, toMultiSelect, toRightClickSelect]
             OnBeforeCellPaint = vtLogBeforeCellPaint
+            OnClick = vtLogClick
+            OnDblClick = vtFilteredLogDblClick
             OnGetText = vtLogGetText
             Columns = <
               item
@@ -216,7 +218,7 @@ object View2Frm: TView2Frm
       object vtLog: TVirtualStringTree
         Left = 0
         Top = 0
-        Width = 590
+        Width = 586
         Height = 221
         Align = alTop
         ClipboardFormats.Strings = (
@@ -242,6 +244,7 @@ object View2Frm: TView2Frm
         TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection, toShowFilteredNodes]
         TreeOptions.SelectionOptions = [toFullRowSelect, toMiddleClickSelect, toMultiSelect, toRightClickSelect]
         OnBeforeCellPaint = vtLogBeforeCellPaint
+        OnClick = vtLogClick
         OnGetText = vtLogGetText
         Columns = <
           item
@@ -259,9 +262,9 @@ object View2Frm: TView2Frm
       end
     end
     object pnl4: TPanel
-      Left = 590
+      Left = 586
       Top = 33
-      Width = 14
+      Width = 18
       Height = 443
       Align = alRight
       BevelOuter = bvNone
@@ -269,14 +272,16 @@ object View2Frm: TView2Frm
       object pb1: TPaintBox
         Left = 0
         Top = 0
-        Width = 14
+        Width = 18
         Height = 427
         Align = alClient
+        OnMouseUp = pb1MouseUp
+        OnPaint = pb1Paint
       end
       object pnl6: TPanel
         Left = 0
         Top = 427
-        Width = 14
+        Width = 18
         Height = 16
         Align = alBottom
         BevelOuter = bvNone
@@ -300,10 +305,10 @@ object View2Frm: TView2Frm
       Caption = 'lblCount'
     end
     object pb2: TProgressBar
-      Left = 237
-      Top = 4
-      Width = 406
-      Height = 16
+      Left = 558
+      Top = 6
+      Width = 296
+      Height = 10
       Smooth = True
       Step = 1
       TabOrder = 0

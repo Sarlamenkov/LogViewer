@@ -1,6 +1,6 @@
 object EditTagFm: TEditTagFm
-  Left = 497
-  Top = 293
+  Left = 618
+  Top = 337
   BorderStyle = bsDialog
   Caption = 'Edit Tag'
   ClientHeight = 136

@@ -23,6 +23,7 @@ type
     function GetMatchCount: Integer;
     function GetFullName: string;
     procedure SetName(const Value: string);
+    function GetMatchRow(const AIndex: Integer): Integer;
   public
     constructor Create(const AName: string = ''; const AEnabled: Boolean = True;
       const AColor: TColor = clHighlightText; const AGroupName: string = '');
@@ -30,6 +31,7 @@ type
 
     procedure DoIndex(const AText: string; const ARowIndex: Integer);
 
+    property MatchRows[const AIndex: Integer]: Integer read GetMatchRow;
     property MatchCount: Integer read GetMatchCount;
     property Name: string read FName write SetName;
     property FullName: string read GetFullName;
@@ -81,6 +83,7 @@ type
     FFilteredInds: TList;
     FOnChanged: TNotifyEvent;
     FOnLoading: TOnLoadingEvent;
+    FOnLoaded: TNotifyEvent;
     function GetFilteredRowCount: Integer;
     function GetRowCount: Integer;
     function GetFilteredRow(const AIndex: Integer): string;
@@ -108,6 +111,7 @@ type
     property TagList: TTagList2 read FTagList;
     property OnChanged: TNotifyEvent read FOnChanged write FOnChanged;
     property OnLoading: TOnLoadingEvent read FOnLoading write FOnLoading;
+    property OnLoaded: TNotifyEvent read FOnLoaded write FOnLoaded;
   end;
 
 implementation
@@ -157,6 +161,11 @@ end;
 function TTagInfo2.GetMatchCount: Integer;
 begin
   Result := FIndexRows.Count;
+end;
+
+function TTagInfo2.GetMatchRow(const AIndex: Integer): Integer;
+begin
+  Result := Integer(FIndexRows[AIndex]); 
 end;
 
 procedure TTagInfo2.SetEnabled(const Value: Boolean);
@@ -431,6 +440,8 @@ begin
   FTagList.Load('tags');
   DoOnLoading(10);
   BuildFilteredIndex;
+  if Assigned(FOnLoaded) then
+    FOnLoaded(Self);
 end;
 
 

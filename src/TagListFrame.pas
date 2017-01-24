@@ -371,7 +371,7 @@ end;
 function SortChecked(Item1, Item2: Pointer): Integer;
 begin
   if TTagInfo2(Item1).Enabled = TTagInfo2(Item2).Enabled then
-    Result := 0
+    Result := TTagInfo2(Item2).MatchCount - TTagInfo2(Item1).MatchCount
   else if TTagInfo2(Item1).Enabled then
     Result := -1
   else

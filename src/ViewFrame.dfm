@@ -281,36 +281,6 @@ object ViewFrm: TViewFrm
             WideText = 'Text'
           end>
       end
-      inline View2Frm1: TView2Frm
-        Left = 127
-        Top = 30
-        Width = 662
-        Height = 481
-        TabOrder = 2
-        ExplicitLeft = 127
-        ExplicitTop = 30
-        ExplicitWidth = 662
-        ExplicitHeight = 481
-        inherited spl3: TSplitter
-          Height = 459
-        end
-        inherited pnlWork: TPanel
-          Width = 407
-          Height = 459
-        end
-        inherited pnl7: TPanel
-          Top = 459
-          Width = 662
-        end
-        inherited tl1: TTagListFrm
-          Height = 459
-          ExplicitHeight = 459
-          inherited pgc1: TPageControl
-            Height = 429
-            ExplicitHeight = 429
-          end
-        end
-      end
     end
     object pnl4: TPanel
       Left = 849

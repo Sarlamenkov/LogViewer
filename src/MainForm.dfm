@@ -1,6 +1,6 @@
 object MainFm: TMainFm
-  Left = 361
-  Top = 199
+  Left = 449
+  Top = 218
   Width = 948
   Height = 678
   Caption = 'Log Viewer'

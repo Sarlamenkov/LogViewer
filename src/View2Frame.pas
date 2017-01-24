@@ -41,12 +41,23 @@ type
       TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
       CellPaintMode: TVTCellPaintMode; CellRect: TRect;
       var ContentRect: TRect);
+    procedure vtFilteredLogDblClick(Sender: TObject);
+    procedure pb1Paint(Sender: TObject);
+    procedure vtLogClick(Sender: TObject);
+    procedure pb1MouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
   private
     FFileName: string;
     FDataList: TDataList;
+    FSelectedWord: string;
     function GetText(Sender: TBaseVirtualTree; Column: TColumnIndex; NodeIndex: Integer): string;
     procedure OnChangeTags(Sender: TObject);
+    procedure OnLoaded(Sender: TObject);
     procedure OnLoading(const APercent: Byte);
+    function GetNodeByIndex(Sender: TVirtualStringTree;
+      ind: Integer): PVirtualNode;
+    procedure UpdateMarks;
+    procedure UpdateCountLabel;
   public
     procedure Init(const AFileName: string);
     procedure Deinit;
@@ -60,6 +71,9 @@ implementation
 
 uses
   StrUtils, StructsUnit, uGraphicUtils;
+
+const
+  cSelectableSymbols = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM_0123456789';
     
 { TView2Frm }
 
@@ -95,9 +109,11 @@ end;
 procedure TView2Frm.Init(const AFileName: string);
 begin
   Deinit;
+  FFileName := AFileName;
   FDataList := TDataList.Create;
   FDataList.OnChanged := OnChangeTags;
   FDataList.OnLoading := OnLoading;
+  FDataList.OnLoaded := OnLoaded;
   FDataList.LoadFromFile(AFileName);
   tl1.Init(FDataList.TagList);
 
@@ -154,6 +170,11 @@ var
 begin
   vText := GetText(Sender, Column, Node.Index);
   vRect := CellRect;
+  if (Node.Index mod 2 = 0) and (Column <> 0) then
+  begin
+    TargetCanvas.Brush.Color := CalcBrightColor(clSilver, 80);
+    TargetCanvas.FillRect(vRect);
+  end;
   vMargin := TVirtualStringTree(Sender).Margin + TVirtualStringTree(Sender).TextMargin;
   for i := 0 to FDataList.TagCount - 1 do
   begin
@@ -163,7 +184,7 @@ begin
   end;
 
   DrawSelection(clGray, edtSearch.Text);
- // DrawSelection(clMaroon, FSelectedWord);
+  DrawSelection(clMaroon, FSelectedWord);
 end;
 
 procedure TView2Frm.OnChangeTags(Sender: TObject);
@@ -172,11 +193,150 @@ begin
   vtLog.RootNodeCount := FDataList.RowCount;
   vtFilteredLog.RootNodeCount := 0;
   vtFilteredLog.RootNodeCount := FDataList.FilteredRowCount;
+  UpdateMarks;
+  UpdateCountLabel;
 end;
 
 procedure TView2Frm.OnLoading(const APercent: Byte);
 begin
   pb2.Position := APercent;
+end;
+
+function TView2Frm.GetNodeByIndex(Sender: TVirtualStringTree; ind: Integer): PVirtualNode;
+var
+  node: PVirtualNode;
+  i: Integer;
+begin
+  node := Sender.GetFirst();
+  for i := 1 to ind do
+  begin
+    if node = nil then Break;
+    node := node.NextSibling;
+  end;
+  Result := node;
+end;
+
+procedure TView2Frm.vtFilteredLogDblClick(Sender: TObject);
+var
+  vVST: TVirtualStringTree;
+begin
+  if not (Sender is TVirtualStringTree) then Exit;
+  
+  vVST := TVirtualStringTree(Sender);
+  if vtLog.Visible and (vVST.FocusedNode <> nil) then
+  begin
+    vtLog.ClearSelection;
+    vtLog.FocusedNode := GetNodeByIndex(vtLog, FDataList.GetFilteredRowNumber(vVST.FocusedNode.Index));
+    vtLog.Selected[vtLog.FocusedNode] := True;
+    vtLog.ScrollIntoView(vtLog.FocusedNode, true);
+    if vtLog.CanFocus then
+      vtLog.SetFocus;
+    vtLog.Invalidate;
+  end;
+end;
+
+procedure TView2Frm.UpdateMarks;
+var
+  i, pbWidth, pbHeight, rc, j, y: Integer;
+  vTag: TTagInfo2;
+begin
+  pb1.Canvas.Lock;
+  try
+    pb1.Canvas.FillRect(pb1.ClientRect);
+    pbHeight := pb1.Height;
+    pbWidth := pb1.Width;
+    rc := FDataList.RowCount;
+    for i := 0 to FDataList.TagCount - 1 do
+    begin
+      vTag := FDataList.Tags[i];
+      if vTag.Enabled then
+      begin
+        for j := 0 to vTag.MatchCount - 1 do
+        begin
+          y := Round(vTag.MatchRows[j]/rc*pbHeight);
+          pb1.Canvas.Pen.Color := vTag.Color;
+          pb1.Canvas.MoveTo(0, y);
+          pb1.Canvas.LineTo(pbWidth, y);
+        end;
+      end;
+    end;
+  finally
+    pb1.Canvas.Unlock;
+  end;
+end;
+
+procedure TView2Frm.UpdateCountLabel;
+begin
+  lblCount.Caption := 'Rows: ' +
+    IntToStr(FDataList.FilteredRowCount) + ' / ' + IntToStr(FDataList.RowCount);
+end;
+
+procedure TView2Frm.pb1Paint(Sender: TObject);
+begin
+  UpdateMarks;
+end;
+
+procedure TView2Frm.OnLoaded(Sender: TObject);
+begin
+  UpdateMarks;
+  UpdateCountLabel;
+end;
+
+procedure TView2Frm.vtLogClick(Sender: TObject);
+var
+  vVST: TVirtualStringTree;
+  vNode: PVirtualNode;
+  vRowText: WideString;
+  vPos: TPoint;
+  vCellRect: TRect;
+//  vMargin: Integer;
+  function TextAt(const AX: Integer): string;
+  var
+    c, i: Integer;
+    vStr: string;
+  begin
+    c := 0; i := 1; vStr := '';
+    while c < AX do
+    begin
+      vStr := vStr + vRowText[i];
+      c := vVST.Canvas.TextWidth(vStr);
+      Inc(i);
+    end;
+    Dec(i);
+    while (i > 1) and (Pos(vRowText[i], cSelectableSymbols) > 0) do
+      Dec(i);
+    Result := Copy(vRowText, i + 1, Length(vRowText)); // cut from left
+    i := 1;
+    while (i < (Length(Result) + 1)) and (Pos(Result[i], cSelectableSymbols) > 0) do
+      Inc(i);
+    Result := Copy(Result, 0, i - 1); // cut from right
+  end;
+begin
+  if not (Sender is TVirtualStringTree) then Exit;
+  
+  vVST := TVirtualStringTree(Sender);
+  vPos := vVST.ScreenToClient(Mouse.CursorPos);
+  vNode := vVST.GetNodeAt(vPos.X, vPos.Y);
+  try
+    if vNode = nil then Exit;
+    vVST.GetTextInfo(vNode, 1, vVST.Font, vCellRect, vRowText);
+  //  vMargin := vVST.Margin + vVST.TextMargin;
+    if Length(vRowText) = 0 then Exit;
+    FSelectedWord := TextAt(vPos.X - vCellRect.Left);
+  finally
+    vtLog.Invalidate;
+    vtFilteredLog.Invalidate;
+  end;
+end;  
+
+procedure TView2Frm.pb1MouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+var
+  vCurNode: PVirtualNode;
+begin
+  vCurNode := GetNodeByIndex(vtLog, Trunc(FDataList.RowCount * (Y/pb1.Height)));
+  vtLog.FocusedNode := vCurNode;
+  vtLog.ScrollIntoView(vCurNode, True);
 end;
 
 end.

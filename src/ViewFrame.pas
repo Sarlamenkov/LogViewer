@@ -32,7 +32,6 @@ type
     vrtlstrngtrFullLog2: TVirtualStringTree;
     spl2: TSplitter;
     pnl8: TPanel;
-    View2Frm1: TView2Frm;
     procedure vtFullLogKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure vtFullLogEditing(Sender: TBaseVirtualTree;

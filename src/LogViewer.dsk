@@ -1,23 +1,23 @@
 [Closed Files]
-File_0=SourceModule,'C:\projects\LogViewer\src\ViewFrame.pas',0,1,443,11,450,0,0
-File_1=SourceModule,'C:\projects\LogViewer\src\StructsUnit.pas',0,1,209,1,221,0,0
-File_2=SourceModule,'C:\projects\LogViewer\src\OptionsForm.pas',0,1,37,28,48,0,0
-File_3=SourceModule,'C:\projects\LogViewer\src\EditTagForm.pas',0,1,4,40,31,0,0
-File_4=SourceModule,'C:\projects\LogViewer\src\uGraphicUtils.pas',0,1,360,54,382,0,0
-File_5=SourceModule,'C:\projects\LogViewer\src\AboutForm.pas',0,1,1,1,1,1,0
-File_6=SourceModule,'C:\PROGRA~1\Borland\Delphi7\Source\RTL\sys\system.pas',0,1,3588,1,10,0,0
+File_0=SourceModule,'C:\projects\LogViewer\src\StructsUnit.pas',0,1,209,1,221,0,0
+File_1=SourceModule,'C:\projects\LogViewer\src\OptionsForm.pas',0,1,37,28,48,0,0
+File_2=SourceModule,'C:\projects\LogViewer\src\uGraphicUtils.pas',0,1,360,54,382,0,0
+File_3=SourceModule,'C:\projects\LogViewer\src\AboutForm.pas',0,1,1,1,1,1,0
+File_4=SourceModule,'C:\PROGRA~1\Borland\Delphi7\Source\RTL\sys\system.pas',0,1,3588,1,10,0,0
 
 [Modules]
-Module0=C:\projects\LogViewer\src\Structs2Unit.pas
+Module0=C:\projects\LogViewer\src\View2Frame.pas
 Module1=C:\projects\LogViewer\src\TagListFrame.pas
-Module2=C:\projects\LogViewer\src\View2Frame.pas
+Module2=C:\projects\LogViewer\src\ViewFrame.pas
 Module3=C:\projects\LogViewer\src\MainForm.pas
-Count=4
+Module4=C:\projects\LogViewer\src\Structs2Unit.pas
+Module5=C:\projects\LogViewer\src\EditTagForm.pas
+Count=6
 EditWindowCount=1
 
-[C:\projects\LogViewer\src\Structs2Unit.pas]
+[C:\projects\LogViewer\src\View2Frame.pas]
 ModuleType=SourceModule
-FormState=0
+FormState=1
 FormOnTop=0
 
 [C:\projects\LogViewer\src\TagListFrame.pas]
@@ -25,7 +25,7 @@ ModuleType=SourceModule
 FormState=0
 FormOnTop=0
 
-[C:\projects\LogViewer\src\View2Frame.pas]
+[C:\projects\LogViewer\src\ViewFrame.pas]
 ModuleType=SourceModule
 FormState=1
 FormOnTop=0
@@ -33,6 +33,16 @@ FormOnTop=0
 [C:\projects\LogViewer\src\MainForm.pas]
 ModuleType=SourceModule
 FormState=1
+FormOnTop=0
+
+[C:\projects\LogViewer\src\Structs2Unit.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\projects\LogViewer\src\EditTagForm.pas]
+ModuleType=SourceModule
+FormState=0
 FormOnTop=0
 
 [C:\Program Files\Borland\Delphi7\Projects\ProjectGroup1.bpg]
@@ -44,59 +54,75 @@ FormState=0
 FormOnTop=0
 
 [EditWindow0]
-ViewCount=4
+ViewCount=6
 CurrentView=2
 View0=0
 View1=1
 View2=2
 View3=3
+View4=4
+View5=5
 CodeExplorer=CodeExplorer@EditWindow0
 MessageView=MessageView@EditWindow0
 Create=1
 Visible=1
 State=0
-Left=113
-Top=142
-Width=1522
-Height=740
+Left=228
+Top=134
+Width=1162
+Height=766
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=1514
-ClientHeight=713
+ClientWidth=1154
+ClientHeight=739
 LeftPanelSize=140
 LeftPanelClients=CodeExplorer@EditWindow0,ObjectTree
-LeftPanelData=00000400000000007102000000000000018C0000000000000001000000001B0100000E0000004F626A65637454726565566965770100000000710200000C000000436F64654578706C6F726572FFFFFFFF
+LeftPanelData=00000400010000000C000000436F64654578706C6F726572EA01000000000000018C000000000000000100000000EA0100000E0000004F626A65637454726565566965770100000000C902000000000000FFFFFFFF
 RightPanelSize=0
-BottomPanelSize=85
+BottomPanelSize=246
 BottomPanelClients=MessageView@EditWindow0
-BottomPanelData=000004000000000000000000000000000000000000000000000100000000000000000B0000004D65737361676556696577FFFFFFFF
+BottomPanelData=0000040000000000820400000000000002F600000000000000010000000000000000000000000100000000820400000B0000004D65737361676556696577FFFFFFFF
 
 [View0]
 Module=C:\projects\LogViewer\src\MainForm.pas
-CursorX=1
-CursorY=151
-TopLine=1
+CursorX=74
+CursorY=116
+TopLine=105
 LeftCol=1
 
 [View1]
-Module=C:\projects\LogViewer\src\View2Frame.pas
+Module=C:\projects\LogViewer\src\ViewFrame.pas
 CursorX=1
-CursorY=169
-TopLine=166
+CursorY=580
+TopLine=578
 LeftCol=1
 
 [View2]
-Module=C:\projects\LogViewer\src\Structs2Unit.pas
+Module=C:\projects\LogViewer\src\View2Frame.pas
 CursorX=1
-CursorY=324
-TopLine=11
+CursorY=172
+TopLine=161
 LeftCol=1
 
 [View3]
+Module=C:\projects\LogViewer\src\Structs2Unit.pas
+CursorX=37
+CursorY=439
+TopLine=436
+LeftCol=1
+
+[View4]
+Module=C:\projects\LogViewer\src\EditTagForm.pas
+CursorX=15
+CursorY=58
+TopLine=43
+LeftCol=1
+
+[View5]
 Module=C:\projects\LogViewer\src\TagListFrame.pas
-CursorX=1
-CursorY=321
-TopLine=302
+CursorX=60
+CursorY=374
+TopLine=361
 LeftCol=1
 
 [Watches]
@@ -112,13 +138,13 @@ Count=0
 Create=1
 Visible=1
 State=0
-Left=0
-Top=0
-Width=1788
+Left=33
+Top=5
+Width=1330
 Height=105
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=1780
+ClientWidth=1322
 ClientHeight=78
 
 [ProjectManager]
@@ -154,8 +180,8 @@ ClientHeight=60
 Create=1
 Visible=1
 State=0
-Left=0
-Top=427
+Left=-7
+Top=396
 Width=229
 Height=477
 MaxLeft=-1
@@ -167,7 +193,7 @@ LRDockWidth=229
 Dockable=1
 SplitPos=85
 ArrangeBy=Name
-SelectedItem=OnCanResize
+SelectedItem=OnMouseUp
 ExpandedItems=
 HiddenCategories=
 
@@ -178,11 +204,11 @@ State=0
 Left=0
 Top=12
 Width=140
-Height=267
+Height=478
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=140
-ClientHeight=267
+ClientHeight=478
 TBDockHeight=320
 LRDockWidth=140
 Dockable=1
@@ -221,16 +247,16 @@ Dockable=1
 
 [CodeExplorer@EditWindow0]
 Create=1
-Visible=1
+Visible=0
 State=0
 Left=0
-Top=295
+Top=12
 Width=140
-Height=330
+Height=701
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=140
-ClientHeight=330
+ClientHeight=701
 TBDockHeight=305
 LRDockWidth=140
 Dockable=1
@@ -241,13 +267,13 @@ Visible=1
 State=0
 Left=12
 Top=0
-Width=1502
-Height=85
+Width=1142
+Height=246
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=1502
-ClientHeight=85
-TBDockHeight=85
+ClientWidth=1142
+ClientHeight=246
+TBDockHeight=246
 LRDockWidth=443
 Dockable=1
 
