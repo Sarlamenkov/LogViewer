@@ -31,6 +31,7 @@ type
     PageControl1: TPageControl;
     miReopen: TMenuItem;
     N2: TMenuItem;
+    DefaultTags1: TMenuItem;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -47,6 +48,7 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure DefaultTags1Click(Sender: TObject);
 
   private
     procedure ActivateTab(const AFileName: string);
@@ -76,7 +78,8 @@ implementation
 {$R *.dfm}
 
 uses
-  uConsts, EditTagForm, AboutForm, IniFiles, OptionsForm;
+  uConsts, EditTagForm, AboutForm, IniFiles, OptionsForm,
+  TagListDefaultForm;
 
 { TEventWaitThread }
 
@@ -399,6 +402,11 @@ begin
     RefillHistoryFileNames;
     Options.SaveOptions;
   end;  
+end;
+
+procedure TMainFm.DefaultTags1Click(Sender: TObject);
+begin
+  TagListDefaultFm.Edit;
 end;
 
 initialization

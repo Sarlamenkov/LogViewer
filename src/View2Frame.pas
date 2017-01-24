@@ -168,7 +168,11 @@ var
     end;
   end;
 begin
-  vText := GetText(Sender, Column, Node.Index);
+  try
+    vText := GetText(Sender, Column, Node.Index);
+  except
+    ShowMessage(IntToStr(Column) + ' ' + IntToStr(Node.Index));
+  end;
   vRect := CellRect;
   if (Node.Index mod 2 = 0) and (Column <> 0) then
   begin

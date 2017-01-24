@@ -171,7 +171,8 @@ end;
 procedure TTagInfo2.SetEnabled(const Value: Boolean);
 begin
   FEnabled := Value;
-  FOwner.FOwner.BuildFilteredIndex;
+  if Assigned(FOwner.FOwner) then
+    FOwner.FOwner.BuildFilteredIndex;
 end;
 
 procedure TTagInfo2.SetName(const Value: string);

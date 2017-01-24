@@ -39,7 +39,7 @@ object TagListFrm: TTagListFrm
     Top = 30
     Width = 249
     Height = 452
-    ActivePage = ts1
+    ActivePage = ts2
     Align = alClient
     TabOrder = 1
     object ts1: TTabSheet
@@ -109,15 +109,18 @@ object TagListFrm: TTagListFrm
         Images = ImageList
         TabOrder = 1
         Transparent = True
-        object btnAlphabeticalSort: TToolButton
+        object btnCheckedSort: TToolButton
           Left = 0
           Top = 0
-          Action = actAlphabeticalSort
+          Action = actCheckedSort
+          Style = tbsCheck
         end
-        object btnCheckedSort: TToolButton
+        object btnAlphabeticalSort: TToolButton
           Left = 31
           Top = 0
-          Action = actCheckedSort
+          Action = actAlphabeticalSort
+          Down = True
+          Style = tbsCheck
         end
         object btnNoSort: TToolButton
           Left = 62
@@ -1071,20 +1074,20 @@ object TagListFrm: TTagListFrm
     Images = ImageList
     Left = 45
     Top = 214
-    object actAlphabeticalSort: TAction
-      AutoCheck = True
-      Caption = 'actAlphabeticalSort'
-      Checked = True
-      GroupIndex = 1
-      ImageIndex = 4
-      OnExecute = actAlphabeticalSortExecute
-    end
     object actCheckedSort: TAction
       AutoCheck = True
       Caption = 'actCheckedSort'
+      Checked = True
       GroupIndex = 1
       ImageIndex = 5
       OnExecute = actCheckedSortExecute
+    end
+    object actAlphabeticalSort: TAction
+      AutoCheck = True
+      Caption = 'actAlphabeticalSort'
+      GroupIndex = 1
+      ImageIndex = 4
+      OnExecute = actAlphabeticalSortExecute
     end
     object actNoSort: TAction
       AutoCheck = True

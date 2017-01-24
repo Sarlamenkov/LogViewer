@@ -36,7 +36,7 @@ object MainFm: TMainFm
     Top = 97
   end
   object MainMenu: TMainMenu
-    Left = 218
+    Left = 219
     Top = 44
     object File1: TMenuItem
       Caption = 'File'
@@ -69,6 +69,10 @@ object MainFm: TMainFm
     object Options1: TMenuItem
       Caption = 'Options'
       OnClick = Options1Click
+    end
+    object DefaultTags1: TMenuItem
+      Caption = 'Default Tags'
+      OnClick = DefaultTags1Click
     end
     object About1: TMenuItem
       Caption = 'About'

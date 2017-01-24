@@ -360,6 +360,7 @@ end;
 procedure TTagListFrm.ReallocSortedTags;
 begin
   FTags.CopyTo(FSortedTags);
+ // FSort
   Sort;
 end;
 
@@ -371,11 +372,16 @@ end;
 function SortChecked(Item1, Item2: Pointer): Integer;
 begin
   if TTagInfo2(Item1).Enabled = TTagInfo2(Item2).Enabled then
-    Result := TTagInfo2(Item2).MatchCount - TTagInfo2(Item1).MatchCount
-  else if TTagInfo2(Item1).Enabled then
+  begin
+    if TTagInfo2(Item1).Enabled then
+      Result := TTagInfo2(Item2).MatchCount - TTagInfo2(Item1).MatchCount
+    else
+      Result := CompareText(TTagInfo2(Item1).Name, TTagInfo2(Item2).Name);
+  end
+  else  if TTagInfo2(Item1).Enabled then
     Result := -1
   else
-    Result := 1;  
+    Result := 1;
 end;
 
 procedure TTagListFrm.Sort;

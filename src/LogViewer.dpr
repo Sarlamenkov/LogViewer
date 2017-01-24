@@ -13,7 +13,8 @@ uses
   OptionsForm in 'OptionsForm.pas' {OptionsFm},
   TagListFrame in 'TagListFrame.pas' {TagListFrm: TFrame},
   Structs2Unit in 'Structs2Unit.pas',
-  View2Frame in 'View2Frame.pas' {View2Frm: TFrame};
+  View2Frame in 'View2Frame.pas' {View2Frm: TFrame},
+  TagListDefaultForm in 'TagListDefaultForm.pas' {TagListDefaultFm};
 
 {$R *.res}
 
@@ -65,6 +66,7 @@ begin
   Application.CreateForm(TEditTagFm, EditTagFm);
   Application.CreateForm(TAboutFm, AboutFm);
   Application.CreateForm(TOptionsFm, OptionsFm);
+  Application.CreateForm(TTagListDefaultFm, TagListDefaultFm);
   Application.Run;
     CloseHandle(ServerMailslotHandle);
     CloseHandle(CommandEvent);
