@@ -6,7 +6,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, VirtualTrees, ComCtrls, ToolWin, ActnList, ImgList,
 
-  Structs2Unit, StdCtrls, ExtCtrls, Menus, CheckLst;
+  Structs2Unit, StdCtrls, ExtCtrls, Menus, CheckLst, System.Actions,
+  System.ImageList;
 
 type
   TTagChangeEvent = procedure() of object;
@@ -44,7 +45,7 @@ type
       var NodeDataSize: Integer);
     procedure vtTagsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
+      var CellText: string);
     procedure vtTagsChecking(Sender: TBaseVirtualTree; Node: PVirtualNode;
       var NewState: TCheckState; var Allowed: Boolean);
     procedure actEditExecute(Sender: TObject);
@@ -195,7 +196,7 @@ end;
 
 procedure TTagListFrm.vtTagsGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: WideString);
+  var CellText: string);
 var
   vNodeData: ^TNodeData;
   vTag: TTagInfo2;

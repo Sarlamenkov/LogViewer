@@ -6,7 +6,7 @@ uses
   Classes, Controls, Forms,
   StdCtrls,
 
-  StructsUnit, Dialogs, Graphics;
+  Structs2Unit, Dialogs, Graphics;
 
 type
   TOptionsFm = class(TForm)

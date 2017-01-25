@@ -114,17 +114,50 @@ type
     property OnLoaded: TNotifyEvent read FOnLoaded write FOnLoaded;
   end;
 
+  TOptions = class
+  private
+    FOpenedFileNames, FHistoryFileNames: TStrings;
+  public
+    CaseSens: Boolean;
+    FontName: string;
+    FontSize: Integer;
+    TwoWindow: Boolean;
+    SaveOnExit: Boolean;
+
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure SaveOptions;
+    procedure LoadOptions;
+
+    procedure AddToHistory(const AFileName: string);
+
+    property OpenedFileNames: TStrings read FOpenedFileNames;
+    property HistoryFileNames: TStrings read FHistoryFileNames;
+  end;
+
+function Options: TOptions;
+
 implementation
 
 uses
   SysUtils, StrUtils, Forms,
 
-  uConsts, StructsUnit;
+  uConsts;
 
 const
   cLeftBrace = '(_';
   cRightBrace = '_)';
 
+var
+  gOptions: TOptions;
+
+function Options: TOptions;
+begin
+  if gOptions = nil then
+    gOptions := TOptions.Create;
+  Result := gOptions;
+end;
 { TTagInfo }
 
 constructor TTagInfo2.Create(const AName: string = ''; const AEnabled: Boolean = True; const AColor: TColor = clHighlightText;
@@ -445,5 +478,77 @@ begin
     FOnLoaded(Self);
 end;
 
+{ TOptions }
+
+procedure TOptions.AddToHistory(const AFileName: string);
+begin
+  if HistoryFileNames.IndexOf(AFileName) < 0 then
+    HistoryFileNames.Add(AFileName);
+  if HistoryFileNames.Count > 10 then
+    HistoryFileNames.Delete(0);
+end;
+
+constructor TOptions.Create;
+begin
+  FOpenedFileNames := TStringList.Create;
+  FHistoryFileNames := TStringList.Create;
+end;
+
+destructor TOptions.Destroy;
+begin
+  FreeAndNil(FHistoryFileNames);
+  FreeAndNil(FOpenedFileNames);
+  inherited;
+end;
+
+procedure TOptions.LoadOptions;
+var
+  vIni: TIniFile;
+  vFiles: TStrings;
+  i: Integer;
+begin
+  vIni := TIniFile.Create(gSettingsFileName);
+
+  FontName := vIni.ReadString('options', 'font', 'Courier');
+  FontSize := vIni.ReadInteger('options', 'font_size', 8);
+  CaseSens := vIni.ReadBool('options', 'case_sens', False);
+  TwoWindow := vIni.ReadBool('options', 'two_window', False);
+  SaveOnExit := True;
+  vFiles := TStringList.Create;
+  vIni.ReadSectionValues('files', vFiles);
+  FOpenedFileNames.Clear;
+  for i := 0 to vFiles.Count - 1 do
+    FOpenedFileNames.Add(vFiles.ValueFromIndex[i]);
+
+  vIni.ReadSectionValues('history', vFiles);
+  FHistoryFileNames.Clear;
+  for i := 0 to vFiles.Count - 1 do
+    FHistoryFileNames.Add(vFiles.ValueFromIndex[i]);
+
+  vIni.Free;
+  vFiles.Free;
+end;
+
+procedure TOptions.SaveOptions;
+var
+  vIni: TIniFile;
+  i: Integer;
+begin
+  vIni := TIniFile.Create(gSettingsFileName);
+  vIni.WriteString('options', 'font', FontName);
+  vIni.WriteInteger('options', 'font_size', FontSize);
+  vIni.WriteBool('options', 'case_sens', CaseSens);
+  vIni.WriteBool('options', 'two_window', TwoWindow);
+
+  vIni.EraseSection('files');
+  for i := 0 to FOpenedFileNames.Count - 1 do
+    vIni.WriteString('files', 'file' + IntToStr(i), FOpenedFileNames[i]);
+
+  vIni.EraseSection('history');
+  for i := 0 to FHistoryFileNames.Count - 1 do
+    vIni.WriteString('history', 'file' + IntToStr(i), FHistoryFileNames[i]);
+
+  vIni.Free;
+end;
 
 end.

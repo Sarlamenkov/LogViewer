@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, VirtualTrees, ComCtrls, ActnList,
-  View2Frame, StructsUnit, ShellAPI, StdCtrls, Menus, ImgList, ToolWin,
+  View2Frame, Structs2Unit, ShellAPI, StdCtrls, Menus, ImgList, ToolWin,
   TagListFrame;
 
 const

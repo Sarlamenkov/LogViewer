@@ -36,7 +36,7 @@ type
     pb2: TProgressBar;
     procedure vtLogGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
+      var CellText: string);
     procedure vtLogBeforeCellPaint(Sender: TBaseVirtualTree;
       TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
       CellPaintMode: TVTCellPaintMode; CellRect: TRect;
@@ -70,7 +70,7 @@ implementation
 {$R *.dfm}
 
 uses
-  StrUtils, StructsUnit, uGraphicUtils;
+  StrUtils, uGraphicUtils;
 
 const
   cSelectableSymbols = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM_0123456789';
@@ -129,7 +129,7 @@ end;
 
 procedure TView2Frm.vtLogGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: WideString);
+  var CellText: string);
 begin
   CellText := GetText(Sender, Column, Node.Index);
 end;
@@ -290,7 +290,7 @@ procedure TView2Frm.vtLogClick(Sender: TObject);
 var
   vVST: TVirtualStringTree;
   vNode: PVirtualNode;
-  vRowText: WideString;
+  vRowText: string;
   vPos: TPoint;
   vCellRect: TRect;
 //  vMargin: Integer;

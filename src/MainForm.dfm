@@ -1,9 +1,9 @@
 object MainFm: TMainFm
   Left = 449
   Top = 218
-  Width = 948
-  Height = 678
   Caption = 'Log Viewer'
+  ClientHeight = 620
+  ClientWidth = 932
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -24,8 +24,8 @@ object MainFm: TMainFm
   object PageControl1: TPageControl
     Left = 0
     Top = 0
-    Width = 940
-    Height = 632
+    Width = 932
+    Height = 620
     Align = alClient
     TabOrder = 0
     OnMouseUp = PageControl1MouseUp

@@ -6,15 +6,18 @@ uses
   SysUtils,
   MainForm in 'MainForm.pas' {MainFm},
   EditTagForm in 'EditTagForm.pas' {EditTagFm},
-  StructsUnit in 'StructsUnit.pas',
-  uGraphicUtils in 'uGraphicUtils.pas',
   AboutForm in 'AboutForm.pas' {AboutFm},
   uConsts in 'uConsts.pas',
   OptionsForm in 'OptionsForm.pas' {OptionsFm},
   TagListFrame in 'TagListFrame.pas' {TagListFrm: TFrame},
   Structs2Unit in 'Structs2Unit.pas',
   View2Frame in 'View2Frame.pas' {View2Frm: TFrame},
-  TagListDefaultForm in 'TagListDefaultForm.pas' {TagListDefaultFm};
+  TagListDefaultForm in 'TagListDefaultForm.pas' {TagListDefaultFm},
+  VTAccessibility in 'ThirdParty\Source\VTAccessibility.pas',
+  VTAccessibilityFactory in 'ThirdParty\Source\VTAccessibilityFactory.pas',
+  VTHeaderPopup in 'ThirdParty\Source\VTHeaderPopup.pas',
+  VirtualTrees in 'ThirdParty\Source\VirtualTrees.pas',
+  uGraphicUtils in 'uGraphicUtils.pas';
 
 {$R *.res}
 
