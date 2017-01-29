@@ -1,6 +1,8 @@
 program LogViewer;
 
 uses
+  FastMM4 in 'ThirdParty\FastMM\FastMM4.pas',
+  FastMM4Messages in 'ThirdParty\FastMM\FastMM4Messages.pas',
   Forms,
   Windows,
   SysUtils,
@@ -10,14 +12,14 @@ uses
   uConsts in 'uConsts.pas',
   OptionsForm in 'OptionsForm.pas' {OptionsFm},
   TagListFrame in 'TagListFrame.pas' {TagListFrm: TFrame},
-  Structs2Unit in 'Structs2Unit.pas',
+  uStructs in 'uStructs.pas',
   View2Frame in 'View2Frame.pas' {View2Frm: TFrame},
   TagListDefaultForm in 'TagListDefaultForm.pas' {TagListDefaultFm},
-  VTAccessibility in 'ThirdParty\Source\VTAccessibility.pas',
-  VTAccessibilityFactory in 'ThirdParty\Source\VTAccessibilityFactory.pas',
-  VTHeaderPopup in 'ThirdParty\Source\VTHeaderPopup.pas',
-  VirtualTrees in 'ThirdParty\Source\VirtualTrees.pas',
-  uGraphicUtils in 'uGraphicUtils.pas';
+  uGraphicUtils in 'uGraphicUtils.pas',
+  VirtualTrees in 'ThirdParty\VirtualTreeView\Source\VirtualTrees.pas',
+  VTAccessibility in 'ThirdParty\VirtualTreeView\Source\VTAccessibility.pas',
+  VTAccessibilityFactory in 'ThirdParty\VirtualTreeView\Source\VTAccessibilityFactory.pas',
+  VTHeaderPopup in 'ThirdParty\VirtualTreeView\Source\VTHeaderPopup.pas';
 
 {$R *.res}
 

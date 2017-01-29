@@ -5,8 +5,9 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, VirtualTrees, ComCtrls, ActnList,
-  View2Frame, Structs2Unit, ShellAPI, StdCtrls, Menus, ImgList, ToolWin,
-  TagListFrame;
+  ShellAPI, StdCtrls, Menus, ImgList, ToolWin,
+
+  View2Frame, uStructs, TagListFrame;
 
 const
   WM_CommandArrived = WM_USER + 1;  
@@ -32,6 +33,7 @@ type
     miReopen: TMenuItem;
     N2: TMenuItem;
     DefaultTags1: TMenuItem;
+    Timer1: TTimer;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -49,6 +51,7 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure DefaultTags1Click(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
 
   private
     procedure ActivateTab(const AFileName: string);
@@ -60,8 +63,8 @@ type
     procedure UpdateCaption(const AFileName: string);
     procedure RefillOpenedFileNames;
     procedure RefillHistoryFileNames;
-    procedure OnChangeTag;
     procedure OnSelectHistoryFile(Sender: TObject);
+    procedure FirstActivate;
   protected
     procedure WMDropFiles(var Msg: TMessage); message wm_DropFiles;
   public
@@ -78,7 +81,9 @@ implementation
 {$R *.dfm}
 
 uses
-  uConsts, EditTagForm, AboutForm, IniFiles, OptionsForm,
+  IniFiles,
+
+  uConsts, EditTagForm, AboutForm,  OptionsForm,
   TagListDefaultForm;
 
 { TEventWaitThread }
@@ -93,21 +98,14 @@ begin
   end;
 end;
 
-procedure TMainFm.FormShow(Sender: TObject);
-var
-  i: Integer; 
+procedure TMainFm.FormShow(Sender: TObject); 
 begin
-  UpdateCaption('');
   gSettingsFileName := ExtractFilePath(Application.ExeName) + 'settings.ini';
-  Options.LoadOptions;
-  for i := 0 to Options.OpenedFileNames.Count - 1 do
-    ActivateTab(Options.OpenedFileNames[i]);
-
-  if ParamCount > 0 then
-    ActivateTab(ParamStr(1));
+  UpdateCaption('');
   TEventWaitThread.Create(False);
-
+  Options.LoadOptions;
   RefillHistoryFileNames;
+
 end;
 
 procedure TMainFm.RefillOpenedFileNames;
@@ -117,6 +115,12 @@ begin
   Options.OpenedFileNames.Clear;
   for i := 0 to PageControl1.PageCount - 1 do
     Options.OpenedFileNames.Add(TView2Frm(PageControl1.Pages[i].Tag).FileName);
+end;
+
+procedure TMainFm.Timer1Timer(Sender: TObject);
+begin
+  Timer1.Enabled := False;
+  FirstActivate;
 end;
 
 procedure TMainFm.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -159,6 +163,8 @@ begin
   else
     vView := TView2Frm(vTabSheet.Tag);
 
+  PageControl1.ActivePage := vTabSheet;
+
   vPrevCursor := Screen.Cursor;
   Screen.Cursor := crHourGlass;
   try
@@ -166,8 +172,7 @@ begin
   finally
     Screen.Cursor := vPrevCursor;
   end;
-  PageControl1.ActivePage := vTabSheet;
-  
+
   UpdateCaption(vView.FileName);
 end;
 
@@ -187,6 +192,16 @@ begin
   end;
   DragFinish(THandle(Msg.WParam));
 //  SaveOptions;
+end;
+
+procedure TMainFm.FirstActivate;
+var
+  i: Integer;
+begin
+  for i := 0 to Options.OpenedFileNames.Count - 1 do
+    ActivateTab(Options.OpenedFileNames[i]);
+  if ParamCount > 0 then
+    ActivateTab(ParamStr(1));
 end;
 
 procedure TMainFm.FormCreate(Sender: TObject);
@@ -364,11 +379,6 @@ begin
   begin
   //  TView2Frm(PageControl1.ActivePage.Tag).SwitchFilter;
   end;
-end;
-
-procedure TMainFm.OnChangeTag;
-begin
-  ActualizeCurrentView;
 end;
 
 procedure TMainFm.RefillHistoryFileNames;

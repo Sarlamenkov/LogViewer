@@ -6,7 +6,7 @@ uses
   Windows, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls,
 
-  Structs2Unit;
+  uStructs;
 
 type
   TEditTagFm = class(TForm)

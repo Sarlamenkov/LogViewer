@@ -79,4 +79,10 @@ object MainFm: TMainFm
       OnClick = About1Click
     end
   end
+  object Timer1: TTimer
+    Interval = 10
+    OnTimer = Timer1Timer
+    Left = 232
+    Top = 128
+  end
 end

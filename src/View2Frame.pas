@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, ExtCtrls, VirtualTrees, StdCtrls,
   
-  Structs2Unit, ComCtrls, ToolWin, CheckLst, TagListFrame;
+  uStructs, ComCtrls, ToolWin, CheckLst, TagListFrame;
 
 type
   TView2Frm = class(TFrame)
@@ -54,8 +54,7 @@ type
     procedure OnChangeTags(Sender: TObject);
     procedure OnLoaded(Sender: TObject);
     procedure OnLoading(const APercent: Byte);
-    function GetNodeByIndex(Sender: TVirtualStringTree;
-      ind: Integer): PVirtualNode;
+    function GetNodeByIndex(Sender: TVirtualStringTree; ind: Integer): PVirtualNode;
     procedure UpdateMarks;
     procedure UpdateCountLabel;
   public
@@ -203,6 +202,8 @@ end;
 
 procedure TView2Frm.OnLoading(const APercent: Byte);
 begin
+  if not pb2.Visible then
+    pb2.Visible := True;
   pb2.Position := APercent;
 end;
 
@@ -284,6 +285,7 @@ procedure TView2Frm.OnLoaded(Sender: TObject);
 begin
   UpdateMarks;
   UpdateCountLabel;
+  pb2.Visible := False;
 end;
 
 procedure TView2Frm.vtLogClick(Sender: TObject);

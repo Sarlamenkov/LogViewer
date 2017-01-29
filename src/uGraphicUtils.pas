@@ -72,7 +72,7 @@ function CreateRotatedBitmap(const ACanvas: TCanvas;
 implementation
 
 uses
-  SysUtils, Types, Math;
+  SysUtils, Types, Math, UITypes;
 
 function CreateRotatedBitmap(const ACanvas: TCanvas;
   const ARect: TRect; const AnAngle: Integer): TBitmap;

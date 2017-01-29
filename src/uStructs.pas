@@ -1,4 +1,4 @@
-unit Structs2Unit;
+unit uStructs;
 
 interface
 
@@ -84,6 +84,7 @@ type
     FOnChanged: TNotifyEvent;
     FOnLoading: TOnLoadingEvent;
     FOnLoaded: TNotifyEvent;
+    FBuildInProgress: Boolean;
     function GetFilteredRowCount: Integer;
     function GetRowCount: Integer;
     function GetFilteredRow(const AIndex: Integer): string;
@@ -141,7 +142,7 @@ function Options: TOptions;
 implementation
 
 uses
-  SysUtils, StrUtils, Forms,
+  SysUtils, StrUtils, Forms, Types,
 
   uConsts;
 
@@ -378,18 +379,25 @@ procedure TDataList.BuildFilteredIndex;
 var
   i: Integer;
 begin
-  FFilteredInds.Clear;
-  for i := 0 to FTagList.Count - 1 do
-  begin
-    if FTagList.Items[i].Enabled then
+  FBuildInProgress := True;
+  try
+    FFilteredInds.Clear;
+    for i := 0 to FTagList.Count - 1 do
     begin
-      BuildIndexForTag(FTagList.Items[i]);
-      FFilteredInds.Assign(FTagList.Items[i].FIndexRows, laOr);
+      if FTagList.Items[i].Enabled then
+      begin
+        BuildIndexForTag(FTagList.Items[i]);
+        FFilteredInds.Assign(FTagList.Items[i].FIndexRows, laOr);
+      end;
+      DoOnLoading(10 + Trunc(i/FTagList.Count * 90));
     end;
-    DoOnLoading(10 + Trunc(i/FTagList.Count * 90));
+    FFilteredInds.Sort(SortAsc);
+    DoOnChange;
+    if Assigned(FOnLoaded) then
+      FOnLoaded(Self);
+  finally
+    FBuildInProgress := False;
   end;
-  FFilteredInds.Sort(SortAsc);
-  DoOnChange;
 end;
 
 procedure TDataList.BuildIndexForTag(const ATag: TTagInfo2);
@@ -408,6 +416,7 @@ begin
   FTagList := TTagList2.Create;
   FTagList.FOwner := Self;
   FFilteredInds := TList.Create;
+  FBuildInProgress := False;
 end;
 
 destructor TDataList.Destroy;
@@ -433,7 +442,10 @@ end;
 
 function TDataList.GetFilteredRow(const AIndex: Integer): string;
 begin
-  Result := FData[Integer(FFilteredInds[AIndex])];
+  if FBuildInProgress then
+    Result := ''
+  else
+    Result := FData[Integer(FFilteredInds[AIndex])];
 end;
 
 function TDataList.GetFilteredRowCount: Integer;
@@ -441,10 +453,12 @@ begin
   Result := FFilteredInds.Count;
 end;
 
-function TDataList.GetFilteredRowNumber(
-  const ACurrentRow: Integer): Integer;
+function TDataList.GetFilteredRowNumber(const ACurrentRow: Integer): Integer;
 begin
-  Result := Integer(FFilteredInds[ACurrentRow]);
+  if FBuildInProgress then
+    Result := -1
+  else
+    Result := Integer(FFilteredInds[ACurrentRow]);
 end;
 
 function TDataList.GetRow(const AIndex: Integer): string;
@@ -469,13 +483,13 @@ end;
 
 procedure TDataList.LoadFromFile(const AFileName: string);
 begin
+  Application.ProcessMessages;
   FData.LoadFromFile(AFileName);
   DoOnLoading(5);
   FTagList.Load('tags');
   DoOnLoading(10);
   BuildFilteredIndex;
-  if Assigned(FOnLoaded) then
-    FOnLoaded(Self);
+
 end;
 
 { TOptions }

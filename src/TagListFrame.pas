@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, VirtualTrees, ComCtrls, ToolWin, ActnList, ImgList,
 
-  Structs2Unit, StdCtrls, ExtCtrls, Menus, CheckLst, System.Actions,
+  uStructs, StdCtrls, ExtCtrls, Menus, CheckLst, System.Actions,
   System.ImageList;
 
 type
@@ -113,6 +113,7 @@ var
   var
     vN, vGroupNode: PVirtualNode;
   begin
+    vGroupNode := nil;
     if vTag.GroupName = '' then
       Result := vtTags.AddChild(nil)
     else
@@ -200,7 +201,6 @@ procedure TTagListFrm.vtTagsGetText(Sender: TBaseVirtualTree;
 var
   vNodeData: ^TNodeData;
   vTag: TTagInfo2;
-  vText: string;
 begin
   vNodeData := vtTags.GetNodeData(Node);
   vTag := vNodeData.Data;
@@ -303,14 +303,10 @@ end;
 procedure TTagListFrm.CheckAll(const ACheck: Boolean);
 var
   vNode: PVirtualNode;
-  vNodeData: ^TNodeData;
-  vTag: TTagInfo2;
 begin
   vNode := vtTags.GetFirst;
   while Assigned(vNode) do
   begin
-    vNodeData := vtTags.GetNodeData(vNode);
-    vTag := vNodeData.Data;
     if ACheck then
       vNode.CheckState := csCheckedNormal
     else

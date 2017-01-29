@@ -4,9 +4,9 @@ interface
 
 uses
   Classes, Controls, Forms,
-  StdCtrls,
+  StdCtrls, Dialogs, Graphics,
 
-  Structs2Unit, Dialogs, Graphics;
+  uStructs;
 
 type
   TOptionsFm = class(TForm)
