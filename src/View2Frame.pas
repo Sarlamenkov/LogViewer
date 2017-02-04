@@ -6,7 +6,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, ExtCtrls, VirtualTrees, StdCtrls,
   
-  uStructs, ComCtrls, ToolWin, CheckLst, TagListFrame;
+  uStructs, ComCtrls, ToolWin, CheckLst, TagListFrame, System.Actions,
+  Vcl.ActnList;
 
 type
   TView2Frm = class(TFrame)
@@ -19,10 +20,10 @@ type
     btnFindPrev: TButton;
     chkTwoWindows: TCheckBox;
     pnl2: TPanel;
-    spl1: TSplitter;
-    pnl3: TPanel;
-    pnl8: TPanel;
-    spl2: TSplitter;
+    splVerticalLogs: TSplitter;
+    pnlLog: TPanel;
+    pnlFiltered: TPanel;
+    splFiltered: TSplitter;
     vtFilteredLog2: TVirtualStringTree;
     vtFilteredLog: TVirtualStringTree;
     vtLog: TVirtualStringTree;
@@ -34,6 +35,12 @@ type
     spl3: TSplitter;
     tl1: TTagListFrm;
     pb2: TProgressBar;
+    pnlFull: TPanel;
+    vtLog2: TVirtualStringTree;
+    splFullLog: TSplitter;
+    ActionList1: TActionList;
+    act2windows: TAction;
+    actFiltered: TAction;
     procedure vtLogGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType;
       var CellText: string);
@@ -46,10 +53,14 @@ type
     procedure vtLogClick(Sender: TObject);
     procedure pb1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure act2windowsExecute(Sender: TObject);
+    procedure btnFindNextClick(Sender: TObject);
   private
     FFileName: string;
     FDataList: TDataList;
     FSelectedWord: string;
+    FFindWindow: TVirtualStringTree;
+    FFindNextNode: PVirtualNode;
     function GetText(Sender: TBaseVirtualTree; Column: TColumnIndex; NodeIndex: Integer): string;
     procedure OnChangeTags(Sender: TObject);
     procedure OnLoaded(Sender: TObject);
@@ -57,6 +68,8 @@ type
     function GetNodeByIndex(Sender: TVirtualStringTree; ind: Integer): PVirtualNode;
     procedure UpdateMarks;
     procedure UpdateCountLabel;
+    function FindOriginNodeByText(const AFromNode: PVirtualNode;
+      const AText: string): PVirtualNode;
   public
     procedure Init(const AFileName: string);
     procedure Deinit;
@@ -75,6 +88,71 @@ const
   cSelectableSymbols = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM_0123456789';
     
 { TView2Frm }
+
+procedure TView2Frm.act2windowsExecute(Sender: TObject);
+begin
+  pnlFiltered.Visible := act2windows.Checked;
+  splVerticalLogs.Visible := act2windows.Checked;
+  if pnlFiltered.Visible then
+  begin
+    pnlFull.Align := alTop;
+    pnlFull.Height := 300;
+  end
+  else
+    pnlFull.Align := alClient;
+end;
+
+procedure TView2Frm.btnFindNextClick(Sender: TObject);
+begin
+  if Length(Trim(edtSearch.Text)) = 0 then Exit;
+
+  if (FFindWindow = nil) or (FFindWindow.Visible = False) then
+    FFindWindow := vtLog;
+  FFindNextNode := FFindWindow.FocusedNode;
+  if FFindNextNode = nil then
+    FFindNextNode := FFindWindow.GetFirst
+  else
+    FFindNextNode := FFindWindow.GetNext(FFindNextNode);
+
+  FFindWindow.FocusedNode := FindOriginNodeByText(FFindNextNode, edtSearch.Text);
+  FFindWindow.ClearSelection;
+  if FFindWindow.FocusedNode <> nil then
+  begin
+    FFindWindow.ScrollIntoView(FFindWindow.FocusedNode, true);
+    FFindWindow.Selected[FFindWindow.FocusedNode] := true;
+    FFindWindow.Invalidate;
+    if FFindWindow.CanFocus then
+      FFindWindow.SetFocus;
+  end;
+end;
+
+function TView2Frm.FindOriginNodeByText(const AFromNode: PVirtualNode;
+  const AText: string): PVirtualNode;
+var
+  vNode: PVirtualNode;
+  vPos, row: Integer;
+begin
+  Result := nil;
+  vNode := AFromNode;
+  while Assigned(vNode) do
+  begin
+    if FFindWindow = vtLog then
+      row := vNode.Index
+    else
+      row := FDataList.GetFilteredRowNumber(vNode.Index);
+   { if Options.CaseSens then
+      vPos := Pos(AText, FOriginRows[row])
+    else
+      vPos := Pos(UpperCase(AText), UpperCase(FOriginRows[row]));
+    }
+    if vPos > 0 then
+    begin
+      Result := vNode;
+      Break;
+    end;
+    vNode := vNode.NextSibling;
+  end;
+end;
 
 procedure TView2Frm.Deinit;
 begin

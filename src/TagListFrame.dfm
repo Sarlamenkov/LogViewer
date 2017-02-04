@@ -39,19 +39,23 @@ object TagListFrm: TTagListFrm
     Height = 452
     ActivePage = ts1
     Align = alClient
+    Style = tsFlatButtons
     TabOrder = 1
     object ts1: TTabSheet
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
       Caption = 'Tree'
       ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object vtTags: TVirtualStringTree
         Left = 0
         Top = 0
         Width = 241
-        Height = 424
+        Height = 421
         Align = alClient
+        BevelInner = bvNone
+        BevelOuter = bvNone
         Header.AutoSizeIndex = 0
         Header.Font.Charset = DEFAULT_CHARSET
         Header.Font.Color = clWindowText
@@ -83,7 +87,7 @@ object TagListFrm: TTagListFrm
         Left = 0
         Top = 30
         Width = 241
-        Height = 394
+        Height = 391
         OnClickCheck = chklst1ClickCheck
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
@@ -135,7 +139,7 @@ object TagListFrm: TTagListFrm
     Left = 102
     Top = 164
     Bitmap = {
-      494C010107000A000C0018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010107001400140018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000003000000001002000000000000048
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
