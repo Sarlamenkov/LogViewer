@@ -50,11 +50,18 @@ type
       var ContentRect: TRect);
     procedure vtFilteredLogDblClick(Sender: TObject);
     procedure pb1Paint(Sender: TObject);
-    procedure vtLogClick(Sender: TObject);
+    procedure GetSelectedWord(VST: TObject);
     procedure pb1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure act2windowsExecute(Sender: TObject);
     procedure btnFindNextClick(Sender: TObject);
+    procedure vtLogEditing(Sender: TBaseVirtualTree; Node: PVirtualNode;
+      Column: TColumnIndex; var Allowed: Boolean);
+    procedure vtLogEnter(Sender: TObject);
+    procedure vtFilteredLogKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure vtLogMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
   private
     FFileName: string;
     FDataList: TDataList;
@@ -82,7 +89,7 @@ implementation
 {$R *.dfm}
 
 uses
-  StrUtils, uGraphicUtils;
+  Clipbrd, StrUtils, uGraphicUtils;
 
 const
   cSelectableSymbols = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM_0123456789';
@@ -164,7 +171,7 @@ function TView2Frm.GetText(Sender: TBaseVirtualTree; Column: TColumnIndex;
 var
   w: Integer;
 begin
-  if Sender = vtLog then
+  if (Sender = vtLog) or (Sender = vtLog2) then
   begin
     if Column = 0 then
       Result := IntToStr(NodeIndex + 1)
@@ -211,6 +218,14 @@ begin
   CellText := GetText(Sender, Column, Node.Index);
 end;
 
+procedure TView2Frm.vtLogMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  if Button = mbMiddle then
+    if Assigned(TVirtualStringTree(Sender).FocusedNode) then
+      TVirtualStringTree(Sender).EditNode(TVirtualStringTree(Sender).FocusedNode, 1);
+end;
+
 procedure TView2Frm.vtLogBeforeCellPaint(Sender: TBaseVirtualTree;
   TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
   CellPaintMode: TVTCellPaintMode; CellRect: TRect;
@@ -218,35 +233,51 @@ procedure TView2Frm.vtLogBeforeCellPaint(Sender: TBaseVirtualTree;
 var
   i, vPos, vMargin: Integer;
   vTag: TTagInfo2;
-  vText, vBeforeTag: string;
+  vRowText, vBeforeTag: string;
   vRect: TRect;
-  procedure DrawSelection(const AColor: TColor; const ASelText: string);
+  procedure DrawSelection(const AColor: TColor; const ASelText: string; const AExactMatch: Boolean = False);
+  var
+    vvNeedDrawSelection: Boolean;
+    vvAfterEndChar: Integer;
   begin
     if Length(ASelText) > 0 then
     begin
       if Options.CaseSens then
-        vPos := Pos(ASelText, vText)
+        vPos := Pos(ASelText, vRowText)
       else
-        vPos := Pos(UpperCase(ASelText), UpperCase(vText));
+        vPos := Pos(UpperCase(ASelText), UpperCase(vRowText));
       while vPos > 0 do
       begin
-        vBeforeTag := Copy(vText, 0, vPos - 1);
-        vRect.Left := vMargin + CellRect.Left + TargetCanvas.TextWidth(vBeforeTag);
-        vRect.Right := vRect.Left + TargetCanvas.TextWidth(Copy(vText, Length(vBeforeTag)+1, Length(ASelText))) + 1;
-        TargetCanvas.Brush.Color := CalcBrightColor(AColor, 80);
-        TargetCanvas.Pen.Color := AColor;
-        TargetCanvas.RoundRect(vRect.Left, vRect.Top + 1, vRect.Right, vRect.Bottom - 1, 5, 5);
-//        FillGradientRoundRect(TargetCanvas, vRect, CalcBrightColor(AColor, 90), CalcBrightColor(AColor, 70), AColor);
+        vvNeedDrawSelection := True;
+        if AExactMatch then
+        begin
+         { vvAfterEndChar := vPos + Length(ASelText) + 1;
+          if ((vPos > 1) and (Pos(vRowText[vPos-1], cSelectableSymbols) > 0)) or
+             ((Length(vRowText) > vvAfterEndChar) and (Pos(vRowText[vvAfterEndChar], cSelectableSymbols) > 0))
+          then
+            vvNeedDrawSelection := False; }
+        end;
+
+        if vvNeedDrawSelection then
+        begin
+          vBeforeTag := Copy(vRowText, 0, vPos - 1);
+          vRect.Left := vMargin + CellRect.Left + TargetCanvas.TextWidth(vBeforeTag);
+          vRect.Right := vRect.Left + TargetCanvas.TextWidth(Copy(vRowText, Length(vBeforeTag)+1, Length(ASelText))) + 1;
+          TargetCanvas.Brush.Color := CalcBrightColor(AColor, 80);
+          TargetCanvas.Pen.Color := AColor;
+          TargetCanvas.RoundRect(vRect.Left, vRect.Top + 1, vRect.Right, vRect.Bottom - 1, 5, 5);
+        end;
+
         if Options.CaseSens then
-          vPos := PosEx(ASelText, vText, vPos + 1)
+          vPos := PosEx(ASelText, vRowText, vPos + 1)
         else
-          vPos := PosEx(UpperCase(ASelText), UpperCase(vText), vPos + 1);
+          vPos := PosEx(UpperCase(ASelText), UpperCase(vRowText), vPos + 1);
       end;
     end;
   end;
 begin
   try
-    vText := GetText(Sender, Column, Node.Index);
+    vRowText := GetText(Sender, Column, Node.Index);
   except
     ShowMessage(IntToStr(Column) + ' ' + IntToStr(Node.Index));
   end;
@@ -265,15 +296,32 @@ begin
   end;
 
   DrawSelection(clGray, edtSearch.Text);
-  DrawSelection(clMaroon, FSelectedWord);
+  if Length(FSelectedWord) > 0 then
+    DrawSelection(clMaroon, FSelectedWord, True);
+end;
+
+procedure TView2Frm.vtLogEditing(Sender: TBaseVirtualTree; Node: PVirtualNode;
+  Column: TColumnIndex; var Allowed: Boolean);
+begin
+  if Column = 0 then
+    Allowed := False;
+end;
+
+procedure TView2Frm.vtLogEnter(Sender: TObject);
+begin
+  FFindWindow := TVirtualStringTree(Sender);
 end;
 
 procedure TView2Frm.OnChangeTags(Sender: TObject);
 begin
   vtLog.RootNodeCount := 0;
   vtLog.RootNodeCount := FDataList.RowCount;
+  vtLog2.RootNodeCount := 0;
+  vtLog2.RootNodeCount := FDataList.RowCount;
   vtFilteredLog.RootNodeCount := 0;
   vtFilteredLog.RootNodeCount := FDataList.FilteredRowCount;
+  vtFilteredLog2.RootNodeCount := 0;
+  vtFilteredLog2.RootNodeCount := FDataList.FilteredRowCount;
   UpdateMarks;
   UpdateCountLabel;
 end;
@@ -302,20 +350,58 @@ end;
 procedure TView2Frm.vtFilteredLogDblClick(Sender: TObject);
 var
   vVST: TVirtualStringTree;
+  vRowNum: Integer;
+  procedure GoToNode(const AVST: TVirtualStringTree);
+  begin
+    if AVST.Visible and (vVST.FocusedNode <> nil) then
+    begin
+      AVST.ClearSelection;
+      AVST.FocusedNode := GetNodeByIndex(AVST, vRowNum);
+      AVST.Selected[AVST.FocusedNode] := True;
+      AVST.ScrollIntoView(AVST.FocusedNode, True);
+      if AVST.CanFocus then
+        AVST.SetFocus;
+      AVST.Invalidate;
+    end;
+  end;
 begin
   if not (Sender is TVirtualStringTree) then Exit;
-  
+
   vVST := TVirtualStringTree(Sender);
-  if vtLog.Visible and (vVST.FocusedNode <> nil) then
+  vRowNum := FDataList.GetFilteredRowNumber(vVST.FocusedNode.Index);
+
+  GoToNode(vtLog);
+  GoToNode(vtLog2);
+end;
+
+procedure TView2Frm.vtFilteredLogKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+var
+  vLog: TVirtualStringTree;
+  vSelection: TVTVirtualNodeEnumerator;
+  vText: TStrings;
+begin
+  if (Key = Ord('C')) and (ssCtrl in Shift) then
   begin
-    vtLog.ClearSelection;
-    vtLog.FocusedNode := GetNodeByIndex(vtLog, FDataList.GetFilteredRowNumber(vVST.FocusedNode.Index));
-    vtLog.Selected[vtLog.FocusedNode] := True;
-    vtLog.ScrollIntoView(vtLog.FocusedNode, true);
-    if vtLog.CanFocus then
-      vtLog.SetFocus;
-    vtLog.Invalidate;
-  end;
+    vLog := TVirtualStringTree(Sender);
+    vSelection := vLog.SelectedNodes.GetEnumerator;
+    vText := TStringList.Create;
+    try
+      while vSelection.MoveNext do
+        vText.Add(GetText(TBaseVirtualTree(Sender), 0, vSelection.Current.Index)+#9+GetText(TBaseVirtualTree(Sender), 1, vSelection.Current.Index));
+      Clipboard.Open;
+      try
+        Clipboard.AsText := vText.Text;
+      finally
+        Clipboard.Close;
+      end;
+    finally
+      vText.Free;
+    end;
+  end
+  else if Key = VK_F2 then
+    if Assigned(TVirtualStringTree(Sender).FocusedNode) then
+      TVirtualStringTree(Sender).EditNode(TVirtualStringTree(Sender).FocusedNode, 1);
 end;
 
 procedure TView2Frm.UpdateMarks;
@@ -323,6 +409,8 @@ var
   i, pbWidth, pbHeight, rc, j, y: Integer;
   vTag: TTagInfo2;
 begin
+  if FDataList = nil then Exit;
+
   pb1.Canvas.Lock;
   try
     pb1.Canvas.FillRect(pb1.ClientRect);
@@ -366,7 +454,7 @@ begin
   pb2.Visible := False;
 end;
 
-procedure TView2Frm.vtLogClick(Sender: TObject);
+procedure TView2Frm.GetSelectedWord(VST: TObject);
 var
   vVST: TVirtualStringTree;
   vNode: PVirtualNode;
@@ -396,9 +484,9 @@ var
     Result := Copy(Result, 0, i - 1); // cut from right
   end;
 begin
-  if not (Sender is TVirtualStringTree) then Exit;
+  if not (VST is TVirtualStringTree) then Exit;
   
-  vVST := TVirtualStringTree(Sender);
+  vVST := TVirtualStringTree(VST);
   vPos := vVST.ScreenToClient(Mouse.CursorPos);
   vNode := vVST.GetNodeAt(vPos.X, vPos.Y);
   try
@@ -410,6 +498,8 @@ begin
   finally
     vtLog.Invalidate;
     vtFilteredLog.Invalidate;
+    vtLog2.Invalidate;
+    vtFilteredLog2.Invalidate;
   end;
 end;  
 
