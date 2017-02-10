@@ -18,7 +18,7 @@ type
     FEnabled: Boolean;
     FGroupName: string;
     FIndexRows: TList;
-    FAbsent: Boolean;
+    FIndexed: Boolean;
     procedure SetEnabled(const Value: Boolean);
     function GetMatchCount: Integer;
     function GetFullName: string;
@@ -29,11 +29,12 @@ type
       const AColor: TColor = clHighlightText; const AGroupName: string = '');
     destructor Destroy; override;
 
-    procedure DoIndex(const AText: string; const ARowIndex: Integer);
+    procedure DoIndex(const AText: string; const AUpperText: string; const ARowIndex: Integer);
 
     property MatchRows[const AIndex: Integer]: Integer read GetMatchRow;
     property MatchCount: Integer read GetMatchCount;
     property Name: string read FName write SetName;
+    property UpperCaseName: string read FUpperCaseName;
     property FullName: string read GetFullName;
     property Enabled: Boolean read FEnabled write SetEnabled;
     property Color: TColor read FColor write FColor;
@@ -69,6 +70,7 @@ type
     procedure LoadFromStream(Stream: TStream); override;
   end;
 
+  PNodeData = ^TNodeData;
   TNodeData = record
     Data: TTagInfo2;
     GroupName: string;
@@ -90,6 +92,7 @@ type
     function GetFilteredRow(const AIndex: Integer): string;
     function GetRow(const AIndex: Integer): string;
     procedure BuildIndexForTag(const ATag: TTagInfo2);
+    procedure BuildIndexForTags();
     procedure BuildFilteredIndex;
     function GetTag(const AIndex: Integer): TTagInfo2;
     function GetTagCount: Integer;
@@ -169,7 +172,7 @@ begin
   FColor := AColor;
   FGroupName := AGroupName;
   FIndexRows := TList.Create;
-  FAbsent := False;  
+  FIndexed := False;
 end;
 
 destructor TTagInfo2.Destroy;
@@ -178,10 +181,9 @@ begin
   inherited;
 end;
 
-procedure TTagInfo2.DoIndex(const AText: string; const ARowIndex: Integer);
+procedure TTagInfo2.DoIndex(const AText: string; const AUpperText: string; const ARowIndex: Integer);
 begin
-  if (Options.CaseSens and (Pos(Name, AText) > 0))
-    or ((not Options.CaseSens) and (Pos(FUpperCaseName, UpperCase(AText)) > 0))  then
+  if (Options.CaseSens and (Pos(Name, AText) > 0)) or ((not Options.CaseSens) and (Pos(FUpperCaseName, AUpperText) > 0))  then
     FIndexRows.Add(TObject(ARowIndex));
 end;
 
@@ -377,37 +379,90 @@ end;
 
 procedure TDataList.BuildFilteredIndex;
 var
-  i: Integer;
+  i, j: Integer;
+  tempList: TList;
+  rows: TList;
 begin
   FBuildInProgress := True;
+  tempList := TList.Create();
+  tempList.Count := FData.Count;
   try
+    BuildIndexForTags();
     FFilteredInds.Clear;
     for i := 0 to FTagList.Count - 1 do
     begin
       if FTagList.Items[i].Enabled then
       begin
-        BuildIndexForTag(FTagList.Items[i]);
-        FFilteredInds.Assign(FTagList.Items[i].FIndexRows, laOr);
+        rows := FTagList.Items[i].FIndexRows;
+        for j := 0 to rows.Count - 1 do
+          tempList[Integer(rows[j])] := Pointer(1);      
+        //BuildIndexForTag(FTagList.Items[i]);
+        //FFilteredInds.Assign(FTagList.Items[i].FIndexRows, laOr);
       end;
-      DoOnLoading(10 + Trunc(i/FTagList.Count * 90));
+      //DoOnLoading(10 + Trunc(i/FTagList.Count * 90));
     end;
-    FFilteredInds.Sort(SortAsc);
+    //FFilteredInds.Sort(SortAsc);
+
+    for j := 0 to tempList.Count - 1 do
+      if Assigned(tempList[j]) then
+        FFilteredInds.Add(Pointer(j));
+
     DoOnChange;
+
     if Assigned(FOnLoaded) then
       FOnLoaded(Self);
   finally
     FBuildInProgress := False;
+    tempList.Free;
   end;
 end;
+
+procedure TDataList.BuildIndexForTags();
+var
+  i, j: Integer;
+  tag: TTagInfo2;
+  tags: TList;
+  upperText: String;
+begin
+  tags := TList.Create;
+  try
+    for i := 0 to FTagList.Count - 1 do
+    begin
+      tag := FTagList.Items[i];
+      if tag.Enabled and not tag.FIndexed then
+      begin
+        tags.Add(FTagList.Items[i]);
+        tag.FIndexed := True;
+      end;
+    end;
+
+    if tags.Count = 0 then
+      Exit;
+
+    for i := 0 to FData.Count - 1 do
+    begin
+      upperText := UpperCase(FData[i]);
+      for j := 0 to tags.Count - 1 do
+        TTagInfo2(tags[j]).DoIndex(FData[i], upperText, i);
+    end;
+
+  finally
+    tags.Free;
+  end;
+end;
+
 
 procedure TDataList.BuildIndexForTag(const ATag: TTagInfo2);
 var
   i: Integer;
 begin
-  if (ATag.FIndexRows.Count > 0) or ATag.FAbsent then Exit; // index already builded
+  if ATag.FIndexed then
+    Exit; // index already builded
+
   for i := 0 to FData.Count - 1 do
-    ATag.DoIndex(FData[i], i);
-  ATag.FAbsent := ATag.FIndexRows.Count = 0;
+    ATag.DoIndex(FData[i], UpperCase(FData[i]), i);
+
+  ATag.FIndexed := True;
 end;
 
 constructor TDataList.Create;

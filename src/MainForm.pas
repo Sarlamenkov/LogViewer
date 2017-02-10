@@ -105,7 +105,6 @@ begin
   TEventWaitThread.Create(False);
   Options.LoadOptions;
   RefillHistoryFileNames;
-
 end;
 
 procedure TMainFm.RefillOpenedFileNames;
@@ -127,6 +126,8 @@ procedure TMainFm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   RefillOpenedFileNames;
   Options.SaveOptions;
+  while PageControl1.PageCount > 0 do
+    CloseCurrentTab(True);
 end;
 
 procedure TMainFm.ActivateTab(const AFileName: string);
