@@ -47,7 +47,6 @@ object TagListFrm: TTagListFrm
       Margins.Right = 0
       Margins.Bottom = 0
       Caption = 'Tree'
-      ExplicitLeft = 0
       object vtTags: TVirtualStringTree
         Left = 0
         Top = 0
@@ -68,6 +67,7 @@ object TagListFrm: TTagListFrm
         TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning]
         TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowRoot, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection]
         OnBeforeCellPaint = vtTagsBeforeCellPaint
+        OnChecked = vtTagsChecked
         OnChecking = vtTagsChecking
         OnGetText = vtTagsGetText
         OnGetNodeDataSize = vtTagsGetNodeDataSize
@@ -139,7 +139,7 @@ object TagListFrm: TTagListFrm
     Left = 102
     Top = 164
     Bitmap = {
-      494C010107001400140018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010107001800180018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000003000000001002000000000000048
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

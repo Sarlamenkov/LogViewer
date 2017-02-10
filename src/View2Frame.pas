@@ -480,7 +480,6 @@ end;
 
 procedure TView2Frm.OnLoaded(Sender: TObject);
 begin
-  UpdateMarks;
   UpdateCountLabel;
   pb2.Visible := False;
 end;

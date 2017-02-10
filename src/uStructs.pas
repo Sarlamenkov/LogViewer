@@ -63,6 +63,7 @@ type
 
     function Count: Integer;
     property Items[const AIndex: Integer]: TTagInfo2 read GetItem; default;
+    property Owner: TDataList read FOwner;
   end;
 
   TMyStringList = class (TStringList)
@@ -87,6 +88,7 @@ type
     FOnLoading: TOnLoadingEvent;
     FOnLoaded: TNotifyEvent;
     FBuildInProgress: Boolean;
+    FUpdateCount: Integer;
     function GetFilteredRowCount: Integer;
     function GetRowCount: Integer;
     function GetFilteredRow(const AIndex: Integer): string;
@@ -103,7 +105,9 @@ type
     destructor Destroy; override;
 
     procedure LoadFromFile(const AFileName: string);
-
+    procedure BeginUpdate;
+    procedure EndUpdate;
+//    function In
     function GetFilteredRowNumber(const ACurrentRow: Integer): Integer;
 
     property Rows[const AIndex: Integer]: string read GetRow;
@@ -377,17 +381,24 @@ begin
   Result := Integer(Item1) - Integer(Item2);
 end;
 
+procedure TDataList.BeginUpdate;
+begin
+  Inc(FUpdateCount);
+end;
+
 procedure TDataList.BuildFilteredIndex;
 var
   i, j: Integer;
   tempList: TList;
   rows: TList;
 begin
+  if FUpdateCount > 0 then Exit;
+
   FBuildInProgress := True;
-  tempList := TList.Create();
+  tempList := TList.Create;
   tempList.Count := FData.Count;
   try
-    BuildIndexForTags();
+    BuildIndexForTags;
     FFilteredInds.Clear;
     for i := 0 to FTagList.Count - 1 do
     begin
@@ -472,6 +483,7 @@ begin
   FTagList.FOwner := Self;
   FFilteredInds := TList.Create;
   FBuildInProgress := False;
+  FUpdateCount := 0;
 end;
 
 destructor TDataList.Destroy;
@@ -484,7 +496,7 @@ end;
 
 procedure TDataList.DoOnChange;
 begin
-  if Assigned(FOnChanged) then
+  if Assigned(FOnChanged) and (FUpdateCount = 0) then
     FOnChanged(Self);
 end;
 
@@ -493,6 +505,13 @@ begin
   if not Assigned(FOnLoading) then Exit;
   Application.ProcessMessages;
   FOnLoading(APercent);
+end;
+
+procedure TDataList.EndUpdate;
+begin
+  if FUpdateCount = 0 then Exit;
+  Dec(FUpdateCount);
+  BuildFilteredIndex;
 end;
 
 function TDataList.GetFilteredRow(const AIndex: Integer): string;

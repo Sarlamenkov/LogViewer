@@ -46,8 +46,6 @@ type
     procedure vtTagsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType;
       var CellText: string);
-    procedure vtTagsChecking(Sender: TBaseVirtualTree; Node: PVirtualNode;
-      var NewState: TCheckState; var Allowed: Boolean);
     procedure actEditExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);
     procedure vtTagsBeforeCellPaint(Sender: TBaseVirtualTree;
@@ -63,6 +61,9 @@ type
     procedure chklst1ClickCheck(Sender: TObject);
     procedure chklst1DrawItem(Control: TWinControl; Index: Integer;
       Rect: TRect; State: TOwnerDrawState);
+    procedure vtTagsChecked(Sender: TBaseVirtualTree; Node: PVirtualNode);
+    procedure vtTagsChecking(Sender: TBaseVirtualTree; Node: PVirtualNode;
+      var NewState: TCheckState; var Allowed: Boolean);
   private
     FTags: TTagList2;
     FSortedTags: TList;//array of Integer;
@@ -212,8 +213,8 @@ begin
   end;
 end;
 
-procedure TTagListFrm.vtTagsChecking(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; var NewState: TCheckState; var Allowed: Boolean);
+procedure TTagListFrm.vtTagsChecked(Sender: TBaseVirtualTree;
+  Node: PVirtualNode);
 var
   vNodeData: ^TNodeData;
   vTag: TTagInfo2;
@@ -222,11 +223,25 @@ begin
   vTag := vNodeData.Data;
   if Assigned(vTag) then
   begin
-    vTag.Enabled := not(NewState = csUncheckedNormal);
+    vTag.Enabled := not(Node.CheckState = csUncheckedNormal);
     SyncListChecks;
     DoOnChangeTag;
     vtTags.Invalidate;
-  end;
+  end
+  else
+    FTags.Owner.EndUpdate;
+
+end;
+
+procedure TTagListFrm.vtTagsChecking(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; var NewState: TCheckState; var Allowed: Boolean);
+var
+  vNodeData: ^TNodeData;
+begin
+  vNodeData := vtTags.GetNodeData(Node);
+  if vNodeData.Data = nil then //click on group
+    FTags.Owner.BeginUpdate;
+
 end;
 
 procedure TTagListFrm.actEditExecute(Sender: TObject);
