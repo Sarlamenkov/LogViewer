@@ -79,6 +79,7 @@ type
     procedure UpdateCountLabel;
     function FindOriginNodeByText(const AFromNode: PVirtualNode;
       const AText: string): PVirtualNode;
+    procedure GoToNode(const AVST: TVirtualStringTree; const ARowNum: Integer);
   public
     procedure Init(const AFileName: string);
     procedure Deinit;
@@ -91,7 +92,9 @@ implementation
 {$R *.dfm}
 
 uses
-  Clipbrd, StrUtils, uGraphicUtils, uConsts;
+  Clipbrd, StrUtils, Math,
+
+  uGraphicUtils, uConsts;
 
 const
   cSelectableSymbols = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM_0123456789';
@@ -193,6 +196,8 @@ function TView2Frm.GetText(Sender: TBaseVirtualTree; Column: TColumnIndex;
 var
   w: Integer;
 begin
+  if Column < 0 then Exit;
+
   if (Sender = vtLog) or (Sender = vtLog2) then
   begin
     if Column = 0 then
@@ -344,15 +349,44 @@ begin
 end;
 
 procedure TView2Frm.OnChangeTags(Sender: TObject);
+  procedure RefreshLog(const AVST: TVirtualStringTree; const AFiltered: Boolean);
+  var
+    vRowNum: Integer;
+    vNode: PVirtualNode;
+    i, vIndex: Integer;
+  begin
+    vRowNum := -1;
+    if Assigned(AVST.FocusedNode) then
+      if AFiltered then
+        vRowNum := FDataList.GetFilteredRowNumber(AVST.FocusedNode.Index)
+      else
+        vRowNum := AVST.FocusedNode.Index;
+
+    AVST.RootNodeCount := 0;
+    AVST.RootNodeCount := IfThen(AFiltered, FDataList.FilteredRowCount, FDataList.RowCount);
+
+    if vRowNum < 0 then Exit;
+
+    vNode := AVST.GetFirst;
+    for i := 0 to AVST.RootNodeCount - 1 do
+    begin
+      if AFiltered then
+        vIndex := FDataList.GetFilteredRowNumber(vNode.Index)
+      else
+        vIndex := vNode.Index;
+      if vIndex = vRowNum then Break;
+      vNode := vNode.NextSibling;
+    end;
+    AVST.FocusedNode := vNode;
+    AVST.ClearSelection;
+    AVST.Selected[vNode] := True;
+    AVST.ScrollIntoView(vNode, True);
+  end;
 begin
-  vtLog.RootNodeCount := 0;
-  vtLog.RootNodeCount := FDataList.RowCount;
-  vtLog2.RootNodeCount := 0;
-  vtLog2.RootNodeCount := FDataList.RowCount;
-  vtFilteredLog.RootNodeCount := 0;
-  vtFilteredLog.RootNodeCount := FDataList.FilteredRowCount;
-  vtFilteredLog2.RootNodeCount := 0;
-  vtFilteredLog2.RootNodeCount := FDataList.FilteredRowCount;
+  RefreshLog(vtLog, False);
+  RefreshLog(vtLog2, False);
+  RefreshLog(vtFilteredLog, True);
+  RefreshLog(vtFilteredLog2, True);
   UpdateMarks;
   UpdateCountLabel;
 end;
@@ -378,31 +412,33 @@ begin
   Result := node;
 end;
 
+procedure TView2Frm.GoToNode(const AVST: TVirtualStringTree; const ARowNum: Integer);
+begin
+  if AVST.Visible then
+  begin
+    AVST.ClearSelection;
+    AVST.FocusedNode := GetNodeByIndex(AVST, ARowNum);
+    AVST.Selected[AVST.FocusedNode] := True;
+    AVST.ScrollIntoView(AVST.FocusedNode, True);
+    if AVST.CanFocus then
+      AVST.SetFocus;
+    AVST.Invalidate;
+  end;
+end;
+
 procedure TView2Frm.vtFilteredLogDblClick(Sender: TObject);
 var
   vVST: TVirtualStringTree;
   vRowNum: Integer;
-  procedure GoToNode(const AVST: TVirtualStringTree);
-  begin
-    if AVST.Visible and (vVST.FocusedNode <> nil) then
-    begin
-      AVST.ClearSelection;
-      AVST.FocusedNode := GetNodeByIndex(AVST, vRowNum);
-      AVST.Selected[AVST.FocusedNode] := True;
-      AVST.ScrollIntoView(AVST.FocusedNode, True);
-      if AVST.CanFocus then
-        AVST.SetFocus;
-      AVST.Invalidate;
-    end;
-  end;
 begin
   if not (Sender is TVirtualStringTree) then Exit;
 
   vVST := TVirtualStringTree(Sender);
   vRowNum := FDataList.GetFilteredRowNumber(vVST.FocusedNode.Index);
 
-  GoToNode(vtLog);
-  GoToNode(vtLog2);
+  GoToNode(vtLog2, vRowNum);
+  GoToNode(vtLog, vRowNum);
+
 end;
 
 procedure TView2Frm.vtFilteredLogKeyDown(Sender: TObject; var Key: Word;

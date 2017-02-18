@@ -418,13 +418,13 @@ begin
       if Assigned(tempList[j]) then
         FFilteredInds.Add(Pointer(j));
 
-    DoOnChange;
-
-    if Assigned(FOnLoaded) then
-      FOnLoaded(Self);
   finally
     FBuildInProgress := False;
     tempList.Free;
+
+    DoOnChange;
+    if Assigned(FOnLoaded) then
+      FOnLoaded(Self);
   end;
 end;
 
@@ -511,7 +511,8 @@ procedure TDataList.EndUpdate;
 begin
   if FUpdateCount = 0 then Exit;
   Dec(FUpdateCount);
-  BuildFilteredIndex;
+  if FUpdateCount = 0 then
+    BuildFilteredIndex;
 end;
 
 function TDataList.GetFilteredRow(const AIndex: Integer): string;
@@ -529,7 +530,7 @@ end;
 
 function TDataList.GetFilteredRowNumber(const ACurrentRow: Integer): Integer;
 begin
-  if FBuildInProgress then
+  if FBuildInProgress or (ACurrentRow - 1 > FFilteredInds.Count) then
     Result := -1
   else
     Result := Integer(FFilteredInds[ACurrentRow]);
