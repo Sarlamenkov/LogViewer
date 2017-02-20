@@ -1,8 +1,8 @@
 program LogViewer;
 
 uses
-  FastMM4 in 'ThirdParty\FastMM\FastMM4.pas',
-  FastMM4Messages in 'ThirdParty\FastMM\FastMM4Messages.pas',
+//  FastMM4 in 'ThirdParty\FastMM\FastMM4.pas',
+//  FastMM4Messages in 'ThirdParty\FastMM\FastMM4Messages.pas',
   Forms,
   Windows,
   SysUtils,
@@ -29,7 +29,7 @@ const
 
 var
   ClientMailslotHandle: THandle;
-  Letter: string;
+  Letter: ansistring;
   OpenForView: Boolean;
   BytesWritten: DWORD;
 

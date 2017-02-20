@@ -297,6 +297,7 @@ end;
 function TMainFm.ReadStringFromMailslot: string;
 var
   MessageSize: DWORD;
+  a: AnsiString;
 begin
   GetMailslotInfo(ServerMailslotHandle, nil, MessageSize, nil, nil);
   if MessageSize = MAILSLOT_NO_MESSAGE then
@@ -304,8 +305,9 @@ begin
     Result := '';
     Exit;
   end;
-  SetLength(Result, MessageSize);
-  ReadFile(ServerMailslotHandle, Result[1], MessageSize, MessageSize, nil);
+  SetLength(a, MessageSize);
+  ReadFile(ServerMailslotHandle, a[1] , MessageSize, MessageSize, nil);
+  Result := a;
 end;
 
 procedure TMainFm.PageControl1MouseDown(Sender: TObject;
