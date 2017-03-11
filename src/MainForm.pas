@@ -7,7 +7,7 @@ uses
   Dialogs, ExtCtrls, VirtualTrees, ComCtrls, ActnList,
   ShellAPI, StdCtrls, Menus, ImgList, ToolWin,
 
-  View2Frame, uStructs, TagListFrame;
+  View2Frame, uStructs, TagListFrame, System.Actions, System.ImageList;
 
 const
   WM_CommandArrived = WM_USER + 1;  
@@ -20,20 +20,27 @@ type
 
   TMainFm = class(TForm)
     dlgOpen1: TOpenDialog;
-    MainMenu: TMainMenu;
-    File1: TMenuItem;
-    Options1: TMenuItem;
-    About1: TMenuItem;
-    miOpen: TMenuItem;
-    N1: TMenuItem;
-    Exit1: TMenuItem;
-    Closecurrent1: TMenuItem;
-    Closeall1: TMenuItem;
     PageControl1: TPageControl;
-    miReopen: TMenuItem;
-    N2: TMenuItem;
-    DefaultTags1: TMenuItem;
     Timer1: TTimer;
+    ToolBar1: TToolBar;
+    ActionList1: TActionList;
+    actOpen: TAction;
+    actCloseCurrent: TAction;
+    actCloseAll: TAction;
+    actOptions: TAction;
+    actDefaultTags: TAction;
+    actAbout: TAction;
+    ToolButton1: TToolButton;
+    ToolButton2: TToolButton;
+    ToolButton3: TToolButton;
+    ToolButton4: TToolButton;
+    ToolButton5: TToolButton;
+    ToolButton6: TToolButton;
+    ImageList1: TImageList;
+    ToolButton7: TToolButton;
+    ToolButton8: TToolButton;
+    ToolButton9: TToolButton;
+    pmReopen: TPopupMenu;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -52,6 +59,12 @@ type
       Shift: TShiftState);
     procedure DefaultTags1Click(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
+    procedure actOpenExecute(Sender: TObject);
+    procedure actCloseCurrentExecute(Sender: TObject);
+    procedure actCloseAllExecute(Sender: TObject);
+    procedure actOptionsExecute(Sender: TObject);
+    procedure actDefaultTagsExecute(Sender: TObject);
+    procedure actAboutExecute(Sender: TObject);
 
   private
     procedure ActivateTab(const AFileName: string);
@@ -177,6 +190,28 @@ begin
   UpdateCaption(vView.FileName);
 end;
 
+procedure TMainFm.actOpenExecute(Sender: TObject);
+var
+  i: Integer;
+begin
+  if not dlgOpen1.Execute then Exit;
+
+  for i := 0 to dlgOpen1.Files.Count - 1 do
+    ActivateTab(dlgOpen1.Files[i]);
+
+  RefillOpenedFileNames;
+  Options.SaveOptions;
+end;
+
+procedure TMainFm.actOptionsExecute(Sender: TObject);
+begin
+  if OptionsFm.Edit then
+  begin
+    Options.SaveOptions;
+    ActualizeCurrentView;
+  end;
+end;
+
 procedure TMainFm.WMDropFiles(var Msg: TMessage);
 var
   vFilename: array[0 .. 256] of Char;
@@ -231,9 +266,33 @@ begin
   end;  
 end;
 
+procedure TMainFm.actAboutExecute(Sender: TObject);
+begin
+  AboutFm.ShowModal;
+end;
+
+procedure TMainFm.actCloseAllExecute(Sender: TObject);
+begin
+  while PageControl1.PageCount > 0 do
+    CloseCurrentTab(True);
+  RefillOpenedFileNames;
+  RefillHistoryFileNames;
+  Options.SaveOptions;
+end;
+
+procedure TMainFm.actCloseCurrentExecute(Sender: TObject);
+begin
+  CloseCurrentTab;
+end;
+
 procedure TMainFm.actCloseTabExecute(Sender: TObject);
 begin
   CloseCurrentTab;
+end;
+
+procedure TMainFm.actDefaultTagsExecute(Sender: TObject);
+begin
+  TagListDefaultFm.Edit;
 end;
 
 procedure TMainFm.ActualizeCurrentView;
@@ -377,10 +436,19 @@ end;
 
 procedure TMainFm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
+var
+  vView: TView2Frm;
 begin
   if (Key = Ord('F')) and (Shift = [ssCtrl]) then
   begin
   //  TView2Frm(PageControl1.ActivePage.Tag).SwitchFilter;
+  end
+  else if (Key = Ord('T')) and (Shift = [ssCtrl]) then
+  begin
+    if PageControl1.PageCount = 0 then Exit;
+
+    vView := TView2Frm(PageControl1.ActivePage.Tag);
+    vView.AddTagFromSelection;
   end;
 end;
 
@@ -391,7 +459,7 @@ var
 begin
 //  for i := 0 to miReopen.Count - 1 do
  //   miReopen.Items[i].Free;
-  miReopen.Clear;
+  pmReopen.Items.Clear;
 
   for i := 0 to Options.HistoryFileNames.Count - 1 do
   begin
@@ -399,7 +467,7 @@ begin
     vMI.OnClick := OnSelectHistoryFile;
     vMI.Caption := Options.HistoryFileNames[i];
     vMI.Hint := Options.HistoryFileNames[i];
-    miReopen.Add(vMI);
+    pmReopen.Items.Add(vMI);
   end;
 end;
 

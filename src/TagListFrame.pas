@@ -493,6 +493,7 @@ end;
 
 procedure TTagListFrm.UpdateLists;
 begin
+  ReallocSortedTags;
   FillListTags;
   FillTreeTags;
 end;

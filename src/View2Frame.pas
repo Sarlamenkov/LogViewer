@@ -83,7 +83,8 @@ type
   public
     procedure Init(const AFileName: string);
     procedure Deinit;
-    
+
+    procedure AddTagFromSelection;
     property FileName: string read FFileName;
   end;
 
@@ -131,6 +132,16 @@ begin
   finally
     LockControl(pnlWork, False);
   end;
+end;
+
+procedure TView2Frm.AddTagFromSelection;
+var
+  vTI: TTagInfo2;
+begin
+  if FSelectedWords.Count = 0 then Exit;
+  vTI := TTagInfo2.Create(FSelectedWords[0], True, clSkyBlue, 'Temp');
+  FDataList.TagList.Add(vTI);
+  tl1.UpdateLists;
 end;
 
 procedure TView2Frm.btnFindNextClick(Sender: TObject);
