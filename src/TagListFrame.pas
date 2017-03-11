@@ -7,11 +7,10 @@ uses
   Dialogs, VirtualTrees, ComCtrls, ToolWin, ActnList, ImgList,
 
   uStructs, StdCtrls, ExtCtrls, Menus, CheckLst, System.Actions,
-  System.ImageList;
+  System.ImageList, Vcl.Buttons;
 
 type
   TTagChangeEvent = procedure() of object;
-  TSortType = (stAlphaSort, stCheckedSort, stNoSort);
 
   TTagListFrm = class(TFrame)
     ImageList: TImageList;
@@ -19,7 +18,6 @@ type
     actAdd: TAction;
     actEdit: TAction;
     actDelete: TAction;
-    actCloseTab: TAction;
     tlb1: TToolBar;
     btnAdd: TToolButton;
     btnEdit: TToolButton;
@@ -28,18 +26,15 @@ type
     pm1: TPopupMenu;
     miCheckAll: TMenuItem;
     miUncheckAll: TMenuItem;
-    pgc1: TPageControl;
-    ts1: TTabSheet;
-    ts2: TTabSheet;
-    chklst1: TCheckListBox;
-    tlb2: TToolBar;
-    alSort: TActionList;
-    actAlphabeticalSort: TAction;
-    actCheckedSort: TAction;
-    actNoSort: TAction;
-    btnAlphabeticalSort: TToolButton;
-    btnCheckedSort: TToolButton;
-    btnNoSort: TToolButton;
+    actGroup: TAction;
+    actCheckedInTop: TAction;
+    ToolButton1: TToolButton;
+    ToolButton2: TToolButton;
+    ToolButton3: TToolButton;
+    pnlFilter: TPanel;
+    edFilter: TEdit;
+    btnClearFilter: TSpeedButton;
+    btnAddFromFilter: TSpeedButton;
     procedure actAddExecute(Sender: TObject);
     procedure vtTagsGetNodeDataSize(Sender: TBaseVirtualTree;
       var NodeDataSize: Integer);
@@ -56,30 +51,29 @@ type
     procedure miCheckAllClick(Sender: TObject);
     procedure miUncheckAllClick(Sender: TObject);
     procedure edSkipTextChange(Sender: TObject);
-    procedure actAlphabeticalSortExecute(Sender: TObject);
-    procedure actCheckedSortExecute(Sender: TObject);
-    procedure chklst1ClickCheck(Sender: TObject);
     procedure chklst1DrawItem(Control: TWinControl; Index: Integer;
       Rect: TRect; State: TOwnerDrawState);
     procedure vtTagsChecked(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure vtTagsChecking(Sender: TBaseVirtualTree; Node: PVirtualNode;
       var NewState: TCheckState; var Allowed: Boolean);
+    procedure actGroupExecute(Sender: TObject);
+    procedure actCheckedInTopExecute(Sender: TObject);
+    procedure btnClearFilterClick(Sender: TObject);
+    procedure edFilterChange(Sender: TObject);
+    procedure btnAddFromFilterClick(Sender: TObject);
   private
     FTags: TTagList2;
     FSortedTags: TList;//array of Integer;
     FSort: TSortType;
     FOnChangeTag: TTagChangeEvent;
+    FNeedSave: Boolean;
     procedure FillTreeTags;
-    procedure FillListTags;
     procedure Sort;
-    procedure ReallocSortedTags;
-    procedure SyncTreeChecks;
-    procedure SyncListChecks;
     function GetSelectedTag: TTagInfo2;
     procedure CheckAll(const ACheck: Boolean);
     procedure DoOnChangeTag;
   public
-    procedure Init(const ATagList: TTagList2);
+    procedure Init(const ATagList: TTagList2; const ANeedSave: Boolean);
     procedure Deinit;
 
     procedure UpdateLists;
@@ -142,30 +136,33 @@ var
   end;
 begin
   vtTags.Clear;
-  chklst1.Clear;
-  for i := 0 to FTags.Count - 1 do
+  Sort;
+  for i := 0 to FSortedTags.Count - 1 do
   begin
-    vTag := FTags[i];
-    vNode := GetNodeByGroup;
+    vTag := TTagInfo2(FSortedTags[i]);
+
+    if Length(Trim(edFilter.Text)) > 0 then
+      if Pos(UpperCase(Trim(edFilter.Text)), UpperCase(vTag.Name)) <= 0 then Continue;
+
+    if actGroup.Checked then
+      vNode := GetNodeByGroup
+    else
+      vNode := vtTags.AddChild(nil);
     vNode.CheckType := ctTriStateCheckBox;
     vNode.CheckState := CheckState(vTag.Enabled);
     vNodeData := vtTags.GetNodeData(vNode);
     vNodeData.Data := vTag;
-
-    chklst1.AddItem(vTag.FullName, vTag);
-    chklst1.Checked[i] := vTag.Enabled;
   end;
   vtTags.FullExpand;
-
-  FillListTags;
 end;
 
-procedure TTagListFrm.Init(const ATagList: TTagList2);
+procedure TTagListFrm.Init(const ATagList: TTagList2; const ANeedSave: Boolean);
 begin
   Deinit;
   FTags := ATagList;
+  FNeedSave := ANeedSave;
   FSortedTags := TList.Create;
-  ReallocSortedTags;  
+  FSort := stAlphaSort;
   FillTreeTags;
 end;
 
@@ -182,9 +179,9 @@ begin
 
   FTags.Add(vTag);
   try
-    FTags.Save; // могли добавить некорректный тэг, должна быть возможность его удалить потом
+    if FNeedSave then
+      FTags.Save; // могли добавить некорректный тэг, должна быть возможность его удалить потом
   finally
-    ReallocSortedTags;  
     FillTreeTags;
     DoOnChangeTag;
   end;
@@ -224,13 +221,11 @@ begin
   if Assigned(vTag) then
   begin
     vTag.Enabled := not(Node.CheckState = csUncheckedNormal);
-    SyncListChecks;
     DoOnChangeTag;
     vtTags.Invalidate;
   end
   else
     FTags.Owner.EndUpdate;
-
 end;
 
 procedure TTagListFrm.vtTagsChecking(Sender: TBaseVirtualTree;
@@ -253,10 +248,31 @@ begin
 
   if EditTagFm.Edit(vTag) then
   begin
-    FTags.Save;
+    if FNeedSave then
+      FTags.Save;
     FillTreeTags;
     DoOnChangeTag;
   end;
+end;
+
+procedure TTagListFrm.actGroupExecute(Sender: TObject);
+begin
+  FillTreeTags;
+end;
+
+procedure TTagListFrm.btnAddFromFilterClick(Sender: TObject);
+var
+  vTag: TTagInfo2;
+begin
+  vTag := TTagInfo2.Create(Trim(edFilter.Text), True, clHighlight, 'Temporary added');
+  FTags.Add(vTag);
+  FillTreeTags;
+  DoOnChangeTag;
+end;
+
+procedure TTagListFrm.btnClearFilterClick(Sender: TObject);
+begin
+  edFilter.Clear;
 end;
 
 function TTagListFrm.GetSelectedTag: TTagInfo2;
@@ -272,13 +288,22 @@ begin
   Result := vNodeData.data;
 end;
 
+procedure TTagListFrm.actCheckedInTopExecute(Sender: TObject);
+begin
+  if actCheckedInTop.Checked then
+    FSort := stCheckedSort
+  else
+    FSort := stAlphaSort;
+  FillTreeTags;
+end;
+
 procedure TTagListFrm.actDeleteExecute(Sender: TObject);
 begin
   if Application.MessageBox(PChar('Delete tag?'), PChar('Confirm'), MB_YESNO) = ID_YES then
   begin
     FTags.Remove(GetSelectedTag);
-    FTags.Save;
-    ReallocSortedTags;
+    if FNeedSave then
+      FTags.Save;
     FillTreeTags;
     DoOnChangeTag;
   end;
@@ -348,114 +373,21 @@ begin
     FOnChangeTag;
 end;
 
+procedure TTagListFrm.edFilterChange(Sender: TObject);
+begin
+  FillTreeTags;
+  btnAddFromFilter.Visible := Length(Trim(edFilter.Text)) > 0;
+  btnClearFilter.Visible := Length(Trim(edFilter.Text)) > 0;
+end;
+
 procedure TTagListFrm.edSkipTextChange(Sender: TObject);
 begin
   DoOnChangeTag;
 end;
 
-procedure TTagListFrm.FillListTags;
-var
-  i: Integer;
-  vText: string;
-  vTag: TTagInfo2;
-begin
-  chklst1.Clear;
-  for i := 0 to FSortedTags.Count - 1 do
-  begin
-    vTag := TTagInfo2(FSortedTags[i]);
-    vText := vTag.FullName;
-    chklst1.AddItem(vText, vTag);
-    chklst1.Checked[i] := vTag.Enabled;
-  end;
-end;
-
-procedure TTagListFrm.ReallocSortedTags;
-begin
-  FTags.CopyTo(FSortedTags);
- // FSort
-  Sort;
-end;
-
-function SortAlpha(Item1, Item2: Pointer): Integer;
-begin
-  Result := CompareText(TTagInfo2(Item1).Name, TTagInfo2(Item2).Name);
-end;
-
-function SortChecked(Item1, Item2: Pointer): Integer;
-begin
-  if TTagInfo2(Item1).Enabled = TTagInfo2(Item2).Enabled then
-  begin
-    if TTagInfo2(Item1).Enabled then
-      Result := TTagInfo2(Item2).MatchCount - TTagInfo2(Item1).MatchCount
-    else
-      Result := CompareText(TTagInfo2(Item1).Name, TTagInfo2(Item2).Name);
-  end
-  else  if TTagInfo2(Item1).Enabled then
-    Result := -1
-  else
-    Result := 1;
-end;
-
 procedure TTagListFrm.Sort;
 begin
-  case FSort of
-    stAlphaSort: FSortedTags.Sort(SortAlpha);
-    stCheckedSort: FSortedTags.Sort(SortChecked);
-    stNoSort:;
-  end;  
-end;
-
-procedure TTagListFrm.actAlphabeticalSortExecute(Sender: TObject);
-begin
-  FSort := stAlphaSort;
-  Sort;
-  FillListTags;
-end;
-
-procedure TTagListFrm.actCheckedSortExecute(Sender: TObject);
-begin
-  FSort := stCheckedSort;
-  Sort;
-  FillListTags;
-end;
-
-procedure TTagListFrm.chklst1ClickCheck(Sender: TObject);
-begin
-  TTagInfo2(chklst1.Items.Objects[chklst1.ItemIndex]).Enabled := chklst1.Checked[chklst1.ItemIndex];
-  SyncTreeChecks;
-  DoOnChangeTag;
-end;
-
-procedure TTagListFrm.SyncTreeChecks;
-var
-  vNode: PVirtualNode;
-  vNodeData: ^TNodeData;
-  vTag: TTagInfo2;
-begin
-  vNode := vtTags.GetFirst;
-  while Assigned(vNode) do
-  begin
-    vNodeData := vtTags.GetNodeData(vNode);
-    vTag := vNodeData.Data;
-    if Assigned(vTag) then
-    begin
-      if vTag.Enabled then
-        vNode.CheckState := csCheckedNormal
-      else
-        vNode.CheckState := csUncheckedNormal;
-    end;    
-    vNode := vtTags.GetNext(vNode);
-  end;
-  vtTags.Invalidate;
-end;
-
-procedure TTagListFrm.SyncListChecks;
-var
-  i: Integer;
-begin
-  for i := 0 to chklst1.Count - 1 do
-    if TTagInfo2(chklst1.Items.Objects[i]).Enabled <> chklst1.Checked[i] then
-      chklst1.Checked[i] := TTagInfo2(chklst1.Items.Objects[i]).Enabled;
+  FTags.Sort(FSort, FSortedTags);
 end;
 
 procedure TTagListFrm.chklst1DrawItem(Control: TWinControl; Index: Integer;
@@ -493,8 +425,7 @@ end;
 
 procedure TTagListFrm.UpdateLists;
 begin
-  ReallocSortedTags;
-  FillListTags;
+  Sort;
   FillTreeTags;
 end;
 

@@ -41,6 +41,8 @@ type
     property GroupName: string read FGroupName write FGroupName;
   end;
 
+  TSortType = (stAlphaSort, stCheckedSort, stNoSort);
+
   TTagList2 = class
   private
     FOwner: TDataList;
@@ -60,6 +62,8 @@ type
     procedure CheckAll(const ACheck: Boolean);
 
     procedure CopyTo(const AList: TList);
+
+    procedure Sort(const ASortType: TSortType; const AIndices: TList);
 
     function Count: Integer;
     property Items[const AIndex: Integer]: TTagInfo2 read GetItem; default;
@@ -93,7 +97,6 @@ type
     function GetRowCount: Integer;
     function GetFilteredRow(const AIndex: Integer): string;
     function GetRow(const AIndex: Integer): string;
-    procedure BuildIndexForTag(const ATag: TTagInfo2);
     procedure BuildIndexForTags();
     procedure BuildFilteredIndex;
     function GetTag(const AIndex: Integer): TTagInfo2;
@@ -343,6 +346,36 @@ begin
   vIni.Free;
 end;
 
+function SortAlpha(Item1, Item2: Pointer): Integer;
+begin
+  Result := CompareText(TTagInfo2(Item1).Name, TTagInfo2(Item2).Name);
+end;
+
+function SortChecked(Item1, Item2: Pointer): Integer;
+begin
+  if TTagInfo2(Item1).Enabled = TTagInfo2(Item2).Enabled then
+  begin
+    if TTagInfo2(Item1).Enabled then
+      Result := TTagInfo2(Item2).MatchCount - TTagInfo2(Item1).MatchCount
+    else
+      Result := CompareText(TTagInfo2(Item1).Name, TTagInfo2(Item2).Name);
+  end
+  else  if TTagInfo2(Item1).Enabled then
+    Result := -1
+  else
+    Result := 1;
+end;
+
+procedure TTagList2.Sort(const ASortType: TSortType; const AIndices: TList);
+begin
+  CopyTo(AIndices);
+  case ASortType of
+    stAlphaSort: AIndices.Sort(SortAlpha);
+    stCheckedSort: AIndices.Sort(SortChecked);
+    stNoSort:;
+  end;
+end;
+
 { TMyStringList }
 
 procedure TMyStringList.LoadFromStream(Stream: TStream);
@@ -460,20 +493,6 @@ begin
   finally
     tags.Free;
   end;
-end;
-
-
-procedure TDataList.BuildIndexForTag(const ATag: TTagInfo2);
-var
-  i: Integer;
-begin
-  if ATag.FIndexed then
-    Exit; // index already builded
-
-  for i := 0 to FData.Count - 1 do
-    ATag.DoIndex(FData[i], UpperCase(FData[i]), i);
-
-  ATag.FIndexed := True;
 end;
 
 constructor TDataList.Create;

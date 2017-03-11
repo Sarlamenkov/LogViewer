@@ -47,23 +47,17 @@ object TagListDefaultFm: TTagListDefaultFm
       Width = 334
       ExplicitWidth = 334
     end
-    inherited pgc1: TPageControl
+    inherited vtTags: TVirtualStringTree
       Width = 334
-      Height = 593
+      Height = 566
+    end
+    inherited pnlFilter: TPanel
+      Width = 334
       ExplicitWidth = 334
-      ExplicitHeight = 593
-      inherited ts1: TTabSheet
-        inherited vtTags: TVirtualStringTree
-          Width = 326
-          Height = 565
-          ExplicitWidth = 326
-          ExplicitHeight = 565
-        end
-      end
     end
     inherited ImageList: TImageList
       Bitmap = {
-        494C010107001400140018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+        494C010107001800180018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
         0000000000003600000028000000600000003000000001002000000000000048
         0000000000000000000000000000000000000000000000000000000000000000
         0000000000000000000000000000000000000000000000000000000000000000

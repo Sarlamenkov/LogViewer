@@ -1,13 +1,13 @@
 object TagListFrm: TTagListFrm
   Left = 0
   Top = 0
-  Width = 249
+  Width = 242
   Height = 482
   TabOrder = 0
   object tlb1: TToolBar
     Left = 0
     Top = 0
-    Width = 249
+    Width = 242
     Height = 30
     AutoSize = True
     ButtonHeight = 30
@@ -16,6 +16,7 @@ object TagListFrm: TTagListFrm
     Images = ImageList
     TabOrder = 0
     Transparent = True
+    ExplicitWidth = 249
     object btnAdd: TToolButton
       Left = 0
       Top = 0
@@ -31,106 +32,101 @@ object TagListFrm: TTagListFrm
       Top = 0
       Action = actDelete
     end
+    object ToolButton1: TToolButton
+      Left = 93
+      Top = 0
+      Width = 20
+      Caption = 'ToolButton1'
+      ImageIndex = 1
+      Style = tbsSeparator
+    end
+    object ToolButton2: TToolButton
+      Left = 113
+      Top = 0
+      Action = actGroup
+    end
+    object ToolButton3: TToolButton
+      Left = 144
+      Top = 0
+      Action = actCheckedInTop
+    end
   end
-  object pgc1: TPageControl
+  object vtTags: TVirtualStringTree
+    Left = 0
+    Top = 57
+    Width = 242
+    Height = 425
+    Align = alClient
+    BevelInner = bvNone
+    BevelOuter = bvNone
+    Header.AutoSizeIndex = 0
+    Header.Font.Charset = DEFAULT_CHARSET
+    Header.Font.Color = clWindowText
+    Header.Font.Height = -11
+    Header.Font.Name = 'MS Sans Serif'
+    Header.Font.Style = []
+    Header.Options = [hoColumnResize, hoDrag]
+    PopupMenu = pm1
+    TabOrder = 1
+    TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning]
+    TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowRoot, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection]
+    OnBeforeCellPaint = vtTagsBeforeCellPaint
+    OnChecked = vtTagsChecked
+    OnChecking = vtTagsChecking
+    OnGetText = vtTagsGetText
+    OnGetNodeDataSize = vtTagsGetNodeDataSize
+    OnResize = vtTagsResize
+    ExplicitTop = 36
+    ExplicitWidth = 249
+    ExplicitHeight = 452
+    Columns = <
+      item
+        Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring, coSmartResize]
+        Position = 0
+        Width = 150
+      end>
+  end
+  object pnlFilter: TPanel
     Left = 0
     Top = 30
-    Width = 249
-    Height = 452
-    ActivePage = ts1
-    Align = alClient
-    Style = tsFlatButtons
-    TabOrder = 1
-    object ts1: TTabSheet
-      Margins.Left = 0
-      Margins.Top = 0
-      Margins.Right = 0
-      Margins.Bottom = 0
-      Caption = 'Tree'
-      object vtTags: TVirtualStringTree
-        Left = 0
-        Top = 0
-        Width = 241
-        Height = 421
-        Align = alClient
-        BevelInner = bvNone
-        BevelOuter = bvNone
-        Header.AutoSizeIndex = 0
-        Header.Font.Charset = DEFAULT_CHARSET
-        Header.Font.Color = clWindowText
-        Header.Font.Height = -11
-        Header.Font.Name = 'MS Sans Serif'
-        Header.Font.Style = []
-        Header.Options = [hoColumnResize, hoDrag]
-        PopupMenu = pm1
-        TabOrder = 0
-        TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning]
-        TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowRoot, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection]
-        OnBeforeCellPaint = vtTagsBeforeCellPaint
-        OnChecked = vtTagsChecked
-        OnChecking = vtTagsChecking
-        OnGetText = vtTagsGetText
-        OnGetNodeDataSize = vtTagsGetNodeDataSize
-        OnResize = vtTagsResize
-        Columns = <
-          item
-            Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring, coSmartResize]
-            Position = 0
-            Width = 150
-          end>
-      end
+    Width = 242
+    Height = 27
+    Align = alTop
+    BevelOuter = bvNone
+    TabOrder = 2
+    object btnClearFilter: TSpeedButton
+      Left = 133
+      Top = 3
+      Width = 23
+      Height = 22
+      Caption = 'X'
+      Flat = True
+      Visible = False
+      OnClick = btnClearFilterClick
     end
-    object ts2: TTabSheet
-      Caption = 'List'
-      ImageIndex = 1
-      object chklst1: TCheckListBox
-        Left = 0
-        Top = 30
-        Width = 241
-        Height = 391
-        OnClickCheck = chklst1ClickCheck
-        Align = alClient
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-        Style = lbOwnerDrawFixed
-        TabOrder = 0
-        OnDrawItem = chklst1DrawItem
-      end
-      object tlb2: TToolBar
-        Left = 0
-        Top = 0
-        Width = 241
-        Height = 30
-        AutoSize = True
-        ButtonHeight = 30
-        ButtonWidth = 31
-        Caption = 'tlb2'
-        Images = ImageList
-        TabOrder = 1
-        Transparent = True
-        object btnCheckedSort: TToolButton
-          Left = 0
-          Top = 0
-          Action = actCheckedSort
-          Style = tbsCheck
-        end
-        object btnAlphabeticalSort: TToolButton
-          Left = 31
-          Top = 0
-          Action = actAlphabeticalSort
-          Down = True
-          Style = tbsCheck
-        end
-        object btnNoSort: TToolButton
-          Left = 62
-          Top = 0
-          Action = actNoSort
-        end
-      end
+    object btnAddFromFilter: TSpeedButton
+      Left = 162
+      Top = 3
+      Width = 46
+      Height = 22
+      Caption = 'Add'
+      Flat = True
+      Visible = False
+      OnClick = btnAddFromFilterClick
+    end
+    object edFilter: TEdit
+      Left = 6
+      Top = 3
+      Width = 121
+      Height = 22
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      OnChange = edFilterChange
     end
   end
   object ImageList: TImageList
@@ -139,7 +135,7 @@ object TagListFrm: TTagListFrm
     Left = 102
     Top = 164
     Bitmap = {
-      494C010107001800180018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010107002000200018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000003000000001002000000000000048
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -759,9 +755,19 @@ object TagListFrm: TTagListFrm
       ImageIndex = 0
       OnExecute = actDeleteExecute
     end
-    object actCloseTab: TAction
-      Caption = 'Close Tab'
-      Hint = 'Close Current Tab'
+    object actGroup: TAction
+      AutoCheck = True
+      Caption = 'Show Group'
+      Checked = True
+      Hint = 'Show Group'
+      ImageIndex = 6
+      OnExecute = actGroupExecute
+    end
+    object actCheckedInTop: TAction
+      AutoCheck = True
+      Caption = 'actCheckedInTop'
+      ImageIndex = 5
+      OnExecute = actCheckedInTopExecute
     end
   end
   object pm1: TPopupMenu
@@ -774,32 +780,6 @@ object TagListFrm: TTagListFrm
     object miUncheckAll: TMenuItem
       Caption = 'Uncheck All'
       OnClick = miUncheckAllClick
-    end
-  end
-  object alSort: TActionList
-    Images = ImageList
-    Left = 45
-    Top = 214
-    object actCheckedSort: TAction
-      AutoCheck = True
-      Caption = 'actCheckedSort'
-      Checked = True
-      GroupIndex = 1
-      ImageIndex = 5
-      OnExecute = actCheckedSortExecute
-    end
-    object actAlphabeticalSort: TAction
-      AutoCheck = True
-      Caption = 'actAlphabeticalSort'
-      GroupIndex = 1
-      ImageIndex = 4
-      OnExecute = actAlphabeticalSortExecute
-    end
-    object actNoSort: TAction
-      AutoCheck = True
-      Caption = 'actNoSort'
-      GroupIndex = 1
-      ImageIndex = 6
     end
   end
 end

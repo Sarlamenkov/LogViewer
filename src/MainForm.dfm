@@ -28,8 +28,6 @@ object MainFm: TMainFm
     Align = alClient
     TabOrder = 0
     OnMouseUp = PageControl1MouseUp
-    ExplicitTop = 0
-    ExplicitHeight = 620
   end
   object ToolBar1: TToolBar
     Left = 0
@@ -47,13 +45,15 @@ object MainFm: TMainFm
       Top = 0
       Action = actOpen
     end
-    object ToolButton9: TToolButton
+    object tbHistory: TToolButton
       Left = 41
       Top = 0
-      Caption = 'ToolButton9'
+      Hint = 'History'
+      Caption = 'tbHistory'
       DropdownMenu = pmReopen
       ImageIndex = 0
       Style = tbsDropDown
+      OnClick = tbHistoryClick
     end
     object ToolButton2: TToolButton
       Left = 95
@@ -114,31 +114,37 @@ object MainFm: TMainFm
     Top = 88
     object actOpen: TAction
       Caption = 'actOpen'
+      Hint = 'Open file'
       ImageIndex = 3
       OnExecute = actOpenExecute
     end
     object actCloseCurrent: TAction
       Caption = 'actCloseCurrent'
+      Hint = 'Close current file'
       ImageIndex = 1
       OnExecute = actCloseCurrentExecute
     end
     object actCloseAll: TAction
       Caption = 'actCloseAll'
+      Hint = 'Close all files'
       ImageIndex = 2
       OnExecute = actCloseAllExecute
     end
     object actOptions: TAction
       Caption = 'actOptions'
+      Hint = 'Options'
       ImageIndex = 6
       OnExecute = actOptionsExecute
     end
     object actDefaultTags: TAction
       Caption = 'actDefaultTags'
+      Hint = 'Default tags'
       ImageIndex = 0
       OnExecute = actDefaultTagsExecute
     end
     object actAbout: TAction
       Caption = 'About'
+      Hint = 'About'
       ImageIndex = 5
       OnExecute = actAboutExecute
     end
@@ -149,7 +155,7 @@ object MainFm: TMainFm
     Left = 400
     Top = 184
     Bitmap = {
-      494C010107001400140018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010107001800180018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000003000000001002000000000000048
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

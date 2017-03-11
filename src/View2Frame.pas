@@ -28,7 +28,6 @@ type
     vtLog: TVirtualStringTree;
     pnlMarks: TPanel;
     pb1: TPaintBox;
-    pnl6: TPanel;
     pnlBottom: TPanel;
     lblCount: TLabel;
     spl3: TSplitter;
@@ -40,6 +39,7 @@ type
     ActionList1: TActionList;
     act2windows: TAction;
     actFiltered: TAction;
+    pnlBase: TPanel;
     procedure vtLogGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType;
       var CellText: string);
@@ -67,6 +67,7 @@ type
   private
     FFileName: string;
     FDataList: TDataList;
+    FSortedTags: TList;
     FSelectedWords: TStrings;
     FFindWindow: TVirtualStringTree;
     FFindNextNode: PVirtualNode;
@@ -200,6 +201,7 @@ procedure TView2Frm.Deinit;
 begin
   FreeAndNil(FDataList);
   FreeAndNil(FSelectedWords);
+  FreeAndNil(FSortedTags);
 end;
 
 function TView2Frm.GetText(Sender: TBaseVirtualTree; Column: TColumnIndex;
@@ -233,13 +235,14 @@ begin
   Deinit;
   FFileName := AFileName;
   FDataList := TDataList.Create;
+  FSortedTags := TList.Create;
   FDataList.OnChanged := OnChangeTags;
   FDataList.OnLoading := OnLoading;
   FDataList.OnLoaded := OnLoaded;
   FDataList.LoadFromFile(AFileName);
-  tl1.Init(FDataList.TagList);
+  tl1.Init(FDataList.TagList, False);
   FSelectedWords := TStringList.Create;
-  
+
   vtLog.Font.Name := Options.FontName;
   vtLog.Font.Size := Options.FontSize;
   vtFilteredLog.Font.Name := Options.FontName;
@@ -484,29 +487,33 @@ end;
 
 procedure TView2Frm.UpdateMarks;
 var
-  i, pbWidth, pbHeight, rc, j, y: Integer;
+  i, pbWidth, pbHeight, vRowCount, j, y, vStep: Integer;
   vTag: TTagInfo2;
 begin
-  if FDataList = nil then Exit;
+  if (FDataList = nil) or (FSortedTags = nil) then Exit;
 
   pb1.Canvas.Lock;
   try
     pb1.Canvas.FillRect(pb1.ClientRect);
     pbHeight := pb1.Height;
     pbWidth := pb1.Width;
-    rc := FDataList.RowCount;
-    for i := 0 to FDataList.TagCount - 1 do
+    vRowCount := FDataList.RowCount;
+    FDataList.TagList.Sort(stCheckedSort, FSortedTags);
+    for i := 0 to FSortedTags.Count - 1 do
     begin
-      vTag := FDataList.Tags[i];
-      if vTag.Enabled then
+      vTag := TTagInfo2(FSortedTags[i]);
+      if not vTag.Enabled then Exit;
+
+      vStep := 1; j := 0;
+      if vTag.MatchCount > pbHeight then
+        vStep := vTag.MatchCount div pbHeight;
+      while j < vTag.MatchCount - 1 do
       begin
-        for j := 0 to vTag.MatchCount - 1 do
-        begin
-          y := Round(vTag.MatchRows[j]/rc*pbHeight);
-          pb1.Canvas.Pen.Color := vTag.Color;
-          pb1.Canvas.MoveTo(0, y);
-          pb1.Canvas.LineTo(pbWidth, y);
-        end;
+        y := Round(vTag.MatchRows[j] / vRowCount * pbHeight);
+        pb1.Canvas.Pen.Color := vTag.Color;
+        pb1.Canvas.MoveTo(0, y);
+        pb1.Canvas.LineTo(pbWidth, y);
+        j := j + vStep;
       end;
     end;
   finally
@@ -516,8 +523,7 @@ end;
 
 procedure TView2Frm.UpdateCountLabel;
 begin
-  lblCount.Caption := 'Rows: ' +
-    IntToStr(FDataList.FilteredRowCount) + ' / ' + IntToStr(FDataList.RowCount);
+  lblCount.Caption := IntToStr(FDataList.FilteredRowCount) + ' / ' + IntToStr(FDataList.RowCount);
 end;
 
 procedure TView2Frm.pb1Paint(Sender: TObject);

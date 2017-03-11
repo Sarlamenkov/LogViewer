@@ -39,7 +39,7 @@ type
     ImageList1: TImageList;
     ToolButton7: TToolButton;
     ToolButton8: TToolButton;
-    ToolButton9: TToolButton;
+    tbHistory: TToolButton;
     pmReopen: TPopupMenu;
 
     procedure FormCreate(Sender: TObject);
@@ -65,6 +65,7 @@ type
     procedure actOptionsExecute(Sender: TObject);
     procedure actDefaultTagsExecute(Sender: TObject);
     procedure actAboutExecute(Sender: TObject);
+    procedure tbHistoryClick(Sender: TObject);
 
   private
     procedure ActivateTab(const AFileName: string);
@@ -94,7 +95,7 @@ implementation
 {$R *.dfm}
 
 uses
-  IniFiles,
+  IniFiles, Types,
 
   uConsts, EditTagForm, AboutForm,  OptionsForm,
   TagListDefaultForm;
@@ -133,6 +134,14 @@ procedure TMainFm.Timer1Timer(Sender: TObject);
 begin
   Timer1.Enabled := False;
   FirstActivate;
+end;
+
+procedure TMainFm.tbHistoryClick(Sender: TObject);
+var
+  vPoint: TPoint;
+begin
+  vPoint := tbHistory.ClientToScreen(Point(0, tbHistory.Height + 2));
+  pmReopen.Popup(vPoint.X, vPoint.Y);
 end;
 
 procedure TMainFm.FormClose(Sender: TObject; var Action: TCloseAction);

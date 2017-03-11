@@ -35,7 +35,7 @@ var
 begin
   vTagList := TTagList2.Create;
   vTagList.Load('tags');
-  tl1.Init(vTagList);
+  tl1.Init(vTagList, True);
   if ShowModal <> mrOk then Exit;
   vTagList.Save;
 end;

@@ -5,413 +5,27 @@ object View2Frm: TView2Frm
   Height = 498
   TabOrder = 0
   object spl3: TSplitter
-    Left = 249
+    Left = 242
     Top = 0
     Width = 8
-    Height = 476
-  end
-  object pnlWork: TPanel
-    Left = 257
-    Top = 0
-    Width = 604
-    Height = 476
-    Align = alClient
-    BevelOuter = bvNone
-    Caption = 'pnlWork'
-    TabOrder = 0
-    object pnlTools: TPanel
-      Left = 0
-      Top = 0
-      Width = 604
-      Height = 34
-      Align = alTop
-      BevelOuter = bvNone
-      TabOrder = 0
-      object lbl1: TLabel
-        Left = 11
-        Top = 10
-        Width = 33
-        Height = 13
-        Caption = 'Search'
-        Layout = tlCenter
-      end
-      object edtSearch: TEdit
-        Left = 54
-        Top = 6
-        Width = 114
-        Height = 24
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'MS Sans Serif'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 0
-      end
-      object btnFindNext: TButton
-        Left = 172
-        Top = 5
-        Width = 61
-        Height = 25
-        Caption = 'Next'
-        TabOrder = 1
-        OnClick = btnFindNextClick
-      end
-      object chkFiltered: TCheckBox
-        Left = 408
-        Top = 10
-        Width = 65
-        Height = 17
-        TabStop = False
-        Action = actFiltered
-        TabOrder = 2
-      end
-      object btnFindPrev: TButton
-        Left = 236
-        Top = 5
-        Width = 61
-        Height = 25
-        Caption = 'Prev'
-        TabOrder = 3
-      end
-      object chkTwoWindows: TCheckBox
-        Left = 314
-        Top = 9
-        Width = 88
-        Height = 17
-        Action = act2windows
-        TabOrder = 4
-      end
-    end
-    object pnlMarks: TPanel
-      Left = 583
-      Top = 34
-      Width = 21
-      Height = 442
-      Align = alRight
-      BevelOuter = bvNone
-      TabOrder = 1
-      object pb1: TPaintBox
-        Left = 0
-        Top = 0
-        Width = 21
-        Height = 426
-        Align = alClient
-        OnMouseUp = pb1MouseUp
-        OnPaint = pb1Paint
-        ExplicitWidth = 19
-      end
-      object pnl6: TPanel
-        Left = 0
-        Top = 426
-        Width = 21
-        Height = 16
-        Align = alBottom
-        BevelOuter = bvNone
-        TabOrder = 0
-      end
-    end
-    object pnlLog: TPanel
-      Left = 0
-      Top = 34
-      Width = 583
-      Height = 442
-      Align = alClient
-      BevelOuter = bvNone
-      Caption = 'pnlLog'
-      TabOrder = 2
-      object splVerticalLogs: TSplitter
-        Left = 0
-        Top = 217
-        Width = 583
-        Height = 6
-        Cursor = crVSplit
-        Align = alTop
-        ResizeStyle = rsUpdate
-        ExplicitLeft = 6
-        ExplicitTop = 64
-        ExplicitWidth = 586
-      end
-      object pnlFiltered: TPanel
-        Left = 0
-        Top = 223
-        Width = 583
-        Height = 219
-        Align = alClient
-        BevelOuter = bvNone
-        TabOrder = 0
-        object splFiltered: TSplitter
-          Left = 576
-          Top = 0
-          Width = 6
-          Height = 219
-          Align = alRight
-          MinSize = 1
-          ExplicitLeft = 579
-          ExplicitHeight = 216
-        end
-        object vtFilteredLog2: TVirtualStringTree
-          Left = 582
-          Top = 0
-          Width = 1
-          Height = 219
-          Align = alRight
-          ClipboardFormats.Strings = (
-            'Plain text')
-          Colors.UnfocusedSelectionBorderColor = clHighlight
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Courier'
-          Font.Style = []
-          Header.AutoSizeIndex = 0
-          Header.Font.Charset = DEFAULT_CHARSET
-          Header.Font.Color = clWindowText
-          Header.Font.Height = -11
-          Header.Font.Name = 'MS Sans Serif'
-          Header.Font.Style = []
-          Header.Options = [hoDblClickResize, hoDrag, hoFullRepaintOnResize]
-          LineStyle = lsSolid
-          ParentFont = False
-          TabOrder = 0
-          TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoTristateTracking, toAutoDeleteMovedNodes, toDisableAutoscrollOnEdit]
-          TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick]
-          TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection, toShowFilteredNodes]
-          TreeOptions.SelectionOptions = [toFullRowSelect, toMiddleClickSelect, toMultiSelect, toRightClickSelect]
-          OnBeforeCellPaint = vtLogBeforeCellPaint
-          OnDblClick = vtFilteredLogDblClick
-          OnEditing = vtLogEditing
-          OnEnter = vtLogEnter
-          OnGetText = vtLogGetText
-          OnKeyDown = vtFilteredLogKeyDown
-          OnMouseDown = vtLogMouseDown
-          OnMouseUp = vtLogMouseUp
-          Columns = <
-            item
-              Color = clBtnFace
-              Options = [coParentBidiMode, coShowDropMark, coVisible, coFixed, coAllowFocus]
-              Position = 0
-              Width = 20
-              WideText = 'Line'
-            end
-            item
-              Position = 1
-              Width = 500
-              WideText = 'Text'
-            end>
-        end
-        object vtFilteredLog: TVirtualStringTree
-          Left = 0
-          Top = 0
-          Width = 576
-          Height = 219
-          Align = alClient
-          ClipboardFormats.Strings = (
-            'Plain text')
-          Colors.UnfocusedSelectionBorderColor = clHighlight
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Courier'
-          Font.Style = []
-          Header.AutoSizeIndex = 0
-          Header.Font.Charset = DEFAULT_CHARSET
-          Header.Font.Color = clWindowText
-          Header.Font.Height = -11
-          Header.Font.Name = 'MS Sans Serif'
-          Header.Font.Style = []
-          Header.Options = [hoDblClickResize, hoDrag, hoFullRepaintOnResize]
-          LineStyle = lsSolid
-          ParentFont = False
-          TabOrder = 1
-          TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoTristateTracking, toAutoDeleteMovedNodes, toDisableAutoscrollOnEdit]
-          TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick]
-          TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection, toShowFilteredNodes]
-          TreeOptions.SelectionOptions = [toFullRowSelect, toMiddleClickSelect, toMultiSelect, toRightClickSelect]
-          OnBeforeCellPaint = vtLogBeforeCellPaint
-          OnDblClick = vtFilteredLogDblClick
-          OnEditing = vtLogEditing
-          OnEnter = vtLogEnter
-          OnGetText = vtLogGetText
-          OnKeyDown = vtFilteredLogKeyDown
-          OnMouseDown = vtLogMouseDown
-          OnMouseUp = vtLogMouseUp
-          Columns = <
-            item
-              Color = clBtnFace
-              Options = [coParentBidiMode, coShowDropMark, coVisible, coFixed, coAllowFocus]
-              Position = 0
-              Width = 20
-              WideText = 'Line'
-            end
-            item
-              Position = 1
-              Width = 500
-              WideText = 'Text'
-            end>
-        end
-      end
-      object pnlFull: TPanel
-        Left = 0
-        Top = 0
-        Width = 583
-        Height = 217
-        Align = alTop
-        BevelOuter = bvNone
-        Caption = 'pnlFull'
-        TabOrder = 1
-        object splFullLog: TSplitter
-          Left = 576
-          Top = 0
-          Width = 6
-          Height = 217
-          Align = alRight
-          ExplicitLeft = -3
-        end
-        object vtLog: TVirtualStringTree
-          Left = 0
-          Top = 0
-          Width = 576
-          Height = 217
-          Align = alClient
-          ClipboardFormats.Strings = (
-            'Plain text')
-          Colors.UnfocusedSelectionBorderColor = clHighlight
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Courier'
-          Font.Style = []
-          Header.AutoSizeIndex = 0
-          Header.Font.Charset = DEFAULT_CHARSET
-          Header.Font.Color = clWindowText
-          Header.Font.Height = -11
-          Header.Font.Name = 'MS Sans Serif'
-          Header.Font.Style = []
-          Header.Options = [hoDblClickResize, hoDrag, hoFullRepaintOnResize]
-          LineStyle = lsSolid
-          ParentFont = False
-          TabOrder = 0
-          TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoTristateTracking, toAutoDeleteMovedNodes, toDisableAutoscrollOnEdit]
-          TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick]
-          TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection, toShowFilteredNodes]
-          TreeOptions.SelectionOptions = [toFullRowSelect, toMiddleClickSelect, toMultiSelect, toRightClickSelect]
-          OnBeforeCellPaint = vtLogBeforeCellPaint
-          OnEditing = vtLogEditing
-          OnEnter = vtLogEnter
-          OnGetText = vtLogGetText
-          OnKeyDown = vtFilteredLogKeyDown
-          OnMouseDown = vtLogMouseDown
-          OnMouseUp = vtLogMouseUp
-          Columns = <
-            item
-              Color = clBtnFace
-              Options = [coParentBidiMode, coShowDropMark, coVisible, coFixed, coAllowFocus]
-              Position = 0
-              Width = 20
-              WideText = 'Line'
-            end
-            item
-              Position = 1
-              Width = 500
-              WideText = 'Text'
-            end>
-        end
-        object vtLog2: TVirtualStringTree
-          Left = 582
-          Top = 0
-          Width = 1
-          Height = 217
-          Align = alRight
-          ClipboardFormats.Strings = (
-            'Plain text')
-          Colors.UnfocusedSelectionBorderColor = clHighlight
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Courier'
-          Font.Style = []
-          Header.AutoSizeIndex = 0
-          Header.Font.Charset = DEFAULT_CHARSET
-          Header.Font.Color = clWindowText
-          Header.Font.Height = -11
-          Header.Font.Name = 'MS Sans Serif'
-          Header.Font.Style = []
-          Header.Options = [hoDblClickResize, hoDrag, hoFullRepaintOnResize]
-          LineStyle = lsSolid
-          ParentFont = False
-          TabOrder = 1
-          TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoTristateTracking, toAutoDeleteMovedNodes, toDisableAutoscrollOnEdit]
-          TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick]
-          TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection, toShowFilteredNodes]
-          TreeOptions.SelectionOptions = [toFullRowSelect, toMiddleClickSelect, toMultiSelect, toRightClickSelect]
-          OnBeforeCellPaint = vtLogBeforeCellPaint
-          OnGetText = vtLogGetText
-          OnMouseDown = vtLogMouseDown
-          Columns = <
-            item
-              Color = clBtnFace
-              Options = [coParentBidiMode, coShowDropMark, coVisible, coFixed, coAllowFocus]
-              Position = 0
-              Width = 20
-              WideText = 'Line'
-            end
-            item
-              Position = 1
-              Width = 500
-              WideText = 'Text'
-            end>
-        end
-      end
-    end
-  end
-  object pnlBottom: TPanel
-    Left = 0
-    Top = 476
-    Width = 861
-    Height = 22
-    Align = alBottom
-    BevelOuter = bvNone
-    TabOrder = 1
-    object lblCount: TLabel
-      Left = 15
-      Top = 5
-      Width = 39
-      Height = 13
-      Caption = 'lblCount'
-    end
-    object pb2: TProgressBar
-      Left = 5
-      Top = 6
-      Width = 238
-      Height = 10
-      Smooth = True
-      Step = 1
-      TabOrder = 0
-    end
+    Height = 498
+    ExplicitLeft = 249
+    ExplicitHeight = 476
   end
   inline tl1: TTagListFrm
     Left = 0
     Top = 0
-    Width = 249
-    Height = 476
+    Width = 242
+    Height = 498
     Align = alLeft
-    TabOrder = 2
-    ExplicitHeight = 476
-    inherited pgc1: TPageControl
-      Height = 446
-      ExplicitHeight = 446
-      inherited ts1: TTabSheet
-        ExplicitHeight = 415
-        inherited vtTags: TVirtualStringTree
-          Height = 415
-          ExplicitHeight = 415
-        end
-      end
+    TabOrder = 0
+    ExplicitHeight = 498
+    inherited vtTags: TVirtualStringTree
+      Height = 441
     end
     inherited ImageList: TImageList
       Bitmap = {
-        494C010107003000300018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+        494C010107003400340018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
         0000000000003600000028000000600000003000000001002000000000000048
         0000000000000000000000000000000000000000000000000000000000000000
         0000000000000000000000000000000000000000000000000000000000000000
@@ -1011,6 +625,417 @@ object View2Frm: TView2Frm
         FFFFFFFFFFFFFFFFFFF0003FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
         FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000000000000000000000000000
         000000000000}
+    end
+  end
+  object pnlBase: TPanel
+    Left = 250
+    Top = 0
+    Width = 590
+    Height = 498
+    Align = alClient
+    BevelOuter = bvNone
+    TabOrder = 1
+    ExplicitLeft = 314
+    ExplicitTop = 48
+    ExplicitWidth = 185
+    ExplicitHeight = 41
+    object pnlBottom: TPanel
+      Left = 0
+      Top = 476
+      Width = 590
+      Height = 22
+      Align = alBottom
+      BevelOuter = bvNone
+      TabOrder = 0
+      ExplicitWidth = 861
+      object lblCount: TLabel
+        Left = -2
+        Top = 4
+        Width = 69
+        Height = 14
+        Caption = 'lblCount'
+        Font.Charset = RUSSIAN_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Verdana'
+        Font.Style = []
+        ParentFont = False
+      end
+      object pb2: TProgressBar
+        Left = -2
+        Top = 6
+        Width = 238
+        Height = 10
+        Smooth = True
+        Step = 1
+        TabOrder = 0
+      end
+    end
+    object pnlWork: TPanel
+      Left = 0
+      Top = 0
+      Width = 590
+      Height = 476
+      Align = alClient
+      BevelOuter = bvNone
+      Caption = 'pnlWork'
+      TabOrder = 1
+      ExplicitLeft = 257
+      ExplicitWidth = 604
+      ExplicitHeight = 498
+      object pnlTools: TPanel
+        Left = 0
+        Top = 0
+        Width = 590
+        Height = 34
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 0
+        ExplicitWidth = 604
+        object lbl1: TLabel
+          Left = 11
+          Top = 10
+          Width = 33
+          Height = 13
+          Caption = 'Search'
+          Layout = tlCenter
+        end
+        object edtSearch: TEdit
+          Left = 54
+          Top = 6
+          Width = 114
+          Height = 24
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+        end
+        object btnFindNext: TButton
+          Left = 172
+          Top = 5
+          Width = 61
+          Height = 25
+          Caption = 'Next'
+          TabOrder = 1
+          OnClick = btnFindNextClick
+        end
+        object chkFiltered: TCheckBox
+          Left = 408
+          Top = 10
+          Width = 65
+          Height = 17
+          TabStop = False
+          Action = actFiltered
+          TabOrder = 2
+        end
+        object btnFindPrev: TButton
+          Left = 236
+          Top = 5
+          Width = 61
+          Height = 25
+          Caption = 'Prev'
+          TabOrder = 3
+        end
+        object chkTwoWindows: TCheckBox
+          Left = 314
+          Top = 9
+          Width = 88
+          Height = 17
+          Action = act2windows
+          TabOrder = 4
+        end
+      end
+      object pnlLog: TPanel
+        Left = 0
+        Top = 34
+        Width = 590
+        Height = 442
+        Align = alClient
+        BevelOuter = bvNone
+        Caption = 'pnlLog'
+        TabOrder = 1
+        ExplicitWidth = 583
+        ExplicitHeight = 464
+        object splVerticalLogs: TSplitter
+          Left = 0
+          Top = 217
+          Width = 590
+          Height = 6
+          Cursor = crVSplit
+          Align = alTop
+          ResizeStyle = rsUpdate
+          ExplicitLeft = 6
+          ExplicitTop = 64
+          ExplicitWidth = 586
+        end
+        object pnlFiltered: TPanel
+          Left = 0
+          Top = 223
+          Width = 590
+          Height = 219
+          Align = alClient
+          BevelOuter = bvNone
+          TabOrder = 0
+          ExplicitWidth = 583
+          ExplicitHeight = 241
+          object splFiltered: TSplitter
+            Left = 583
+            Top = 0
+            Width = 6
+            Height = 219
+            Align = alRight
+            MinSize = 1
+            ExplicitLeft = 579
+            ExplicitHeight = 216
+          end
+          object vtFilteredLog2: TVirtualStringTree
+            Left = 589
+            Top = 0
+            Width = 1
+            Height = 219
+            Align = alRight
+            ClipboardFormats.Strings = (
+              'Plain text')
+            Colors.UnfocusedSelectionBorderColor = clHighlight
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Courier'
+            Font.Style = []
+            Header.AutoSizeIndex = 0
+            Header.Font.Charset = DEFAULT_CHARSET
+            Header.Font.Color = clWindowText
+            Header.Font.Height = -11
+            Header.Font.Name = 'MS Sans Serif'
+            Header.Font.Style = []
+            Header.Options = [hoDblClickResize, hoDrag, hoFullRepaintOnResize]
+            LineStyle = lsSolid
+            ParentFont = False
+            TabOrder = 0
+            TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoTristateTracking, toAutoDeleteMovedNodes, toDisableAutoscrollOnEdit]
+            TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick]
+            TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection, toShowFilteredNodes]
+            TreeOptions.SelectionOptions = [toFullRowSelect, toMiddleClickSelect, toMultiSelect, toRightClickSelect]
+            OnBeforeCellPaint = vtLogBeforeCellPaint
+            OnDblClick = vtFilteredLogDblClick
+            OnEditing = vtLogEditing
+            OnEnter = vtLogEnter
+            OnGetText = vtLogGetText
+            OnKeyDown = vtFilteredLogKeyDown
+            OnMouseDown = vtLogMouseDown
+            OnMouseUp = vtLogMouseUp
+            ExplicitLeft = 582
+            ExplicitHeight = 241
+            Columns = <
+              item
+                Color = clBtnFace
+                Options = [coParentBidiMode, coShowDropMark, coVisible, coFixed, coAllowFocus]
+                Position = 0
+                Width = 20
+                WideText = 'Line'
+              end
+              item
+                Position = 1
+                Width = 500
+                WideText = 'Text'
+              end>
+          end
+          object vtFilteredLog: TVirtualStringTree
+            Left = 0
+            Top = 0
+            Width = 583
+            Height = 219
+            Align = alClient
+            ClipboardFormats.Strings = (
+              'Plain text')
+            Colors.UnfocusedSelectionBorderColor = clHighlight
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Courier'
+            Font.Style = []
+            Header.AutoSizeIndex = 0
+            Header.Font.Charset = DEFAULT_CHARSET
+            Header.Font.Color = clWindowText
+            Header.Font.Height = -11
+            Header.Font.Name = 'MS Sans Serif'
+            Header.Font.Style = []
+            Header.Options = [hoDblClickResize, hoDrag, hoFullRepaintOnResize]
+            LineStyle = lsSolid
+            ParentFont = False
+            TabOrder = 1
+            TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoTristateTracking, toAutoDeleteMovedNodes, toDisableAutoscrollOnEdit]
+            TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick]
+            TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection, toShowFilteredNodes]
+            TreeOptions.SelectionOptions = [toFullRowSelect, toMiddleClickSelect, toMultiSelect, toRightClickSelect]
+            OnBeforeCellPaint = vtLogBeforeCellPaint
+            OnDblClick = vtFilteredLogDblClick
+            OnEditing = vtLogEditing
+            OnEnter = vtLogEnter
+            OnGetText = vtLogGetText
+            OnKeyDown = vtFilteredLogKeyDown
+            OnMouseDown = vtLogMouseDown
+            OnMouseUp = vtLogMouseUp
+            ExplicitWidth = 576
+            ExplicitHeight = 241
+            Columns = <
+              item
+                Color = clBtnFace
+                Options = [coParentBidiMode, coShowDropMark, coVisible, coFixed, coAllowFocus]
+                Position = 0
+                Width = 20
+                WideText = 'Line'
+              end
+              item
+                Position = 1
+                Width = 500
+                WideText = 'Text'
+              end>
+          end
+        end
+        object pnlFull: TPanel
+          Left = 0
+          Top = 0
+          Width = 590
+          Height = 217
+          Align = alTop
+          BevelOuter = bvNone
+          Caption = 'pnlFull'
+          TabOrder = 1
+          ExplicitWidth = 583
+          object splFullLog: TSplitter
+            Left = 583
+            Top = 0
+            Width = 6
+            Height = 217
+            Align = alRight
+            ExplicitLeft = -3
+          end
+          object vtLog: TVirtualStringTree
+            Left = 0
+            Top = 0
+            Width = 583
+            Height = 217
+            Align = alClient
+            ClipboardFormats.Strings = (
+              'Plain text')
+            Colors.UnfocusedSelectionBorderColor = clHighlight
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Courier'
+            Font.Style = []
+            Header.AutoSizeIndex = 0
+            Header.Font.Charset = DEFAULT_CHARSET
+            Header.Font.Color = clWindowText
+            Header.Font.Height = -11
+            Header.Font.Name = 'MS Sans Serif'
+            Header.Font.Style = []
+            Header.Options = [hoDblClickResize, hoDrag, hoFullRepaintOnResize]
+            LineStyle = lsSolid
+            ParentFont = False
+            TabOrder = 0
+            TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoTristateTracking, toAutoDeleteMovedNodes, toDisableAutoscrollOnEdit]
+            TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick]
+            TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection, toShowFilteredNodes]
+            TreeOptions.SelectionOptions = [toFullRowSelect, toMiddleClickSelect, toMultiSelect, toRightClickSelect]
+            OnBeforeCellPaint = vtLogBeforeCellPaint
+            OnEditing = vtLogEditing
+            OnEnter = vtLogEnter
+            OnGetText = vtLogGetText
+            OnKeyDown = vtFilteredLogKeyDown
+            OnMouseDown = vtLogMouseDown
+            OnMouseUp = vtLogMouseUp
+            ExplicitWidth = 576
+            Columns = <
+              item
+                Color = clBtnFace
+                Options = [coParentBidiMode, coShowDropMark, coVisible, coFixed, coAllowFocus]
+                Position = 0
+                Width = 20
+                WideText = 'Line'
+              end
+              item
+                Position = 1
+                Width = 500
+                WideText = 'Text'
+              end>
+          end
+          object vtLog2: TVirtualStringTree
+            Left = 589
+            Top = 0
+            Width = 1
+            Height = 217
+            Align = alRight
+            ClipboardFormats.Strings = (
+              'Plain text')
+            Colors.UnfocusedSelectionBorderColor = clHighlight
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Courier'
+            Font.Style = []
+            Header.AutoSizeIndex = 0
+            Header.Font.Charset = DEFAULT_CHARSET
+            Header.Font.Color = clWindowText
+            Header.Font.Height = -11
+            Header.Font.Name = 'MS Sans Serif'
+            Header.Font.Style = []
+            Header.Options = [hoDblClickResize, hoDrag, hoFullRepaintOnResize]
+            LineStyle = lsSolid
+            ParentFont = False
+            TabOrder = 1
+            TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoTristateTracking, toAutoDeleteMovedNodes, toDisableAutoscrollOnEdit]
+            TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick]
+            TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection, toShowFilteredNodes]
+            TreeOptions.SelectionOptions = [toFullRowSelect, toMiddleClickSelect, toMultiSelect, toRightClickSelect]
+            OnBeforeCellPaint = vtLogBeforeCellPaint
+            OnGetText = vtLogGetText
+            OnMouseDown = vtLogMouseDown
+            ExplicitLeft = 582
+            Columns = <
+              item
+                Color = clBtnFace
+                Options = [coParentBidiMode, coShowDropMark, coVisible, coFixed, coAllowFocus]
+                Position = 0
+                Width = 20
+                WideText = 'Line'
+              end
+              item
+                Position = 1
+                Width = 500
+                WideText = 'Text'
+              end>
+          end
+        end
+      end
+    end
+  end
+  object pnlMarks: TPanel
+    Left = 840
+    Top = 0
+    Width = 21
+    Height = 498
+    Align = alRight
+    BevelOuter = bvLowered
+    TabOrder = 2
+    ExplicitLeft = 583
+    ExplicitTop = 34
+    ExplicitHeight = 442
+    object pb1: TPaintBox
+      Left = 1
+      Top = 1
+      Width = 19
+      Height = 496
+      Align = alClient
+      OnMouseUp = pb1MouseUp
+      OnPaint = pb1Paint
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitHeight = 426
     end
   end
   object ActionList1: TActionList

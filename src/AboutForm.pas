@@ -8,12 +8,11 @@ uses Classes, Forms, Controls, StdCtrls,
 type
   TAboutFm = class(TForm)
     Panel1: TPanel;
-    ProductName: TLabel;
     Version: TLabel;
     OKButton: TButton;
     lbl1: TLabel;
     lblVersion: TLabel;
-    lbl2: TLabel;
+    Memo1: TMemo;
     procedure FormShow(Sender: TObject);
   private
     { Private declarations }
