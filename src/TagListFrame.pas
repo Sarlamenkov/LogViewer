@@ -224,7 +224,7 @@ begin
     DoOnChangeTag;
     vtTags.Invalidate;
   end
-  else
+  else if Assigned(FTags.Owner) then
     FTags.Owner.EndUpdate;
 end;
 
@@ -234,9 +234,8 @@ var
   vNodeData: ^TNodeData;
 begin
   vNodeData := vtTags.GetNodeData(Node);
-  if vNodeData.Data = nil then //click on group
+  if (vNodeData.Data = nil) and Assigned(FTags.Owner) then //click on group
     FTags.Owner.BeginUpdate;
-
 end;
 
 procedure TTagListFrm.actEditExecute(Sender: TObject);
