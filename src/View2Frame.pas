@@ -40,6 +40,8 @@ type
     act2windows: TAction;
     actFiltered: TAction;
     pnlBase: TPanel;
+    pnlGroupedFilter: TPanel;
+    chbGroupedFilter: TCheckBox;
     procedure vtLogGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType;
       var CellText: string);
@@ -64,6 +66,7 @@ type
     procedure actFilteredExecute(Sender: TObject);
     procedure vtLogMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure chbGroupedFilterClick(Sender: TObject);
   private
     FFileName: string;
     FDataList: TDataList;
@@ -137,10 +140,10 @@ end;
 
 procedure TView2Frm.AddTagFromSelection;
 var
-  vTI: TTagInfo2;
+  vTI: TTagInfo;
 begin
   if FSelectedWords.Count = 0 then Exit;
-  vTI := TTagInfo2.Create(FSelectedWords[0], True, clSkyBlue, 'Temp');
+  vTI := TTagInfo.Create(FSelectedWords[0], True, clSkyBlue, 'Temp');
   FDataList.TagList.Add(vTI);
   tl1.UpdateLists;
 end;
@@ -166,6 +169,23 @@ begin
     FFindWindow.Invalidate;
     if FFindWindow.CanFocus then
       FFindWindow.SetFocus;
+  end;
+end;
+
+procedure TView2Frm.chbGroupedFilterClick(Sender: TObject);
+var
+  vChBox: TCheckListBox;
+  i: Integer;
+begin
+  pnlGroupedFilter.Visible := chbGroupedFilter.Checked;
+  FDataList.BuildTagGroups;
+
+  for i := 0 to FDataList.Table.ColumnCount - 1 do
+  begin
+    vChBox := TCheckListBox.Create(pnlGroupedFilter);
+    vChBox.Parent := pnlGroupedFilter;
+    vChBox.Align := alLeft;
+    FDataList.Table.GetGroupedValues(i, vChBox.Items);
   end;
 end;
 
@@ -240,7 +260,7 @@ begin
   FDataList.OnLoading := OnLoading;
   FDataList.OnLoaded := OnLoaded;
   FDataList.LoadFromFile(AFileName);
-  tl1.Init(FDataList.TagList, False);
+  tl1.Init(FDataList);
   FSelectedWords := TStringList.Create;
 
   vtLog.Font.Name := Options.FontName;
@@ -280,7 +300,7 @@ procedure TView2Frm.vtLogBeforeCellPaint(Sender: TBaseVirtualTree;
   var ContentRect: TRect);
 var
   i, vPos, vMargin: Integer;
-  vTag: TTagInfo2;
+  vTag: TTagInfo;
   vRowText, vBeforeTag: string;
   vRect: TRect;
   procedure DrawSelection(const AColor: TColor; const ASelText: string; const AExactMatch: Boolean = False);
@@ -311,9 +331,9 @@ var
           vBeforeTag := Copy(vRowText, 0, vPos - 1);
           vRect.Left := vMargin + CellRect.Left + TargetCanvas.TextWidth(vBeforeTag);
           vRect.Right := vRect.Left + TargetCanvas.TextWidth(Copy(vRowText, Length(vBeforeTag)+1, Length(ASelText))) + 1;
-          TargetCanvas.Brush.Color := CalcBrightColor(AColor, 80);
+          TargetCanvas.Brush.Color := CalcBrightColor(AColor, 90);
           TargetCanvas.Pen.Color := AColor;
-          TargetCanvas.RoundRect(vRect.Left, vRect.Top + 1, vRect.Right, vRect.Bottom - 1, 5, 5);
+          TargetCanvas.RoundRect(vRect.Left, vRect.Top + 1, vRect.Right, vRect.Bottom - 1, 4, 4);
         end;
 
         if Options.CaseSens then
@@ -488,7 +508,7 @@ end;
 procedure TView2Frm.UpdateMarks;
 var
   i, pbWidth, pbHeight, vRowCount, j, y, vStep: Integer;
-  vTag: TTagInfo2;
+  vTag: TTagInfo;
 begin
   if (FDataList = nil) or (FSortedTags = nil) then Exit;
 
@@ -501,7 +521,7 @@ begin
     FDataList.TagList.Sort(stCheckedSort, FSortedTags);
     for i := 0 to FSortedTags.Count - 1 do
     begin
-      vTag := TTagInfo2(FSortedTags[i]);
+      vTag := TTagInfo(FSortedTags[i]);
       if not vTag.Enabled then Exit;
 
       vStep := 1; j := 0;

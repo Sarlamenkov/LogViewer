@@ -62,22 +62,25 @@ type
     procedure edFilterChange(Sender: TObject);
     procedure btnAddFromFilterClick(Sender: TObject);
   private
-    FTags: TTagList2;
+    FTags: TTagList;
+    FDataList: TDataList;
     FSortedTags: TList;//array of Integer;
     FSort: TSortType;
     FOnChangeTag: TTagChangeEvent;
     FNeedSave: Boolean;
     procedure FillTreeTags;
     procedure Sort;
-    function GetSelectedTag: TTagInfo2;
+    function GetSelectedTag: TTagInfo;
     procedure CheckAll(const ACheck: Boolean);
     procedure DoOnChangeTag;
+    procedure UpdateColumns;
   public
-    procedure Init(const ATagList: TTagList2; const ANeedSave: Boolean);
+    procedure Init(const ADataList: TDataList);
+    procedure Init2(const ATagList: TTagList);
     procedure Deinit;
 
     procedure UpdateLists;
-    property Tags: TTagList2 read FTags;
+    property Tags: TTagList read FTags;
     property OnChangeTag: TTagChangeEvent read FOnChangeTag write FOnChangeTag;
   end;
 
@@ -101,7 +104,7 @@ end;
 procedure TTagListFrm.FillTreeTags;
 var
   i: Integer;
-  vTag: TTagInfo2;
+  vTag: TTagInfo;
   vNode: PVirtualNode;
   vNodeData: ^TNodeData;
   function GetNodeByGroup: PVirtualNode;
@@ -139,7 +142,7 @@ begin
   Sort;
   for i := 0 to FSortedTags.Count - 1 do
   begin
-    vTag := TTagInfo2(FSortedTags[i]);
+    vTag := TTagInfo(FSortedTags[i]);
 
     if Length(Trim(edFilter.Text)) > 0 then
       if Pos(UpperCase(Trim(edFilter.Text)), UpperCase(vTag.Name)) <= 0 then Continue;
@@ -156,11 +159,19 @@ begin
   vtTags.FullExpand;
 end;
 
-procedure TTagListFrm.Init(const ATagList: TTagList2; const ANeedSave: Boolean);
+procedure TTagListFrm.Init(const ADataList: TDataList);
+begin
+  FDataList := ADataList;
+  UpdateColumns;
+  Init2(ADataList.TagList);
+  FNeedSave := False;
+end;
+
+procedure TTagListFrm.Init2(const ATagList: TTagList);
 begin
   Deinit;
   FTags := ATagList;
-  FNeedSave := ANeedSave;
+  FNeedSave := True;
   FSortedTags := TList.Create;
   FSort := stAlphaSort;
   FillTreeTags;
@@ -168,9 +179,9 @@ end;
 
 procedure TTagListFrm.actAddExecute(Sender: TObject);
 var
-  vTag: TTagInfo2;
+  vTag: TTagInfo;
 begin
-  vTag := TTagInfo2.Create('', True, clHighlight, '');
+  vTag := TTagInfo.Create('', True, clHighlight, '');
   if not EditTagFm.Edit(vTag) then
   begin
     vTag.Free;
@@ -198,7 +209,7 @@ procedure TTagListFrm.vtTagsGetText(Sender: TBaseVirtualTree;
   var CellText: string);
 var
   vNodeData: ^TNodeData;
-  vTag: TTagInfo2;
+  vTag: TTagInfo;
 begin
   vNodeData := vtTags.GetNodeData(Node);
   vTag := vNodeData.Data;
@@ -214,7 +225,7 @@ procedure TTagListFrm.vtTagsChecked(Sender: TBaseVirtualTree;
   Node: PVirtualNode);
 var
   vNodeData: ^TNodeData;
-  vTag: TTagInfo2;
+  vTag: TTagInfo;
 begin
   vNodeData := vtTags.GetNodeData(Node);
   vTag := vNodeData.Data;
@@ -240,7 +251,7 @@ end;
 
 procedure TTagListFrm.actEditExecute(Sender: TObject);
 var
-  vTag: TTagInfo2;
+  vTag: TTagInfo;
 begin
   vTag := GetSelectedTag;
   if vTag = nil then Exit;
@@ -261,9 +272,9 @@ end;
 
 procedure TTagListFrm.btnAddFromFilterClick(Sender: TObject);
 var
-  vTag: TTagInfo2;
+  vTag: TTagInfo;
 begin
-  vTag := TTagInfo2.Create(Trim(edFilter.Text), True, clHighlight, 'Temporary added');
+  vTag := TTagInfo.Create(Trim(edFilter.Text), True, clHighlight, 'Temporary added');
   FTags.Add(vTag);
   FillTreeTags;
   DoOnChangeTag;
@@ -274,7 +285,7 @@ begin
   edFilter.Clear;
 end;
 
-function TTagListFrm.GetSelectedTag: TTagInfo2;
+function TTagListFrm.GetSelectedTag: TTagInfo;
 var
   vNodeData: ^TNodeData;
   vNode: PVirtualNode;
@@ -396,7 +407,7 @@ var
   vColor: TColor;
 begin
   vList := Control as TCheckListBox;
-  vColor := TTagInfo2(vList.Items.Objects[Index]).Color;
+  vColor := TTagInfo(vList.Items.Objects[Index]).Color;
   with vList.Canvas, Rect do
   begin
     if odSelected in State then
@@ -413,13 +424,18 @@ begin
 
     if odFocused in State then Windows.DrawFocusRect(vList.Canvas.Handle, Rect);
     TextOut(Left + 14, Top, vList.Items[Index]);
-    if TTagInfo2(vList.Items.Objects[Index]).Enabled then
+    if TTagInfo(vList.Items.Objects[Index]).Enabled then
     begin
       Brush.Color := vColor;
       RoundRect(Rect.Left + 10, Rect.Top, 14, Rect.Bottom, 3, 3);
     end;  
   end;
 ///  TCheckListBox(Control).Canvas.TextRect(Rect, 20, 0, chklst1.Items[Index]);
+end;
+
+procedure TTagListFrm.UpdateColumns;
+begin
+
 end;
 
 procedure TTagListFrm.UpdateLists;

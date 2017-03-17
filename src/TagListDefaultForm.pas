@@ -31,11 +31,11 @@ uses
 
 procedure TTagListDefaultFm.Edit;
 var
-  vTagList: TTagList2;
+  vTagList: TTagList;
 begin
-  vTagList := TTagList2.Create;
+  vTagList := TTagList.Create;
   vTagList.Load('tags');
-  tl1.Init(vTagList, True);
+  tl1.Init2(vTagList);
   if ShowModal <> mrOk then Exit;
   vTagList.Save;
 end;

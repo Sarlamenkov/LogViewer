@@ -21,11 +21,12 @@ object View2Frm: TView2Frm
     TabOrder = 0
     ExplicitHeight = 498
     inherited vtTags: TVirtualStringTree
-      Height = 441
+      Height = 436
+      ExplicitHeight = 441
     end
     inherited ImageList: TImageList
       Bitmap = {
-        494C010107003400340018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+        494C010107004000400018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
         0000000000003600000028000000600000003000000001002000000000000048
         0000000000000000000000000000000000000000000000000000000000000000
         0000000000000000000000000000000000000000000000000000000000000000
@@ -635,10 +636,6 @@ object View2Frm: TView2Frm
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitLeft = 314
-    ExplicitTop = 48
-    ExplicitWidth = 185
-    ExplicitHeight = 41
     object pnlBottom: TPanel
       Left = 0
       Top = 476
@@ -647,11 +644,10 @@ object View2Frm: TView2Frm
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitWidth = 861
       object lblCount: TLabel
-        Left = -2
+        Left = 1
         Top = 4
-        Width = 69
+        Width = 52
         Height = 14
         Caption = 'lblCount'
         Font.Charset = RUSSIAN_CHARSET
@@ -680,9 +676,6 @@ object View2Frm: TView2Frm
       BevelOuter = bvNone
       Caption = 'pnlWork'
       TabOrder = 1
-      ExplicitLeft = 257
-      ExplicitWidth = 604
-      ExplicitHeight = 498
       object pnlTools: TPanel
         Left = 0
         Top = 0
@@ -691,7 +684,6 @@ object View2Frm: TView2Frm
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitWidth = 604
         object lbl1: TLabel
           Left = 11
           Top = 10
@@ -747,18 +739,27 @@ object View2Frm: TView2Frm
           Action = act2windows
           TabOrder = 4
         end
+        object chbGroupedFilter: TCheckBox
+          Left = 479
+          Top = 11
+          Width = 97
+          Height = 17
+          Caption = 'Grouped Filter'
+          TabOrder = 5
+          OnClick = chbGroupedFilterClick
+        end
       end
       object pnlLog: TPanel
         Left = 0
-        Top = 34
+        Top = 153
         Width = 590
-        Height = 442
+        Height = 323
         Align = alClient
         BevelOuter = bvNone
         Caption = 'pnlLog'
         TabOrder = 1
-        ExplicitWidth = 583
-        ExplicitHeight = 464
+        ExplicitTop = 34
+        ExplicitHeight = 442
         object splVerticalLogs: TSplitter
           Left = 0
           Top = 217
@@ -775,17 +776,16 @@ object View2Frm: TView2Frm
           Left = 0
           Top = 223
           Width = 590
-          Height = 219
+          Height = 100
           Align = alClient
           BevelOuter = bvNone
           TabOrder = 0
-          ExplicitWidth = 583
-          ExplicitHeight = 241
+          ExplicitHeight = 219
           object splFiltered: TSplitter
             Left = 583
             Top = 0
             Width = 6
-            Height = 219
+            Height = 100
             Align = alRight
             MinSize = 1
             ExplicitLeft = 579
@@ -795,7 +795,7 @@ object View2Frm: TView2Frm
             Left = 589
             Top = 0
             Width = 1
-            Height = 219
+            Height = 100
             Align = alRight
             ClipboardFormats.Strings = (
               'Plain text')
@@ -827,8 +827,7 @@ object View2Frm: TView2Frm
             OnKeyDown = vtFilteredLogKeyDown
             OnMouseDown = vtLogMouseDown
             OnMouseUp = vtLogMouseUp
-            ExplicitLeft = 582
-            ExplicitHeight = 241
+            ExplicitHeight = 219
             Columns = <
               item
                 Color = clBtnFace
@@ -847,7 +846,7 @@ object View2Frm: TView2Frm
             Left = 0
             Top = 0
             Width = 583
-            Height = 219
+            Height = 100
             Align = alClient
             ClipboardFormats.Strings = (
               'Plain text')
@@ -879,8 +878,7 @@ object View2Frm: TView2Frm
             OnKeyDown = vtFilteredLogKeyDown
             OnMouseDown = vtLogMouseDown
             OnMouseUp = vtLogMouseUp
-            ExplicitWidth = 576
-            ExplicitHeight = 241
+            ExplicitHeight = 219
             Columns = <
               item
                 Color = clBtnFace
@@ -905,7 +903,6 @@ object View2Frm: TView2Frm
           BevelOuter = bvNone
           Caption = 'pnlFull'
           TabOrder = 1
-          ExplicitWidth = 583
           object splFullLog: TSplitter
             Left = 583
             Top = 0
@@ -949,7 +946,6 @@ object View2Frm: TView2Frm
             OnKeyDown = vtFilteredLogKeyDown
             OnMouseDown = vtLogMouseDown
             OnMouseUp = vtLogMouseUp
-            ExplicitWidth = 576
             Columns = <
               item
                 Color = clBtnFace
@@ -995,7 +991,6 @@ object View2Frm: TView2Frm
             OnBeforeCellPaint = vtLogBeforeCellPaint
             OnGetText = vtLogGetText
             OnMouseDown = vtLogMouseDown
-            ExplicitLeft = 582
             Columns = <
               item
                 Color = clBtnFace
@@ -1012,6 +1007,16 @@ object View2Frm: TView2Frm
           end
         end
       end
+      object pnlGroupedFilter: TPanel
+        Left = 0
+        Top = 34
+        Width = 590
+        Height = 119
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 2
+        Visible = False
+      end
     end
   end
   object pnlMarks: TPanel
@@ -1022,9 +1027,6 @@ object View2Frm: TView2Frm
     Align = alRight
     BevelOuter = bvLowered
     TabOrder = 2
-    ExplicitLeft = 583
-    ExplicitTop = 34
-    ExplicitHeight = 442
     object pb1: TPaintBox
       Left = 1
       Top = 1

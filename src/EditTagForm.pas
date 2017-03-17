@@ -28,7 +28,7 @@ type
     procedure UpdateView;
     procedure SetTagColor(cl: TColor);
   public
-    function Edit(const ATag: TTagInfo2): Boolean;
+    function Edit(const ATag: TTagInfo): Boolean;
 
   end;
 
@@ -48,7 +48,7 @@ begin
     pnlColor.Font.Color := clWhite;
 end;
 
-function TEditTagFm.Edit(const ATag: TTagInfo2): Boolean;
+function TEditTagFm.Edit(const ATag: TTagInfo): Boolean;
 begin
   edtName.Text := ATag.Name;
   SetTagColor(ATag.Color);

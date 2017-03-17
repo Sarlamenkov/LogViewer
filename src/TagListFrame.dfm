@@ -16,7 +16,6 @@ object TagListFrm: TTagListFrm
     Images = ImageList
     TabOrder = 0
     Transparent = True
-    ExplicitWidth = 249
     object btnAdd: TToolButton
       Left = 0
       Top = 0
@@ -53,9 +52,9 @@ object TagListFrm: TTagListFrm
   end
   object vtTags: TVirtualStringTree
     Left = 0
-    Top = 57
+    Top = 62
     Width = 242
-    Height = 425
+    Height = 420
     Align = alClient
     BevelInner = bvNone
     BevelOuter = bvNone
@@ -76,9 +75,8 @@ object TagListFrm: TTagListFrm
     OnGetText = vtTagsGetText
     OnGetNodeDataSize = vtTagsGetNodeDataSize
     OnResize = vtTagsResize
-    ExplicitTop = 36
-    ExplicitWidth = 249
-    ExplicitHeight = 452
+    ExplicitTop = 57
+    ExplicitHeight = 425
     Columns = <
       item
         Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring, coSmartResize]
@@ -90,13 +88,13 @@ object TagListFrm: TTagListFrm
     Left = 0
     Top = 30
     Width = 242
-    Height = 27
+    Height = 32
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 2
     object btnClearFilter: TSpeedButton
       Left = 133
-      Top = 3
+      Top = 5
       Width = 23
       Height = 22
       Caption = 'X'
@@ -106,7 +104,7 @@ object TagListFrm: TTagListFrm
     end
     object btnAddFromFilter: TSpeedButton
       Left = 162
-      Top = 3
+      Top = 5
       Width = 46
       Height = 22
       Caption = 'Add'
@@ -116,12 +114,12 @@ object TagListFrm: TTagListFrm
     end
     object edFilter: TEdit
       Left = 6
-      Top = 3
+      Top = 4
       Width = 121
-      Height = 22
+      Height = 24
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -12
+      Font.Height = -13
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
@@ -135,7 +133,7 @@ object TagListFrm: TTagListFrm
     Left = 102
     Top = 164
     Bitmap = {
-      494C010107002000200018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010107002800280018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000003000000001002000000000000048
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
