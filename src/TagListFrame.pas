@@ -107,6 +107,7 @@ var
   vTag: TTagInfo;
   vNode: PVirtualNode;
   vNodeData: ^TNodeData;
+  vCurrTag: TTagInfo;
   function GetNodeByGroup: PVirtualNode;
   var
     vN, vGroupNode: PVirtualNode;
@@ -138,6 +139,13 @@ var
     end;
   end;
 begin
+  if vtTags.FocusedNode = nil then
+    vtTags.FocusedNode := vtTags.GetFirst;
+  if vtTags.FocusedNode <> nil then
+  begin
+    vNodeData := vtTags.GetNodeData(vtTags.FocusedNode);
+    vCurrTag := vNodeData.Data;
+  end;
   vtTags.Clear;
   Sort;
   for i := 0 to FSortedTags.Count - 1 do
@@ -155,7 +163,12 @@ begin
     vNode.CheckState := CheckState(vTag.Enabled);
     vNodeData := vtTags.GetNodeData(vNode);
     vNodeData.Data := vTag;
+    if vTag = vCurrTag then
+      vtTags.FocusedNode := vNode;
   end;
+  if (vtTags.RootNodeCount > 0) and (vtTags.FocusedNode = nil) then
+    vtTags.FocusedNode := vtTags.GetFirst;
+
   vtTags.FullExpand;
 end;
 
@@ -271,11 +284,8 @@ begin
 end;
 
 procedure TTagListFrm.btnAddFromFilterClick(Sender: TObject);
-var
-  vTag: TTagInfo;
 begin
-  vTag := TTagInfo.Create(Trim(edFilter.Text), True, clHighlight, 'Temporary added');
-  FTags.Add(vTag);
+  FTags.AddTag(Trim(edFilter.Text), 'Temporary added');
   FillTreeTags;
   DoOnChangeTag;
 end;

@@ -40,8 +40,6 @@ type
     act2windows: TAction;
     actFiltered: TAction;
     pnlBase: TPanel;
-    pnlGroupedFilter: TPanel;
-    chbGroupedFilter: TCheckBox;
     procedure vtLogGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType;
       var CellText: string);
@@ -66,7 +64,6 @@ type
     procedure actFilteredExecute(Sender: TObject);
     procedure vtLogMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure chbGroupedFilterClick(Sender: TObject);
   private
     FFileName: string;
     FDataList: TDataList;
@@ -172,23 +169,6 @@ begin
   end;
 end;
 
-procedure TView2Frm.chbGroupedFilterClick(Sender: TObject);
-var
-  vChBox: TCheckListBox;
-  i: Integer;
-begin
-  pnlGroupedFilter.Visible := chbGroupedFilter.Checked;
-  FDataList.BuildTagGroups;
-
-  for i := 0 to FDataList.Table.ColumnCount - 1 do
-  begin
-    vChBox := TCheckListBox.Create(pnlGroupedFilter);
-    vChBox.Parent := pnlGroupedFilter;
-    vChBox.Align := alLeft;
-    FDataList.Table.GetGroupedValues(i, vChBox.Items);
-  end;
-end;
-
 function TView2Frm.FindOriginNodeByText(const AFromNode: PVirtualNode;
   const AText: string): PVirtualNode;
 var
@@ -203,9 +183,9 @@ begin
       row := vNode.Index
     else
       row := FDataList.GetFilteredRowNumber(vNode.Index);
-    if Options.CaseSens then
-      vPos := Pos(AText, FDataList.Rows[row])
-    else
+ //   if Options.CaseSens then
+ //     vPos := Pos(AText, FDataList.Rows[row])
+ //   else
       vPos := Pos(UpperCase(AText), UpperCase(FDataList.Rows[row]));
 
     if vPos > 0 then
@@ -303,14 +283,15 @@ var
   vTag: TTagInfo;
   vRowText, vBeforeTag: string;
   vRect: TRect;
-  procedure DrawSelection(const AColor: TColor; const ASelText: string; const AExactMatch: Boolean = False);
+  procedure DrawSelection(const AColor: TColor; const ASelText: string;
+    const AExactMatch: Boolean = False; const ACaseSens: Boolean = False);
   var
     vvNeedDrawSelection: Boolean;
     vvAfterEndChar: Integer;
   begin
     if Length(ASelText) > 0 then
     begin
-      if Options.CaseSens then
+      if ACaseSens then
         vPos := Pos(ASelText, vRowText)
       else
         vPos := Pos(UpperCase(ASelText), UpperCase(vRowText));
@@ -336,7 +317,7 @@ var
           TargetCanvas.RoundRect(vRect.Left, vRect.Top + 1, vRect.Right, vRect.Bottom - 1, 4, 4);
         end;
 
-        if Options.CaseSens then
+        if ACaseSens then
           vPos := PosEx(ASelText, vRowText, vPos + 1)
         else
           vPos := PosEx(UpperCase(ASelText), UpperCase(vRowText), vPos + 1);
@@ -361,8 +342,8 @@ begin
   for i := 0 to FDataList.TagCount - 1 do
   begin
     vTag := FDataList.Tags[i];
-    if (vTag.Enabled) then
-      DrawSelection(vTag.Color, vTag.Name);
+    if (vTag.Enabled) and (vTag.MatchCount > 0) then
+      DrawSelection(vTag.Color, vTag.Name, False, vTag.CaseSens);
   end;
 
   DrawSelection(clGray, edtSearch.Text);

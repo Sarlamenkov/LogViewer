@@ -4,21 +4,21 @@ object OptionsFm: TOptionsFm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Options'
-  ClientHeight = 229
+  ClientHeight = 152
   ClientWidth = 242
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
+  Font.Height = -13
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
   Position = poScreenCenter
   DesignSize = (
     242
-    229)
+    152)
   PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 16
   object lbl1: TLabel
     Left = 8
     Top = 8
@@ -30,32 +30,19 @@ object OptionsFm: TOptionsFm
     ParentColor = False
   end
   object btnOk: TButton
-    Left = 160
-    Top = 199
-    Width = 75
-    Height = 25
+    Left = 62
+    Top = 99
+    Width = 107
+    Height = 37
     Anchors = [akRight, akBottom]
     Caption = 'Ok'
     ModalResult = 1
-    TabOrder = 4
-  end
-  object chkCaseSensitive: TCheckBox
-    Left = 8
-    Top = 48
-    Width = 128
-    Height = 17
-    Caption = 'Case Sensitive'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 1
+    TabOrder = 2
+    ExplicitTop = 155
   end
   object chkTwoWindow: TCheckBox
     Left = 8
-    Top = 72
+    Top = 56
     Width = 129
     Height = 17
     Caption = 'Two Window'
@@ -65,7 +52,7 @@ object OptionsFm: TOptionsFm
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False
-    TabOrder = 2
+    TabOrder = 1
   end
   object btnSelect: TButton
     Left = 160
@@ -75,20 +62,6 @@ object OptionsFm: TOptionsFm
     Caption = 'Select'
     TabOrder = 0
     OnClick = btnSelectClick
-  end
-  object chkSaveOnExit: TCheckBox
-    Left = 8
-    Top = 96
-    Width = 177
-    Height = 17
-    Caption = 'Save On Exit (always true)'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 3
   end
   object dlgFont1: TFontDialog
     Font.Charset = DEFAULT_CHARSET

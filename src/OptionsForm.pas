@@ -11,16 +11,13 @@ uses
 type
   TOptionsFm = class(TForm)
     btnOk: TButton;
-    chkCaseSensitive: TCheckBox;
     chkTwoWindow: TCheckBox;
     dlgFont1: TFontDialog;
     lbl1: TLabel;
     btnSelect: TButton;
-    chkSaveOnExit: TCheckBox;
     procedure btnSelectClick(Sender: TObject);
   private
     procedure SetFont(AFont: TFont);
-    { Private declarations }
   public
     function Edit: Boolean;
   end;
@@ -41,17 +38,17 @@ begin
   dlgFont1.Font.Name := Options.FontName;
   dlgFont1.Font.Size := Options.FontSize;
   SetFont(dlgFont1.Font);
-  chkCaseSensitive.Checked := Options.CaseSens;
+//  chkCaseSensitive.Checked := Options.CaseSens;
   chkTwoWindow.Checked := Options.TwoWindow;
-  chkSaveOnExit.Checked := Options.SaveOnExit;
+//  chkSaveOnExit.Checked := Options.SaveOnExit;
   Result := ShowModal = mrOk;
   if Result then
   begin
     Options.FontName := dlgFont1.Font.Name;
     Options.FontSize := dlgFont1.Font.Size;
-    Options.CaseSens := chkCaseSensitive.Checked;
+//    Options.CaseSens := chkCaseSensitive.Checked;
     Options.TwoWindow := chkTwoWindow.Checked;
-    Options.SaveOnExit := chkSaveOnExit.Checked;
+//    Options.SaveOnExit := chkSaveOnExit.Checked;
  //   ShowMessage('The changes will be applied after program restart');
   end;
 end;

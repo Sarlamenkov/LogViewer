@@ -19,17 +19,18 @@ type
     FGroupName: string;
     FIndexRows: TList;
     FIndexed: Boolean;
+    FCaseSens: Boolean;
     procedure SetEnabled(const Value: Boolean);
     function GetMatchCount: Integer;
     function GetFullName: string;
     procedure SetName(const Value: string);
     function GetMatchRow(const AIndex: Integer): Integer;
+    procedure SetCaseSens(const Value: Boolean);
+    procedure DoIndex(const AText: string; const AUpperText: string; const ARowIndex: Integer);
   public
     constructor Create(const AName: string = ''; const AEnabled: Boolean = True;
       const AColor: TColor = clHighlightText; const AGroupName: string = '');
     destructor Destroy; override;
-
-    procedure DoIndex(const AText: string; const AUpperText: string; const ARowIndex: Integer);
 
     property MatchRows[const AIndex: Integer]: Integer read GetMatchRow;
     property MatchCount: Integer read GetMatchCount;
@@ -37,6 +38,7 @@ type
     property UpperCaseName: string read FUpperCaseName;
     property FullName: string read GetFullName;
     property Enabled: Boolean read FEnabled write SetEnabled;
+    property CaseSens: Boolean read FCaseSens write SetCaseSens;
     property Color: TColor read FColor write FColor;
     property GroupName: string read FGroupName write FGroupName;
   end;
@@ -49,6 +51,7 @@ type
     FSectionName: string;
     FList: TList;
     function GetItem(const AIndex: Integer): TTagInfo;
+    procedure InternalAdd(const ATagInfo: TTagInfo);
   public
     constructor Create;
     destructor Destroy; override;
@@ -58,6 +61,7 @@ type
 
     procedure Add(const ATagInfo: TTagInfo);
     procedure Remove(const ATagInfo: TTagInfo);
+    procedure AddTag(const AName: string; const AGroupName: string = '');
 
     procedure CheckAll(const ACheck: Boolean);
 
@@ -81,25 +85,6 @@ type
     procedure LoadFromStream(Stream: TStream); override;
   end;
 
-  TTagGroups = class
-  private
-    FCellParser: TStringList;
-    FCells: TList;
-    FGroupedValues: TList;
-    function GetRowCount: Integer;
-    procedure Build;
-    function GetColCount: Integer;
-  public
-    constructor Create;
-    destructor Destroy; override;
-
-    procedure AddRow(const AText: string);
-
-    procedure GetGroupedValues(const AColumn: Integer; const AValues: TStrings);
-    property RowCount: Integer read GetRowCount;
-    property ColumnCount: Integer read GetColCount;
-  end;
-
   PNodeData = ^TNodeData;
   TNodeData = record
     Data: TTagInfo;
@@ -118,7 +103,6 @@ type
     FOnLoaded: TNotifyEvent;
     FBuildInProgress: Boolean;
     FUpdateCount: Integer;
-    FTable: TTagGroups;
     function GetFilteredRowCount: Integer;
     function GetRowCount: Integer;
     function GetFilteredRow(const AIndex: Integer): string;
@@ -137,8 +121,6 @@ type
     procedure BeginUpdate;
     procedure EndUpdate;
 
-    procedure BuildTagGroups;
-//    function In
     function GetFilteredRowNumber(const ACurrentRow: Integer): Integer;
 
     property Rows[const AIndex: Integer]: string read GetRow;
@@ -151,14 +133,13 @@ type
     property OnChanged: TNotifyEvent read FOnChanged write FOnChanged;
     property OnLoading: TOnLoadingEvent read FOnLoading write FOnLoading;
     property OnLoaded: TNotifyEvent read FOnLoaded write FOnLoaded;
-    property Table: TTagGroups read FTable;
   end;
 
   TOptions = class
   private
     FOpenedFileNames, FHistoryFileNames: TStrings;
   public
-    CaseSens: Boolean;
+//    CaseSens: Boolean;
     FontName: string;
     FontSize: Integer;
     TwoWindow: Boolean;
@@ -209,6 +190,7 @@ begin
   FGroupName := AGroupName;
   FIndexRows := TList.Create;
   FIndexed := False;
+  FCaseSens := False;
 end;
 
 destructor TTagInfo.Destroy;
@@ -219,7 +201,7 @@ end;
 
 procedure TTagInfo.DoIndex(const AText: string; const AUpperText: string; const ARowIndex: Integer);
 begin
-  if (Options.CaseSens and (Pos(Name, AText) > 0)) or ((not Options.CaseSens) and (Pos(FUpperCaseName, AUpperText) > 0))  then
+  if (CaseSens and (Pos(Name, AText) > 0)) or ((not CaseSens) and (Pos(FUpperCaseName, AUpperText) > 0))  then
     FIndexRows.Add(TObject(ARowIndex));
 end;
 
@@ -240,6 +222,15 @@ begin
   Result := Integer(FIndexRows[AIndex]); 
 end;
 
+procedure TTagInfo.SetCaseSens(const Value: Boolean);
+begin
+  FCaseSens := Value;
+  FIndexed := False;
+  FIndexRows.Clear;
+  if Assigned(FOwner.FOwner) then
+    FOwner.FOwner.BuildFilteredIndex;
+end;
+
 procedure TTagInfo.SetEnabled(const Value: Boolean);
 begin
   FEnabled := Value;
@@ -257,8 +248,17 @@ end;
 
 procedure TTagList.Add(const ATagInfo: TTagInfo);
 begin
-  FList.Add(ATagInfo);
-  ATagInfo.FOwner := Self;
+  InternalAdd(ATagInfo);
+  if Assigned(FOwner) then
+    FOwner.BuildFilteredIndex;
+end;
+
+procedure TTagList.AddTag(const AName, AGroupName: string);
+var
+  vTag: TTagInfo;
+begin
+  vTag := TTagInfo.Create(AName, True, clHighlight, AGroupName);
+  Add(vTag);
 end;
 
 procedure TTagList.CheckAll(const ACheck: Boolean);
@@ -304,12 +304,19 @@ begin
   Result := TTagInfo(FList[AIndex]);
 end;
 
+procedure TTagList.InternalAdd(const ATagInfo: TTagInfo);
+begin
+  FList.Add(ATagInfo);
+  ATagInfo.FOwner := Self;
+end;
+
 procedure TTagList.Load(const ASectionName: string);
 var
   i: Integer;
   vIni: TMemIniFile;
   vValues, vSplit: TStringList;
   vName: string;
+  vTag: TTagInfo;
 begin
   if not FileExists(gSettingsFileName) then Exit;
 
@@ -331,7 +338,10 @@ begin
       vName := AnsiReplaceText(vName, cLeftBrace, '[');
       vName := AnsiReplaceText(vName, cRightBrace, ']');
     end;
-    Add(TTagInfo.Create(vName, vSplit[0] = '1', StrToIntDef(vSplit[1], 0), vSplit[2]));
+    vTag := TTagInfo.Create(vName, vSplit[0] = '1', StrToIntDef(vSplit[1], 0), vSplit[2]);
+    if vSplit.Count > 3 then
+      vTag.CaseSens := vSplit[3] = '1';
+    InternalAdd(vTag);
   end;
 
   vIni.Free;
@@ -369,7 +379,10 @@ begin
       vName := AnsiReplaceText(vName, '[', cLeftBrace);
       vName := AnsiReplaceText(vName, ']', cRightBrace);
     end;
-    vIni.WriteString(FSectionName, vName, IfThen(Items[i].Enabled, '1', '0') + ';' + IntToStr(Items[i].Color) + ';' + Items[i].GroupName);
+    vIni.WriteString(FSectionName, vName,
+      IfThen(Items[i].Enabled, '1', '0') + ';' +
+      IntToStr(Items[i].Color) + ';' + Items[i].GroupName + ';' +
+      IfThen(Items[i].CaseSens, '1', '0'));
   end;
 
   vIni.Free;
@@ -519,31 +532,18 @@ begin
   end;
 end;
 
-procedure TDataList.BuildTagGroups;
-var
-  i: Integer;
-begin
-  if FTable.GetRowCount > 0 then Exit;
-
-  for i := 0 to FData.Count - 1 do
-    FTable.AddRow(FData[i]);
-  FTable.Build;
-end;
-
 constructor TDataList.Create;
 begin
   FData := TMyStringList.Create;
   FTagList := TTagList.Create;
   FTagList.FOwner := Self;
   FFilteredInds := TList.Create;
-  FTable := TTagGroups.Create;
   FBuildInProgress := False;
   FUpdateCount := 0;
 end;
 
 destructor TDataList.Destroy;
 begin
-  FreeAndNil(FTable);
   FreeAndNil(FFilteredInds);
   FreeAndNil(FTagList);
   FreeAndNil(FData);
@@ -656,7 +656,7 @@ begin
 
   FontName := vIni.ReadString('options', 'font', 'Courier');
   FontSize := vIni.ReadInteger('options', 'font_size', 8);
-  CaseSens := vIni.ReadBool('options', 'case_sens', False);
+ // CaseSens := vIni.ReadBool('options', 'case_sens', False);
   TwoWindow := vIni.ReadBool('options', 'two_window', False);
   SaveOnExit := True;
   vFiles := TStringList.Create;
@@ -682,7 +682,7 @@ begin
   vIni := TIniFile.Create(gSettingsFileName);
   vIni.WriteString('options', 'font', FontName);
   vIni.WriteInteger('options', 'font_size', FontSize);
-  vIni.WriteBool('options', 'case_sens', CaseSens);
+ // vIni.WriteBool('options', 'case_sens', CaseSens);
   vIni.WriteBool('options', 'two_window', TwoWindow);
 
   vIni.EraseSection('files');
@@ -694,104 +694,6 @@ begin
     vIni.WriteString('history', 'file' + IntToStr(i), FHistoryFileNames[i]);
 
   vIni.Free;
-end;
-
-{ TTable }
-
-procedure TTagGroups.AddRow(const AText: string);
-var
-  i, j: Integer;
-begin
-  FCellParser.DelimitedText := AText;
-
-  for i := 0 to FCellParser.Count - 1 do
-  begin
-    if i > 6 then Exit;
-
-    if i + 1 > FCells.Count then
-    begin
-      FCells.Add(TStringList.Create);
-      for j := 0 to RowCount - 1 do
-        TStringList(FCells[i]).Append('');
-    end;
-    TStringList(FCells[i]).Append(FCellParser[i]);
-  end;
-end;
-
-procedure TTagGroups.Build;
-var
-  vRow: TStringList;
-  i, vColIndex, c: Integer;
-  vStr: string;
-  vGroupValues: TStringList;
-begin
-  for vColIndex := 0 to FCells.Count - 1 do
-  begin
-    vRow := TStringList(FCells[vColIndex]);
-    vRow.Sort;  // todo: need to sort index instead of values
-    vGroupValues := TStringList.Create;
-    vGroupValues.BeginUpdate;
-    c := 0;
-    for i := 1 to vRow.Count - 1 do
-    begin
-      if vRow[i] = vRow[i - 1] then
-        c := c + 1
-      else
-      begin
-        vStr := Trim(vRow[i-1]);
-        if (Length(vStr) > 0) and ((vRow.Count < 100) or (c * 10000 div vRow.Count > 7)) then
-          vGroupValues.AddObject(vStr, TObject(c));
-        c := 0;
-      end;
-    end;
-    vGroupValues.EndUpdate;
-    FGroupedValues.Add(vGroupValues);
-  end;
-  for i := 0 to FGroupedValues.Count - 1 do
-    if TStringList(FGroupedValues[i]).Count < 2 then
-    begin
-      TStringList(FGroupedValues[i]).Free;
-      FGroupedValues[i] := nil;
-    end;
-  FGroupedValues.Pack;
-end;
-
-constructor TTagGroups.Create;
-begin
-  FCells := TList.Create;
-  FGroupedValues := TList.Create;
-  FCellParser := TStringList.Create;
-  FCellParser.StrictDelimiter := True;
-  FCellParser.Delimiter := ' ';
-end;
-
-destructor TTagGroups.Destroy;
-begin
-  FreeAndNil(FCellParser);
-  FreeAndNil(FCells);
-  FreeAndNil(FGroupedValues);
-  inherited;
-end;
-
-function TTagGroups.GetRowCount: Integer;
-begin
-  Result := 0;
-  if FCells.Count > 0 then
-    Result := TStringList(FCells[0]).Count;
-end;
-
-function TTagGroups.GetColCount: Integer;
-begin
-  Result := FGroupedValues.Count;
-end;
-
-procedure TTagGroups.GetGroupedValues(const AColumn: Integer; const AValues: TStrings);
-begin
-  if AColumn > FGroupedValues.Count - 1 then Exit;
-  AValues.BeginUpdate;
-  AValues.Clear;
-  AValues.AddStrings(TStringList(FGroupedValues[AColumn]));
-  AValues.EndUpdate;
 end;
 
 end.

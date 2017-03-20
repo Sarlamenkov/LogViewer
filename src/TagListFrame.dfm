@@ -72,11 +72,10 @@ object TagListFrm: TTagListFrm
     OnBeforeCellPaint = vtTagsBeforeCellPaint
     OnChecked = vtTagsChecked
     OnChecking = vtTagsChecking
+    OnDblClick = actEditExecute
     OnGetText = vtTagsGetText
     OnGetNodeDataSize = vtTagsGetNodeDataSize
     OnResize = vtTagsResize
-    ExplicitTop = 57
-    ExplicitHeight = 425
     Columns = <
       item
         Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring, coSmartResize]
@@ -97,6 +96,7 @@ object TagListFrm: TTagListFrm
       Top = 5
       Width = 23
       Height = 22
+      Hint = 'Clear Filter'
       Caption = 'X'
       Flat = True
       Visible = False
@@ -107,6 +107,7 @@ object TagListFrm: TTagListFrm
       Top = 5
       Width = 46
       Height = 22
+      Hint = 'Add Entered Text as New Tag'
       Caption = 'Add'
       Flat = True
       Visible = False
@@ -133,7 +134,7 @@ object TagListFrm: TTagListFrm
     Left = 102
     Top = 164
     Bitmap = {
-      494C010107002800280018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010107003000300018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000003000000001002000000000000048
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -740,16 +741,19 @@ object TagListFrm: TTagListFrm
     Top = 146
     object actAdd: TAction
       Caption = '+'
+      Hint = 'New Tag'
       ImageIndex = 1
       OnExecute = actAddExecute
     end
     object actEdit: TAction
       Caption = '...'
+      Hint = 'Edit Tag'
       ImageIndex = 2
       OnExecute = actEditExecute
     end
     object actDelete: TAction
       Caption = 'X'
+      Hint = 'Delete Tag'
       ImageIndex = 0
       OnExecute = actDeleteExecute
     end
@@ -764,6 +768,7 @@ object TagListFrm: TTagListFrm
     object actCheckedInTop: TAction
       AutoCheck = True
       Caption = 'actCheckedInTop'
+      Hint = 'Checked Tags to Top'
       ImageIndex = 5
       OnExecute = actCheckedInTopExecute
     end
