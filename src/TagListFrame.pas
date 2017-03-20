@@ -331,6 +331,7 @@ end;
 
 procedure TTagListFrm.Deinit;
 begin
+  vtTags.RootNodeCount := 0;
   FreeAndNil(FSortedTags);
 end;
 

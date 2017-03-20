@@ -199,6 +199,11 @@ end;
 
 procedure TView2Frm.Deinit;
 begin
+  vtLog.RootNodeCount := 0;
+  vtLog2.RootNodeCount := 0;
+  vtFilteredLog.RootNodeCount := 0;
+  vtFilteredLog2.RootNodeCount := 0;
+  tl1.Deinit;
   FreeAndNil(FDataList);
   FreeAndNil(FSelectedWords);
   FreeAndNil(FSortedTags);

@@ -26,7 +26,7 @@ object View2Frm: TView2Frm
     end
     inherited ImageList: TImageList
       Bitmap = {
-        494C010107004800480018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+        494C010107004C004C0018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
         0000000000003600000028000000600000003000000001002000000000000048
         0000000000000000000000000000000000000000000000000000000000000000
         0000000000000000000000000000000000000000000000000000000000000000
@@ -749,8 +749,6 @@ object View2Frm: TView2Frm
         BevelOuter = bvNone
         Caption = 'pnlLog'
         TabOrder = 1
-        ExplicitTop = 153
-        ExplicitHeight = 323
         object splVerticalLogs: TSplitter
           Left = 0
           Top = 217
@@ -771,7 +769,6 @@ object View2Frm: TView2Frm
           Align = alClient
           BevelOuter = bvNone
           TabOrder = 0
-          ExplicitHeight = 100
           object splFiltered: TSplitter
             Left = 583
             Top = 0
@@ -818,7 +815,6 @@ object View2Frm: TView2Frm
             OnKeyDown = vtFilteredLogKeyDown
             OnMouseDown = vtLogMouseDown
             OnMouseUp = vtLogMouseUp
-            ExplicitHeight = 100
             Columns = <
               item
                 Color = clBtnFace
@@ -869,7 +865,6 @@ object View2Frm: TView2Frm
             OnKeyDown = vtFilteredLogKeyDown
             OnMouseDown = vtLogMouseDown
             OnMouseUp = vtLogMouseUp
-            ExplicitHeight = 100
             Columns = <
               item
                 Color = clBtnFace
