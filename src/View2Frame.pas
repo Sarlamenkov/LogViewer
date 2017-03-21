@@ -7,17 +7,14 @@ uses
   Dialogs, ExtCtrls, VirtualTrees, StdCtrls,
   
   uStructs, ComCtrls, ToolWin, CheckLst, TagListFrame, System.Actions,
-  Vcl.ActnList;
+  Vcl.ActnList, System.ImageList, Vcl.ImgList, Vcl.Buttons;
 
 type
   TView2Frm = class(TFrame)
     pnlWork: TPanel;
     pnlTools: TPanel;
-    lbl1: TLabel;
     edtSearch: TEdit;
-    btnFindNext: TButton;
     chkFiltered: TCheckBox;
-    btnFindPrev: TButton;
     chkTwoWindows: TCheckBox;
     splVerticalLogs: TSplitter;
     pnlLog: TPanel;
@@ -40,6 +37,11 @@ type
     act2windows: TAction;
     actFiltered: TAction;
     pnlBase: TPanel;
+    actFindNext: TAction;
+    actFindPrev: TAction;
+    ImageList1: TImageList;
+    SpeedButton1: TSpeedButton;
+    SpeedButton2: TSpeedButton;
     procedure vtLogGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType;
       var CellText: string);
