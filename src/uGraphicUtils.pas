@@ -392,9 +392,9 @@ procedure FillGradientRoundRect(ACanvas: TCanvas; ARect: TRect; AStartColor,
   AEndColor, AFrameColor: TColor; AGradOrient: TGradientOrientation = goVertical);
 var
   vClipRgn: HRGN;
-  vBrushRecall: TBrushRecall;
+//  vBrushRecall: TBrushRecall;
 begin
-  vBrushRecall := TBrushRecall.Create(ACanvas.Brush);
+ // vBrushRecall := TBrushRecall.Create(ACanvas.Brush);
 
   try
     ACanvas.Brush.Color := AFrameColor;
@@ -403,15 +403,17 @@ begin
     SelectClipRgn(ACanvas.Handle, vClipRgn);
 
     try
+
       FillGradientRect(ACanvas, ARect, AStartColor, AEndColor, AGradOrient);
       FrameRgn(ACanvas.Handle, vClipRgn, ACanvas.Brush.Handle, 1, 1);
     finally
-      SelectClipRgn(ACanvas.Handle, 0);
       DeleteObject(vClipRgn);
+      SelectClipRgn(ACanvas.Handle, 0);
+
     end;
 
   finally
-    vBrushRecall.Free;
+ //   vBrushRecall.Free;
   end;
 end;
 

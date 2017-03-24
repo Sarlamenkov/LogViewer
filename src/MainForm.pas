@@ -41,6 +41,8 @@ type
     ToolButton8: TToolButton;
     tbHistory: TToolButton;
     pmReopen: TPopupMenu;
+    actHelp: TAction;
+    ToolButton9: TToolButton;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);

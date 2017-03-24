@@ -349,10 +349,14 @@ begin
     vRect := vtTags.GetDisplayRect(Node, Column, True);
     CellRect.Left := vRect.Left;
     CellRect.Right := vRect.Right;
-    FillGradientRoundRect(TargetCanvas, CellRect,
+   { FillGradientRoundRect(TargetCanvas, CellRect,
       CalcBrightColor(vNodeData.Data.Color, 85),//RGB(207, 221, 204),
       CalcBrightColor(vNodeData.Data.Color, 70), //RGB(207, 221, 204),
-      vNodeData.Data.Color);
+      vNodeData.Data.Color);}
+
+    TargetCanvas.Brush.Color := CalcBrightColor(vNodeData.Data.Color, 75);
+    TargetCanvas.Pen.Color := vNodeData.Data.Color;
+    TargetCanvas.RoundRect(CellRect.Left, CellRect.Top + 1, CellRect.Right, CellRect.Bottom - 1, 4, 4);
   end;
 end;
 

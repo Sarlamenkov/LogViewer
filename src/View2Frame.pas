@@ -66,6 +66,10 @@ type
     procedure actFilteredExecute(Sender: TObject);
     procedure vtLogMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure vtLogPaintText(Sender: TBaseVirtualTree;
+      const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+      TextType: TVSTTextType);
+    procedure actFindPrevExecute(Sender: TObject);
   private
     FFileName: string;
     FDataList: TDataList;
@@ -81,8 +85,9 @@ type
     procedure UpdateMarks;
     procedure UpdateCountLabel;
     function FindOriginNodeByText(const AFromNode: PVirtualNode;
-      const AText: string): PVirtualNode;
+      const AText: string; const AForward: Boolean): PVirtualNode;
     procedure GoToNode(const AVST: TVirtualStringTree; const ARowNum: Integer);
+    procedure FindNext(const AForward: Boolean);
   public
     procedure Init(const AFileName: string);
     procedure Deinit;
@@ -137,6 +142,11 @@ begin
   end;
 end;
 
+procedure TView2Frm.actFindPrevExecute(Sender: TObject);
+begin
+  FindNext(False);
+end;
+
 procedure TView2Frm.AddTagFromSelection;
 var
   vTI: TTagInfo;
@@ -149,22 +159,32 @@ end;
 
 procedure TView2Frm.btnFindNextClick(Sender: TObject);
 begin
+  FindNext(True);
+end;
+
+procedure TView2Frm.FindNext(const AForward: Boolean);
+begin
   if Length(Trim(edtSearch.Text)) = 0 then Exit;
 
-  if (FFindWindow = nil) or (FFindWindow.Visible = False) then
+  if (FFindWindow = nil) or (not FFindWindow.Visible) then
     FFindWindow := vtLog;
   FFindNextNode := FFindWindow.FocusedNode;
   if FFindNextNode = nil then
     FFindNextNode := FFindWindow.GetFirst
   else
-    FFindNextNode := FFindWindow.GetNext(FFindNextNode);
+  begin
+    if AForward then
+      FFindNextNode := FFindWindow.GetNext(FFindNextNode)
+    else
+      FFindNextNode := FFindWindow.GetPrevious(FFindNextNode);
+  end;
 
-  FFindWindow.FocusedNode := FindOriginNodeByText(FFindNextNode, edtSearch.Text);
+  FFindWindow.FocusedNode := FindOriginNodeByText(FFindNextNode, edtSearch.Text, AForward);
   FFindWindow.ClearSelection;
   if FFindWindow.FocusedNode <> nil then
   begin
-    FFindWindow.ScrollIntoView(FFindWindow.FocusedNode, true);
-    FFindWindow.Selected[FFindWindow.FocusedNode] := true;
+    FFindWindow.ScrollIntoView(FFindWindow.FocusedNode, True);
+    FFindWindow.Selected[FFindWindow.FocusedNode] := True;
     FFindWindow.Invalidate;
     if FFindWindow.CanFocus then
       FFindWindow.SetFocus;
@@ -172,30 +192,33 @@ begin
 end;
 
 function TView2Frm.FindOriginNodeByText(const AFromNode: PVirtualNode;
-  const AText: string): PVirtualNode;
+  const AText: string; const AForward: Boolean): PVirtualNode;
 var
   vNode: PVirtualNode;
-  vPos, row: Integer;
+  vPos, vRow: Integer;
 begin
   Result := nil;
   vNode := AFromNode;
   while Assigned(vNode) do
   begin
     if FFindWindow = vtLog then
-      row := vNode.Index
+      vRow := vNode.Index
     else
-      row := FDataList.GetFilteredRowNumber(vNode.Index);
+      vRow := FDataList.GetFilteredRowNumber(vNode.Index);
  //   if Options.CaseSens then
  //     vPos := Pos(AText, FDataList.Rows[row])
  //   else
-      vPos := Pos(UpperCase(AText), UpperCase(FDataList.Rows[row]));
+      vPos := Pos(UpperCase(AText), UpperCase(FDataList.Rows[vRow]));
 
     if vPos > 0 then
     begin
       Result := vNode;
       Break;
     end;
-    vNode := vNode.NextSibling;
+    if AForward then
+      vNode := vNode.NextSibling
+    else
+      vNode := vNode.PrevSibling;
   end;
 end;
 
@@ -281,6 +304,18 @@ begin
       TVirtualStringTree(Sender).EditNode(TVirtualStringTree(Sender).FocusedNode, 1);
 end;
 
+procedure TView2Frm.vtLogPaintText(Sender: TBaseVirtualTree;
+  const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+  TextType: TVSTTextType);
+begin
+  if Column = 0 then
+  begin
+    TargetCanvas.Font.Color := CalcBrightColor(clBlack, 30);
+   // TargetCanvas.Font.Style := [fsBold];
+    TargetCanvas.Font.Height := 6;
+  end;
+end;
+
 procedure TView2Frm.vtLogBeforeCellPaint(Sender: TBaseVirtualTree;
   TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
   CellPaintMode: TVTCellPaintMode; CellRect: TRect;
@@ -319,7 +354,7 @@ var
           vBeforeTag := Copy(vRowText, 0, vPos - 1);
           vRect.Left := vMargin + CellRect.Left + TargetCanvas.TextWidth(vBeforeTag);
           vRect.Right := vRect.Left + TargetCanvas.TextWidth(Copy(vRowText, Length(vBeforeTag)+1, Length(ASelText))) + 1;
-          TargetCanvas.Brush.Color := CalcBrightColor(AColor, 90);
+          TargetCanvas.Brush.Color := CalcBrightColor(AColor, 75);
           TargetCanvas.Pen.Color := AColor;
           TargetCanvas.RoundRect(vRect.Left, vRect.Top + 1, vRect.Right, vRect.Bottom - 1, 4, 4);
         end;
@@ -332,7 +367,11 @@ var
     end;
   end;
 begin
-  if Column = 0 then Exit;
+  if Column = 0 then
+  begin
+    TargetCanvas.Font.Color := clSilver;
+    Exit;
+  end;
 
   try
     vRowText := GetText(Sender, Column, Node.Index);
