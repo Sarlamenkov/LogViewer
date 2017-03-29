@@ -1,8 +1,6 @@
 program LogViewer;
 
 uses
-//  FastMM4 in 'ThirdParty\FastMM\FastMM4.pas',
-//  FastMM4Messages in 'ThirdParty\FastMM\FastMM4Messages.pas',
   Forms,
   Windows,
   SysUtils,
@@ -19,7 +17,8 @@ uses
   VirtualTrees in 'ThirdParty\VirtualTreeView\Source\VirtualTrees.pas',
   VTAccessibility in 'ThirdParty\VirtualTreeView\Source\VTAccessibility.pas',
   VTAccessibilityFactory in 'ThirdParty\VirtualTreeView\Source\VTAccessibilityFactory.pas',
-  VTHeaderPopup in 'ThirdParty\VirtualTreeView\Source\VTHeaderPopup.pas';
+  VTHeaderPopup in 'ThirdParty\VirtualTreeView\Source\VTHeaderPopup.pas',
+  HelpForm in 'HelpForm.pas' {HelpFm};
 
 {$R *.res}
 
@@ -72,6 +71,7 @@ begin
   Application.CreateForm(TAboutFm, AboutFm);
   Application.CreateForm(TOptionsFm, OptionsFm);
   Application.CreateForm(TTagListDefaultFm, TagListDefaultFm);
+  Application.CreateForm(THelpFm, HelpFm);
   Application.Run;
     CloseHandle(ServerMailslotHandle);
     CloseHandle(CommandEvent);

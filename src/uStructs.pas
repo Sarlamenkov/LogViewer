@@ -51,6 +51,7 @@ type
     FSectionName: string;
     FList: TList;
     function GetItem(const AIndex: Integer): TTagInfo;
+    function Find(const AName: string): TTagInfo;
     procedure InternalAdd(const ATagInfo: TTagInfo);
   public
     constructor Create;
@@ -187,7 +188,10 @@ begin
   Name := AName;
   FEnabled := AEnabled;
   FColor := AColor;
-  FGroupName := AGroupName;
+  if Length(AGroupName) = 0 then
+    FGroupName := 'No Group'
+  else
+    FGroupName := AGroupName;
   FIndexRows := TList.Create;
   FIndexed := False;
   FCaseSens := False;
@@ -257,8 +261,12 @@ procedure TTagList.AddTag(const AName, AGroupName: string);
 var
   vTag: TTagInfo;
 begin
-  vTag := TTagInfo.Create(AName, True, clHighlight, AGroupName);
-  Add(vTag);
+  vTag := Find(AName);
+  if vTag = nil then
+  begin
+    vTag := TTagInfo.Create(AName, True, clHighlight, AGroupName);
+    Add(vTag);
+  end;
 end;
 
 procedure TTagList.CheckAll(const ACheck: Boolean);
@@ -297,6 +305,19 @@ begin
     TTagInfo(FList[i]).Free;
   FreeAndNil(FList);
   inherited;
+end;
+
+function TTagList.Find(const AName: string): TTagInfo;
+var
+  i: Integer;
+begin
+  Result := nil;
+  for i := 0 to FList.Count - 1 do
+    if SameText(Items[i].Name, AName) then
+    begin
+      Result := Items[i];
+      Break;
+    end;
 end;
 
 function TTagList.GetItem(const AIndex: Integer): TTagInfo;
@@ -339,9 +360,9 @@ begin
       vName := AnsiReplaceText(vName, cRightBrace, ']');
     end;
     vTag := TTagInfo.Create(vName, vSplit[0] = '1', StrToIntDef(vSplit[1], 0), vSplit[2]);
+    InternalAdd(vTag);
     if vSplit.Count > 3 then
       vTag.CaseSens := vSplit[3] = '1';
-    InternalAdd(vTag);
   end;
 
   vIni.Free;

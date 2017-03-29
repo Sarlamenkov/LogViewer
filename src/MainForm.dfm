@@ -91,15 +91,15 @@ object MainFm: TMainFm
       ImageIndex = 6
       Style = tbsSeparator
     end
-    object ToolButton6: TToolButton
+    object ToolButton9: TToolButton
       Left = 305
       Top = 0
-      Action = actAbout
+      Action = actHelp
     end
-    object ToolButton9: TToolButton
+    object ToolButton6: TToolButton
       Left = 346
       Top = 0
-      Action = actHelp
+      Action = actAbout
     end
   end
   object dlgOpen1: TOpenDialog
@@ -154,8 +154,10 @@ object MainFm: TMainFm
       OnExecute = actAboutExecute
     end
     object actHelp: TAction
-      Caption = 'actHelp'
+      Caption = 'Hints'
+      Hint = 'Hints'
       ImageIndex = 7
+      OnExecute = actHelpExecute
     end
   end
   object ImageList1: TImageList
@@ -164,7 +166,7 @@ object MainFm: TMainFm
     Left = 400
     Top = 184
     Bitmap = {
-      494C010108002800280018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010108002C002C0018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000060000000480000000100200000000000006C
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

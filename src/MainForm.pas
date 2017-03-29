@@ -68,6 +68,7 @@ type
     procedure actDefaultTagsExecute(Sender: TObject);
     procedure actAboutExecute(Sender: TObject);
     procedure tbHistoryClick(Sender: TObject);
+    procedure actHelpExecute(Sender: TObject);
 
   private
     procedure ActivateTab(const AFileName: string);
@@ -100,7 +101,7 @@ uses
   IniFiles, Types,
 
   uConsts, EditTagForm, AboutForm,  OptionsForm,
-  TagListDefaultForm;
+  TagListDefaultForm, HelpForm;
 
 { TEventWaitThread }
 
@@ -116,7 +117,7 @@ end;
 
 procedure TMainFm.FormShow(Sender: TObject); 
 begin
-  gSettingsFileName := ExtractFilePath(Application.ExeName) + 'settings.ini';
+  gSettingsFileName := ExtractFilePath(Application.ExeName) + 'logviewer.ini';
   UpdateCaption('');
   TEventWaitThread.Create(False);
   Options.LoadOptions;
@@ -306,6 +307,11 @@ begin
   TagListDefaultFm.Edit;
 end;
 
+procedure TMainFm.actHelpExecute(Sender: TObject);
+begin
+  HelpFm.ShowModal;
+end;
+
 procedure TMainFm.ActualizeCurrentView;
 var
   vView: TView2Frm;
@@ -392,7 +398,7 @@ procedure TMainFm.PageControl1MouseUp(Sender: TObject;
 begin
   if Button = mbLeft then
     ActualizeCurrentView
-  else
+  else if Button = mbMiddle then
     CloseCurrentTab;
 end;
 

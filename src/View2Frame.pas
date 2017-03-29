@@ -266,12 +266,12 @@ begin
   FFileName := AFileName;
   FDataList := TDataList.Create;
   FSortedTags := TList.Create;
+  FSelectedWords := TStringList.Create;
   FDataList.OnChanged := OnChangeTags;
   FDataList.OnLoading := OnLoading;
   FDataList.OnLoaded := OnLoaded;
   FDataList.LoadFromFile(AFileName);
   tl1.Init(FDataList);
-  FSelectedWords := TStringList.Create;
 
   vtLog.Font.Name := Options.FontName;
   vtLog.Font.Size := Options.FontSize;

@@ -58,6 +58,11 @@ object TagListFrm: TTagListFrm
     Align = alClient
     BevelInner = bvNone
     BevelOuter = bvNone
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Tahoma'
+    Font.Style = []
     Header.AutoSizeIndex = 0
     Header.Font.Charset = DEFAULT_CHARSET
     Header.Font.Color = clWindowText
@@ -65,6 +70,7 @@ object TagListFrm: TTagListFrm
     Header.Font.Name = 'MS Sans Serif'
     Header.Font.Style = []
     Header.Options = [hoColumnResize, hoDrag]
+    ParentFont = False
     PopupMenu = pm1
     TabOrder = 1
     TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning]
@@ -134,7 +140,7 @@ object TagListFrm: TTagListFrm
     Left = 102
     Top = 164
     Bitmap = {
-      494C010107003800380018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010107003C003C0018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000003000000001002000000000000048
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

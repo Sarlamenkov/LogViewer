@@ -139,6 +139,7 @@ var
     end;
   end;
 begin
+  vCurrTag := nil;
   if vtTags.FocusedNode = nil then
     vtTags.FocusedNode := vtTags.GetFirst;
   if vtTags.FocusedNode <> nil then
