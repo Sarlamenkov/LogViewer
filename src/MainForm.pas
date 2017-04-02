@@ -149,10 +149,15 @@ end;
 
 procedure TMainFm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  RefillOpenedFileNames;
-  Options.SaveOptions;
-  while PageControl1.PageCount > 0 do
-    CloseCurrentTab(True);
+  LockControl(Self, True);
+  try
+    RefillOpenedFileNames;
+    Options.SaveOptions;
+    while PageControl1.PageCount > 0 do
+      CloseCurrentTab(True);
+  finally
+    LockControl(Self, False);
+  end;
 end;
 
 procedure TMainFm.ActivateTab(const AFileName: string);
@@ -288,8 +293,9 @@ begin
   while PageControl1.PageCount > 0 do
     CloseCurrentTab(True);
   RefillOpenedFileNames;
-  RefillHistoryFileNames;
   Options.SaveOptions;
+
+  RefillHistoryFileNames;
 end;
 
 procedure TMainFm.actCloseCurrentExecute(Sender: TObject);

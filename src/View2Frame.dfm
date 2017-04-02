@@ -21,12 +21,25 @@ object View2Frm: TView2Frm
     TabOrder = 0
     ExplicitHeight = 498
     inherited vtTags: TVirtualStringTree
-      Height = 436
+      AlignWithMargins = True
+      Left = 3
+      Top = 65
+      Width = 239
+      Height = 430
+      Margins.Right = 0
       ExplicitHeight = 436
+    end
+    inherited pnlFilter: TPanel
+      inherited edFilter: TEdit
+        Left = 3
+        Width = 124
+        ExplicitLeft = 3
+        ExplicitWidth = 124
+      end
     end
     inherited ImageList: TImageList
       Bitmap = {
-        494C010107005400540018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+        494C010107005C005C0018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
         0000000000003600000028000000600000003000000001002000000000000048
         0000000000000000000000000000000000000000000000000000000000000000
         0000000000000000000000000000000000000000000000000000000000000000
@@ -685,7 +698,7 @@ object View2Frm: TView2Frm
         BevelOuter = bvNone
         TabOrder = 0
         object SpeedButton1: TSpeedButton
-          Left = 118
+          Left = 168
           Top = 4
           Width = 39
           Height = 27
@@ -693,7 +706,7 @@ object View2Frm: TView2Frm
           Flat = True
         end
         object SpeedButton2: TSpeedButton
-          Left = 163
+          Left = 213
           Top = 4
           Width = 39
           Height = 27
@@ -703,7 +716,7 @@ object View2Frm: TView2Frm
         object edtSearch: TEdit
           Left = 1
           Top = 6
-          Width = 114
+          Width = 159
           Height = 24
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -714,7 +727,7 @@ object View2Frm: TView2Frm
           TabOrder = 0
         end
         object chkFiltered: TCheckBox
-          Left = 310
+          Left = 360
           Top = 10
           Width = 65
           Height = 17
@@ -723,7 +736,7 @@ object View2Frm: TView2Frm
           TabOrder = 1
         end
         object chkTwoWindows: TCheckBox
-          Left = 216
+          Left = 266
           Top = 9
           Width = 88
           Height = 17
@@ -1041,7 +1054,7 @@ object View2Frm: TView2Frm
     Left = 408
     Top = 88
     Bitmap = {
-      494C010102001800180018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102002000200018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000001800000001002000000000000024
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

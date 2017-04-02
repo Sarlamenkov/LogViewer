@@ -81,7 +81,7 @@ type
     procedure OnChangeTags(Sender: TObject);
     procedure OnLoaded(Sender: TObject);
     procedure OnLoading(const APercent: Byte);
-    function GetNodeByIndex(Sender: TVirtualStringTree; ind: Integer): PVirtualNode;
+    function GetNodeByIndex(Sender: TVirtualStringTree; const AIndex: Integer): PVirtualNode;
     procedure UpdateMarks;
     procedure UpdateCountLabel;
     function FindOriginNodeByText(const AFromNode: PVirtualNode;
@@ -262,24 +262,29 @@ end;
 
 procedure TView2Frm.Init(const AFileName: string);
 begin
-  Deinit;
-  FFileName := AFileName;
-  FDataList := TDataList.Create;
-  FSortedTags := TList.Create;
-  FSelectedWords := TStringList.Create;
-  FDataList.OnChanged := OnChangeTags;
-  FDataList.OnLoading := OnLoading;
-  FDataList.OnLoaded := OnLoaded;
-  FDataList.LoadFromFile(AFileName);
-  tl1.Init(FDataList);
+  LockControl(Self, True);
+  try
+    Deinit;
+    FFileName := AFileName;
+    FDataList := TDataList.Create;
+    FSortedTags := TList.Create;
+    FSelectedWords := TStringList.Create;
+    FDataList.OnChanged := OnChangeTags;
+    FDataList.OnLoading := OnLoading;
+    FDataList.OnLoaded := OnLoaded;
+    FDataList.LoadFromFile(AFileName);
+    tl1.Init(FDataList);
 
-  vtLog.Font.Name := Options.FontName;
-  vtLog.Font.Size := Options.FontSize;
-  vtFilteredLog.Font.Name := Options.FontName;
-  vtFilteredLog.Font.Size := Options.FontSize;
-  vtFilteredLog2.Font.Name := Options.FontName;
-  vtFilteredLog2.Font.Size := Options.FontSize;
-  chkTwoWindows.Checked := Options.TwoWindow;
+    vtLog.Font.Name := Options.FontName;
+    vtLog.Font.Size := Options.FontSize;
+    vtFilteredLog.Font.Name := Options.FontName;
+    vtFilteredLog.Font.Size := Options.FontSize;
+    vtFilteredLog2.Font.Name := Options.FontName;
+    vtFilteredLog2.Font.Size := Options.FontSize;
+    chkTwoWindows.Checked := Options.TwoWindow;
+  finally
+    LockControl(Self, False);
+  end;
 end;
 
 procedure TView2Frm.vtLogGetText(Sender: TBaseVirtualTree;
@@ -292,7 +297,7 @@ end;
 procedure TView2Frm.vtLogMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  if ssCtrl in Shift then
+  if ssAlt in Shift then
     GetSelectedWord(Sender, not (ssAlt in Shift));
 end;
 
@@ -459,18 +464,18 @@ begin
   pb2.Position := APercent;
 end;
 
-function TView2Frm.GetNodeByIndex(Sender: TVirtualStringTree; ind: Integer): PVirtualNode;
+function TView2Frm.GetNodeByIndex(Sender: TVirtualStringTree; const AIndex: Integer): PVirtualNode;
 var
-  node: PVirtualNode;
+  vNode: PVirtualNode;
   i: Integer;
 begin
-  node := Sender.GetFirst();
-  for i := 1 to ind do
+  vNode := Sender.GetFirst;
+  for i := 1 to AIndex do
   begin
-    if node = nil then Break;
-    node := node.NextSibling;
+    if vNode.NextSibling = nil then Break;
+    vNode := vNode.NextSibling;
   end;
-  Result := node;
+  Result := vNode;
 end;
 
 procedure TView2Frm.GoToNode(const AVST: TVirtualStringTree; const ARowNum: Integer);
@@ -495,11 +500,11 @@ begin
   if not (Sender is TVirtualStringTree) then Exit;
 
   vVST := TVirtualStringTree(Sender);
+  if (vVST.FocusedNode = nil) then Exit;
   vRowNum := FDataList.GetFilteredRowNumber(vVST.FocusedNode.Index);
 
   GoToNode(vtLog2, vRowNum);
   GoToNode(vtLog, vRowNum);
-
 end;
 
 procedure TView2Frm.vtFilteredLogKeyDown(Sender: TObject; var Key: Word;
@@ -588,7 +593,7 @@ procedure TView2Frm.GetSelectedWord(VST: TObject; const ANew: Boolean);
 var
   vVST: TVirtualStringTree;
   vNode: PVirtualNode;
-  vRowText: string;
+  vRowText, vSelectedWord: string;
   vPos: TPoint;
   vCellRect: TRect;
 //  vMargin: Integer;
@@ -626,7 +631,11 @@ begin
     if Length(vRowText) = 0 then Exit;
     if ANew then
       FSelectedWords.Clear;
-    FSelectedWords.Append(TextAt(vPos.X - vCellRect.Left));
+    vSelectedWord := TextAt(vPos.X - vCellRect.Left);
+    if FSelectedWords.IndexOf(vSelectedWord) < 0 then
+      FSelectedWords.Append(vSelectedWord)
+    else
+      FSelectedWords.Delete(FSelectedWords.IndexOf(vSelectedWord));
   finally
     vtLog.Invalidate;
     vtFilteredLog.Invalidate;
@@ -638,23 +647,41 @@ end;
 procedure TView2Frm.pb1MouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 var
-  vCurNode: PVirtualNode;
+  vTopFilterIdx, vBottomFilterIdx: Integer;
+  vFullIdx, vFilterIdx: Integer;
+  procedure DoFocus(vVST: TVirtualStringTree; const AIndex: Integer);
+  var
+    vvCurNode: PVirtualNode;
+  begin
+    if AIndex = -1 then
+      vvCurNode := vVST.GetFirst
+    else if AIndex = -2 then
+      vvCurNode := vVST.GetLast
+    else
+      vvCurNode := GetNodeByIndex(vVST, AIndex);
+    vVST.FocusedNode := vvCurNode;
+    vVST.ScrollIntoView(vvCurNode, True);
+  end;
 begin
-  vCurNode := GetNodeByIndex(vtLog, Trunc(FDataList.RowCount * (Y/pb1.Height)));
-  vtLog.FocusedNode := vCurNode;
-  vtLog.ScrollIntoView(vCurNode, True);
+  vFullIdx := Round(FDataList.RowCount * (Y/pb1.Height));
 
-  vCurNode := GetNodeByIndex(vtLog2, Trunc(FDataList.RowCount * (Y/pb1.Height)));
-  vtLog2.FocusedNode := vCurNode;
-  vtLog2.ScrollIntoView(vCurNode, True);
+  DoFocus(vtLog, vFullIdx);
+  DoFocus(vtLog2, vFullIdx);
 
-  vCurNode := GetNodeByIndex(vtFilteredLog, Trunc(FDataList.FilteredRowCount * (Y/pb1.Height)));
-  vtFilteredLog.FocusedNode := vCurNode;
-  vtFilteredLog.ScrollIntoView(vCurNode, True);
+  if FDataList.FilteredRowCount = 0 then Exit;
 
-  vCurNode := GetNodeByIndex(vtFilteredLog2, Trunc(FDataList.FilteredRowCount * (Y/pb1.Height)));
-  vtFilteredLog2.FocusedNode := vCurNode;
-  vtFilteredLog2.ScrollIntoView(vCurNode, True);
+  vTopFilterIdx := FDataList.GetFilteredRowNumber(0);
+  vBottomFilterIdx := FDataList.GetFilteredRowNumber(FDataList.FilteredRowCount - 1);
+
+  if vFullIdx < vTopFilterIdx then
+    vFilterIdx := -1 // focus to first node
+  else if vFullIdx > vBottomFilterIdx then
+    vFilterIdx := -2 // focus to last node
+  else
+    vFilterIdx := Round(vFullIdx / (vBottomFilterIdx - vTopFilterIdx) * FDataList.FilteredRowCount);
+
+  DoFocus(vtFilteredLog, vFilterIdx);
+  DoFocus(vtFilteredLog2, vFilterIdx);
 end;
 
 end.
