@@ -29,7 +29,6 @@ type
     lblCount: TLabel;
     spl3: TSplitter;
     tl1: TTagListFrm;
-    pb2: TProgressBar;
     pnlFull: TPanel;
     vtLog2: TVirtualStringTree;
     splFullLog: TSplitter;
@@ -459,9 +458,7 @@ end;
 
 procedure TView2Frm.OnLoading(const APercent: Byte);
 begin
-  if not pb2.Visible then
-    pb2.Visible := True;
-  pb2.Position := APercent;
+
 end;
 
 function TView2Frm.GetNodeByIndex(Sender: TVirtualStringTree; const AIndex: Integer): PVirtualNode;
@@ -586,7 +583,6 @@ end;
 procedure TView2Frm.OnLoaded(Sender: TObject);
 begin
   UpdateCountLabel;
-  pb2.Visible := False;
 end;
 
 procedure TView2Frm.GetSelectedWord(VST: TObject; const ANew: Boolean);

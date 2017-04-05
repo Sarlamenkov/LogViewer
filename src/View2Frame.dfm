@@ -27,7 +27,10 @@ object View2Frm: TView2Frm
       Width = 239
       Height = 430
       Margins.Right = 0
-      ExplicitHeight = 436
+      ExplicitLeft = 3
+      ExplicitTop = 65
+      ExplicitWidth = 239
+      ExplicitHeight = 430
     end
     inherited pnlFilter: TPanel
       inherited edFilter: TEdit
@@ -39,7 +42,7 @@ object View2Frm: TView2Frm
     end
     inherited ImageList: TImageList
       Bitmap = {
-        494C010107005C005C0018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+        494C010107006000600018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
         0000000000003600000028000000600000003000000001002000000000000048
         0000000000000000000000000000000000000000000000000000000000000000
         0000000000000000000000000000000000000000000000000000000000000000
@@ -660,24 +663,15 @@ object View2Frm: TView2Frm
       object lblCount: TLabel
         Left = 1
         Top = 4
-        Width = 52
+        Width = 29
         Height = 14
-        Caption = 'lblCount'
+        Caption = '0 / 0'
         Font.Charset = RUSSIAN_CHARSET
         Font.Color = clWindowText
         Font.Height = -12
         Font.Name = 'Verdana'
         Font.Style = []
         ParentFont = False
-      end
-      object pb2: TProgressBar
-        Left = 0
-        Top = 6
-        Width = 238
-        Height = 10
-        Smooth = True
-        Step = 1
-        TabOrder = 0
       end
     end
     object pnlWork: TPanel
@@ -693,7 +687,7 @@ object View2Frm: TView2Frm
         Left = 0
         Top = 0
         Width = 590
-        Height = 34
+        Height = 37
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
@@ -714,7 +708,7 @@ object View2Frm: TView2Frm
           Flat = True
         end
         object edtSearch: TEdit
-          Left = 1
+          Left = 0
           Top = 6
           Width = 159
           Height = 24
@@ -746,13 +740,15 @@ object View2Frm: TView2Frm
       end
       object pnlLog: TPanel
         Left = 0
-        Top = 34
+        Top = 37
         Width = 590
-        Height = 442
+        Height = 439
         Align = alClient
         BevelOuter = bvNone
         Caption = 'pnlLog'
         TabOrder = 1
+        ExplicitTop = 34
+        ExplicitHeight = 442
         object splVerticalLogs: TSplitter
           Left = 0
           Top = 217
@@ -769,25 +765,25 @@ object View2Frm: TView2Frm
           Left = 0
           Top = 223
           Width = 590
-          Height = 219
+          Height = 216
           Align = alClient
           BevelOuter = bvNone
           TabOrder = 0
+          ExplicitHeight = 219
           object splFiltered: TSplitter
             Left = 583
             Top = 0
             Width = 6
-            Height = 219
+            Height = 216
             Align = alRight
             MinSize = 1
             ExplicitLeft = 579
-            ExplicitHeight = 216
           end
           object vtFilteredLog2: TVirtualStringTree
             Left = 589
             Top = 0
             Width = 1
-            Height = 219
+            Height = 216
             Align = alRight
             ClipboardFormats.Strings = (
               'Plain text')
@@ -820,6 +816,7 @@ object View2Frm: TView2Frm
             OnKeyDown = vtFilteredLogKeyDown
             OnMouseDown = vtLogMouseDown
             OnMouseUp = vtLogMouseUp
+            ExplicitHeight = 219
             Columns = <
               item
                 Color = clBtnFace
@@ -838,7 +835,7 @@ object View2Frm: TView2Frm
             Left = 0
             Top = 0
             Width = 583
-            Height = 219
+            Height = 216
             Align = alClient
             ClipboardFormats.Strings = (
               'Plain text')
@@ -871,6 +868,7 @@ object View2Frm: TView2Frm
             OnKeyDown = vtFilteredLogKeyDown
             OnMouseDown = vtLogMouseDown
             OnMouseUp = vtLogMouseUp
+            ExplicitHeight = 219
             Columns = <
               item
                 Color = clBtnFace
@@ -1054,7 +1052,7 @@ object View2Frm: TView2Frm
     Left = 408
     Top = 88
     Bitmap = {
-      494C010102002000200018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102002400240018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000001800000001002000000000000024
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

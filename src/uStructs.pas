@@ -231,14 +231,14 @@ begin
   FCaseSens := Value;
   FIndexed := False;
   FIndexRows.Clear;
-  if Assigned(FOwner.FOwner) then
+  if Assigned(FOwner) and Assigned(FOwner.FOwner) then
     FOwner.FOwner.BuildFilteredIndex;
 end;
 
 procedure TTagInfo.SetEnabled(const Value: Boolean);
 begin
   FEnabled := Value;
-  if Assigned(FOwner.FOwner) then
+  if Assigned(FOwner) and Assigned(FOwner.FOwner) then
     FOwner.FOwner.BuildFilteredIndex;
 end;
 

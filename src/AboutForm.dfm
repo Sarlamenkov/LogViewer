@@ -3,7 +3,7 @@ object AboutFm: TAboutFm
   Top = 236
   BorderStyle = bsDialog
   Caption = 'About'
-  ClientHeight = 227
+  ClientHeight = 253
   ClientWidth = 298
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -20,7 +20,7 @@ object AboutFm: TAboutFm
     Left = 8
     Top = 8
     Width = 281
-    Height = 161
+    Height = 199
     BevelOuter = bvNone
     ParentColor = True
     TabOrder = 1
@@ -58,7 +58,7 @@ object AboutFm: TAboutFm
       Left = 6
       Top = 86
       Width = 281
-      Height = 108
+      Height = 91
       BevelInner = bvNone
       BorderStyle = bsNone
       Color = clBtnFace
@@ -67,14 +67,16 @@ object AboutFm: TAboutFm
         ''
         'Special thanks to Alexander Zenkin, Gena Minchuk, '
         'Tatyana Gutorova for great ideas, help in developing and '
-        'optimization.')
+        'optimization.'
+        ''
+        'https://github.com/Sarlamenkov/LogViewer.git')
       ReadOnly = True
       TabOrder = 0
     end
   end
   object OKButton: TButton
     Left = 103
-    Top = 184
+    Top = 213
     Width = 90
     Height = 32
     Caption = 'OK'
