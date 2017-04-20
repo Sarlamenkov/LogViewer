@@ -275,7 +275,8 @@ var
 begin
   for i := 0 to Count - 1 do
     Items[i].FEnabled := ACheck;
-  FOwner.BuildFilteredIndex;  
+  if Assigned(FOwner) then
+    FOwner.BuildFilteredIndex;
 end;
 
 procedure TTagList.CopyTo(const AList: TList);

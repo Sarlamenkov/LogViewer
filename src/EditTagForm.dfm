@@ -76,6 +76,7 @@ object EditTagFm: TEditTagFm
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
     Font.Style = []
+    ParentBackground = False
     ParentFont = False
     TabOrder = 2
     OnClick = pnlColorClick
