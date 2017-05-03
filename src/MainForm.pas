@@ -462,9 +462,14 @@ procedure TMainFm.FormKeyDown(Sender: TObject; var Key: Word;
 var
   vView: TView2Frm;
 begin
-  if (Key = Ord('F')) and (Shift = [ssCtrl]) then
+  if (Key = Ord('F')) then
   begin
-  //  TView2Frm(PageControl1.ActivePage.Tag).SwitchFilter;
+    if Shift = [ssCtrl] then begin
+      if TView2Frm(PageControl1.ActivePage.Tag).edtSearch.CanFocus then
+        TView2Frm(PageControl1.ActivePage.Tag).edtSearch.SetFocus;
+    end
+    else if Shift = [] then
+       // TView2Frm(PageControl1.ActivePage.Tag).SwitchFilter;
   end
   else if (Key = Ord('T')) and (Shift = [ssCtrl]) then
   begin
@@ -472,6 +477,10 @@ begin
 
     vView := TView2Frm(PageControl1.ActivePage.Tag);
     vView.AddTagFromSelection;
+  end
+  else if (Key = VK_F5) then
+  begin
+    TView2Frm(PageControl1.ActivePage.Tag).Reload;
   end;
 end;
 

@@ -92,6 +92,7 @@ type
     procedure Deinit;
 
     procedure AddTagFromSelection;
+    procedure Reload;
     property FileName: string read FFileName;
   end;
 
@@ -578,6 +579,12 @@ end;
 procedure TView2Frm.pb1Paint(Sender: TObject);
 begin
   UpdateMarks;
+end;
+
+procedure TView2Frm.Reload;
+begin
+  Deinit;
+  Init(FFileName);
 end;
 
 procedure TView2Frm.OnLoaded(Sender: TObject);

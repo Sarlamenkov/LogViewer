@@ -84,6 +84,7 @@ type
   TMyStringList = class (TStringList)
   public
     procedure LoadFromStream(Stream: TStream); override;
+    procedure LoadFromFile(const FileName: string); override;
   end;
 
   PNodeData = ^TNodeData;
@@ -441,6 +442,18 @@ begin
 end;
 
 { TMyStringList }
+
+procedure TMyStringList.LoadFromFile(const FileName: string);
+var
+  Stream: TStream;
+begin
+  Stream := TFileStream.Create(FileName, fmShareDenyRead);
+  try
+    LoadFromStream(Stream);
+  finally
+    Stream.Free;
+  end;
+end;
 
 procedure TMyStringList.LoadFromStream(Stream: TStream);
 var

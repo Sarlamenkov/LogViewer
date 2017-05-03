@@ -34,7 +34,11 @@ object HelpFm: THelpFm
       'Alt + left mouse button - select word in Log.'
       
         'To remove this selection click (Alt + left mouse button) on word' +
-        ' again.')
+        ' again.'
+      ''
+      'Alt + T - add first selected tag to tag list'
+      ''
+      'F5 - refresh current log')
     ReadOnly = True
     TabOrder = 1
   end
