@@ -259,7 +259,7 @@ var
   vNodeData: ^TNodeData;
 begin
   vNodeData := vtTags.GetNodeData(Node);
-  if (vNodeData.Data = nil) and Assigned(FTags.Owner) then //click on group
+  if (NewState = csCheckedNormal) and (vNodeData.Data = nil) and Assigned(FTags.Owner) then //click on group
     FTags.Owner.BeginUpdate;
 end;
 
@@ -287,7 +287,7 @@ end;
 procedure TTagListFrm.btnAddFromFilterClick(Sender: TObject);
 begin
   FTags.AddTag(Trim(edFilter.Text), 'Temporary added');
-  FillTreeTags;
+  edFilter.Clear;
   DoOnChangeTag;
 end;
 
@@ -402,7 +402,7 @@ end;
 procedure TTagListFrm.edFilterChange(Sender: TObject);
 begin
   FillTreeTags;
-  btnAddFromFilter.Visible := Length(Trim(edFilter.Text)) > 0;
+  btnAddFromFilter.Visible := (Length(Trim(edFilter.Text)) > 0) and Assigned(FDataList);
   btnClearFilter.Visible := Length(Trim(edFilter.Text)) > 0;
 end;
 

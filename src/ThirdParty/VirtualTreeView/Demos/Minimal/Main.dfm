@@ -9,7 +9,7 @@ object MainForm: TMainForm
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
   ParentBiDiMode = False
@@ -20,18 +20,23 @@ object MainForm: TMainForm
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
-    Left = 12
-    Top = 12
-    Width = 111
+    Left = 10
+    Top = 280
+    Width = 116
     Height = 13
     Caption = 'Last operation duration:'
   end
   object VST: TVirtualStringTree
+    AlignWithMargins = True
     Left = 8
-    Top = 36
-    Width = 397
-    Height = 301
-    Anchors = [akLeft, akTop, akRight, akBottom]
+    Top = 8
+    Width = 393
+    Height = 262
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
+    Align = alTop
     BiDiMode = bdLeftToRight
     Colors.BorderColor = clWindowText
     Colors.HotColor = clBlack
@@ -41,24 +46,26 @@ object MainForm: TMainForm
     Header.Font.Charset = DEFAULT_CHARSET
     Header.Font.Color = clWindowText
     Header.Font.Height = -11
-    Header.Font.Name = 'MS Sans Serif'
+    Header.Font.Name = 'Tahoma'
     Header.Font.Style = []
-    Header.MainColumn = -1
-    Header.Options = [hoColumnResize, hoDrag]
+    Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
     HintAnimation = hatNone
     IncrementalSearch = isAll
     ParentBiDiMode = False
-    RootNodeCount = 100
     TabOrder = 0
     TreeOptions.AnimationOptions = [toAnimatedToggle]
-    TreeOptions.AutoOptions = [toAutoDropExpand, toAutoTristateTracking]
     TreeOptions.MiscOptions = [toEditable, toInitOnSave, toToggleOnDblClick, toWheelPanning]
     TreeOptions.PaintOptions = [toShowButtons, toShowRoot, toShowTreeLines, toThemeAware, toUseBlendedImages]
-    TreeOptions.SelectionOptions = [toMultiSelect, toCenterScrollIntoView]
+    TreeOptions.SelectionOptions = [toMultiSelect]
     OnFreeNode = VSTFreeNode
     OnInitNode = VSTInitNode
-    OnStartDrag = VSTStartDrag
-    Columns = <>
+    ExplicitWidth = 381
+    Columns = <
+      item
+        Position = 0
+        Width = 300
+        WideText = 'Name'
+      end>
   end
   object ClearButton: TButton
     Left = 97

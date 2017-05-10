@@ -69,6 +69,10 @@ type
       const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
       TextType: TVSTTextType);
     procedure actFindPrevExecute(Sender: TObject);
+    procedure vtFilteredLogFocusChanged(Sender: TBaseVirtualTree;
+      Node: PVirtualNode; Column: TColumnIndex);
+    procedure vtLogFocusChanged(Sender: TBaseVirtualTree; Node: PVirtualNode;
+      Column: TColumnIndex);
   private
     FFileName: string;
     FDataList: TDataList;
@@ -76,6 +80,7 @@ type
     FSelectedWords: TStrings;
     FFindWindow: TVirtualStringTree;
     FFindNextNode: PVirtualNode;
+    FCurrRowLog, FCurrRowFilteredLog: Integer;
     function GetText(Sender: TBaseVirtualTree; Column: TColumnIndex; NodeIndex: Integer): string;
     procedure OnChangeTags(Sender: TObject);
     procedure OnLoaded(Sender: TObject);
@@ -282,6 +287,7 @@ begin
     vtFilteredLog2.Font.Name := Options.FontName;
     vtFilteredLog2.Font.Size := Options.FontSize;
     chkTwoWindows.Checked := Options.TwoWindow;
+    act2windowsExecute(chkTwoWindows);
   finally
     LockControl(Self, False);
   end;
@@ -414,24 +420,23 @@ begin
   FFindWindow := TVirtualStringTree(Sender);
 end;
 
+procedure TView2Frm.vtLogFocusChanged(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; Column: TColumnIndex);
+begin
+  if Assigned(Sender.FocusedNode) then
+    FCurrRowLog := Sender.FocusedNode.Index;
+end;
+
 procedure TView2Frm.OnChangeTags(Sender: TObject);
-  procedure RefreshLog(const AVST: TVirtualStringTree; const AFiltered: Boolean);
+  procedure RefreshLog(const AVST: TVirtualStringTree; const AFiltered: Boolean; const ACurrRowNum: Integer = -1);
   var
-    vRowNum: Integer;
     vNode: PVirtualNode;
     i, vIndex: Integer;
   begin
-    vRowNum := -1;
-    if Assigned(AVST.FocusedNode) then
-      if AFiltered then
-        vRowNum := FDataList.GetFilteredRowNumber(AVST.FocusedNode.Index)
-      else
-        vRowNum := AVST.FocusedNode.Index;
-
     AVST.RootNodeCount := 0;
     AVST.RootNodeCount := IfThen(AFiltered, FDataList.FilteredRowCount, FDataList.RowCount);
 
-    if vRowNum < 0 then Exit;
+    if ACurrRowNum < 0 then Exit;
 
     vNode := AVST.GetFirst;
     for i := 0 to AVST.RootNodeCount - 1 do
@@ -440,7 +445,7 @@ procedure TView2Frm.OnChangeTags(Sender: TObject);
         vIndex := FDataList.GetFilteredRowNumber(vNode.Index)
       else
         vIndex := vNode.Index;
-      if vIndex = vRowNum then Break;
+      if vIndex = ACurrRowNum then Break;
       vNode := vNode.NextSibling;
     end;
     AVST.FocusedNode := vNode;
@@ -449,9 +454,9 @@ procedure TView2Frm.OnChangeTags(Sender: TObject);
     AVST.ScrollIntoView(vNode, True);
   end;
 begin
-  RefreshLog(vtLog, False);
+  RefreshLog(vtLog, False, FCurrRowLog);
   RefreshLog(vtLog2, False);
-  RefreshLog(vtFilteredLog, True);
+  RefreshLog(vtFilteredLog, True, FCurrRowFilteredLog);
   RefreshLog(vtFilteredLog2, True);
   UpdateMarks;
   UpdateCountLabel;
@@ -503,6 +508,13 @@ begin
 
   GoToNode(vtLog2, vRowNum);
   GoToNode(vtLog, vRowNum);
+end;
+
+procedure TView2Frm.vtFilteredLogFocusChanged(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; Column: TColumnIndex);
+begin
+  if Assigned(Sender.FocusedNode) then
+    FCurrRowFilteredLog := FDataList.GetFilteredRowNumber(Sender.FocusedNode.Index)
 end;
 
 procedure TView2Frm.vtFilteredLogKeyDown(Sender: TObject; var Key: Word;

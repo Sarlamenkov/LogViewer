@@ -43,6 +43,8 @@ type
     pmReopen: TPopupMenu;
     actHelp: TAction;
     ToolButton9: TToolButton;
+    ToolButton10: TToolButton;
+    ToolButton11: TToolButton;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -122,6 +124,7 @@ begin
   TEventWaitThread.Create(False);
   Options.LoadOptions;
   RefillHistoryFileNames;
+  WindowState := Options.MainWindowState;
 end;
 
 procedure TMainFm.RefillOpenedFileNames;
@@ -151,6 +154,7 @@ procedure TMainFm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   LockControl(Self, True);
   try
+    Options.MainWindowState := WindowState;
     RefillOpenedFileNames;
     Options.SaveOptions;
     while PageControl1.PageCount > 0 do

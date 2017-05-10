@@ -3,7 +3,7 @@ unit uStructs;
 interface
 
 uses
-  Graphics, Classes, IniFiles;
+  Graphics, Classes, IniFiles, UITypes;
 
 type
   TDataList = class;
@@ -146,6 +146,7 @@ type
     FontSize: Integer;
     TwoWindow: Boolean;
     SaveOnExit: Boolean;
+    MainWindowState: TWindowState;
 
     constructor Create;
     destructor Destroy; override;
@@ -164,7 +165,7 @@ function Options: TOptions;
 implementation
 
 uses
-  SysUtils, StrUtils, Forms, Types,
+  SysUtils, StrUtils, Forms, Types, Windows,
 
   uConsts;
 
@@ -265,7 +266,7 @@ begin
   vTag := Find(AName);
   if vTag = nil then
   begin
-    vTag := TTagInfo.Create(AName, True, clHighlight, AGroupName);
+    vTag := TTagInfo.Create(AName, True, RGB(Random(256), Random(256), Random(256)), AGroupName);
     Add(vTag);
   end;
 end;
@@ -362,9 +363,9 @@ begin
       vName := AnsiReplaceText(vName, cRightBrace, ']');
     end;
     vTag := TTagInfo.Create(vName, vSplit[0] = '1', StrToIntDef(vSplit[1], 0), vSplit[2]);
-    InternalAdd(vTag);
     if vSplit.Count > 3 then
-      vTag.CaseSens := vSplit[3] = '1';
+      vTag.FCaseSens := vSplit[3] = '1';
+    InternalAdd(vTag);
   end;
 
   vIni.Free;
@@ -474,7 +475,9 @@ begin
       while P - Start < Size do
       begin
         if P^ = #0 then
-          P^ := #42;
+          P^ := #42
+        else if P^ = #9 then
+          P^ := #95;
         Inc(P);
       end;
     end;
@@ -525,10 +528,10 @@ begin
 
   finally
     vTempList.Free;
+    FBuildInProgress := False;
     DoOnChange;
     if Assigned(FOnLoaded) then
       FOnLoaded(Self);
-    FBuildInProgress := False;
   end;
 end;
 
@@ -693,6 +696,7 @@ begin
   FontSize := vIni.ReadInteger('options', 'font_size', 8);
  // CaseSens := vIni.ReadBool('options', 'case_sens', False);
   TwoWindow := vIni.ReadBool('options', 'two_window', False);
+  MainWindowState := TWindowState(vIni.ReadInteger('options', 'main_window_state', Integer(wsNormal)));
   SaveOnExit := True;
   vFiles := TStringList.Create;
   vIni.ReadSectionValues('files', vFiles);
@@ -719,6 +723,7 @@ begin
   vIni.WriteInteger('options', 'font_size', FontSize);
  // vIni.WriteBool('options', 'case_sens', CaseSens);
   vIni.WriteBool('options', 'two_window', TwoWindow);
+  vIni.WriteInteger('options', 'main_window_state', Integer(MainWindowState));
 
   vIni.EraseSection('files');
   for i := 0 to FOpenedFileNames.Count - 1 do

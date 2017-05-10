@@ -42,7 +42,7 @@ object View2Frm: TView2Frm
     end
     inherited ImageList: TImageList
       Bitmap = {
-        494C010107006000600018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+        494C010107006400640018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
         0000000000003600000028000000600000003000000001002000000000000048
         0000000000000000000000000000000000000000000000000000000000000000
         0000000000000000000000000000000000000000000000000000000000000000
@@ -747,8 +747,6 @@ object View2Frm: TView2Frm
         BevelOuter = bvNone
         Caption = 'pnlLog'
         TabOrder = 1
-        ExplicitTop = 34
-        ExplicitHeight = 442
         object splVerticalLogs: TSplitter
           Left = 0
           Top = 217
@@ -769,7 +767,6 @@ object View2Frm: TView2Frm
           Align = alClient
           BevelOuter = bvNone
           TabOrder = 0
-          ExplicitHeight = 219
           object splFiltered: TSplitter
             Left = 583
             Top = 0
@@ -816,7 +813,6 @@ object View2Frm: TView2Frm
             OnKeyDown = vtFilteredLogKeyDown
             OnMouseDown = vtLogMouseDown
             OnMouseUp = vtLogMouseUp
-            ExplicitHeight = 219
             Columns = <
               item
                 Color = clBtnFace
@@ -863,12 +859,12 @@ object View2Frm: TView2Frm
             OnDblClick = vtFilteredLogDblClick
             OnEditing = vtLogEditing
             OnEnter = vtLogEnter
+            OnFocusChanged = vtFilteredLogFocusChanged
             OnGetText = vtLogGetText
             OnPaintText = vtLogPaintText
             OnKeyDown = vtFilteredLogKeyDown
             OnMouseDown = vtLogMouseDown
             OnMouseUp = vtLogMouseUp
-            ExplicitHeight = 219
             Columns = <
               item
                 Color = clBtnFace
@@ -932,6 +928,7 @@ object View2Frm: TView2Frm
             OnBeforeCellPaint = vtLogBeforeCellPaint
             OnEditing = vtLogEditing
             OnEnter = vtLogEnter
+            OnFocusChanged = vtLogFocusChanged
             OnGetText = vtLogGetText
             OnPaintText = vtLogPaintText
             OnKeyDown = vtFilteredLogKeyDown
@@ -1052,7 +1049,7 @@ object View2Frm: TView2Frm
     Left = 408
     Top = 88
     Bitmap = {
-      494C010102002400240018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102002800280018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000001800000001002000000000000024
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
