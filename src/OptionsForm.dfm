@@ -4,7 +4,7 @@ object OptionsFm: TOptionsFm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Options'
-  ClientHeight = 152
+  ClientHeight = 179
   ClientWidth = 242
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,7 +16,7 @@ object OptionsFm: TOptionsFm
   Position = poScreenCenter
   DesignSize = (
     242
-    152)
+    179)
   PixelsPerInch = 96
   TextHeight = 16
   object lbl1: TLabel
@@ -31,14 +31,14 @@ object OptionsFm: TOptionsFm
   end
   object btnOk: TButton
     Left = 62
-    Top = 99
+    Top = 126
     Width = 107
     Height = 37
     Anchors = [akRight, akBottom]
     Caption = 'Ok'
     ModalResult = 1
     TabOrder = 2
-    ExplicitTop = 155
+    ExplicitTop = 99
   end
   object chkTwoWindow: TCheckBox
     Left = 8
@@ -62,6 +62,20 @@ object OptionsFm: TOptionsFm
     Caption = 'Select'
     TabOrder = 0
     OnClick = btnSelectClick
+  end
+  object chbIB: TCheckBox
+    Left = 8
+    Top = 88
+    Width = 129
+    Height = 17
+    Caption = 'Interlaced Backlight'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 3
   end
   object dlgFont1: TFontDialog
     Font.Charset = DEFAULT_CHARSET

@@ -15,6 +15,7 @@ type
     dlgFont1: TFontDialog;
     lbl1: TLabel;
     btnSelect: TButton;
+    chbIB: TCheckBox;
     procedure btnSelectClick(Sender: TObject);
   private
     procedure SetFont(AFont: TFont);
@@ -40,6 +41,7 @@ begin
   SetFont(dlgFont1.Font);
 //  chkCaseSensitive.Checked := Options.CaseSens;
   chkTwoWindow.Checked := Options.TwoWindow;
+  chbIB.Checked := Options.InterlacedBacklight;
 //  chkSaveOnExit.Checked := Options.SaveOnExit;
   Result := ShowModal = mrOk;
   if Result then
@@ -48,6 +50,7 @@ begin
     Options.FontSize := dlgFont1.Font.Size;
 //    Options.CaseSens := chkCaseSensitive.Checked;
     Options.TwoWindow := chkTwoWindow.Checked;
+    Options.InterlacedBacklight := chbIB.Checked;
 //    Options.SaveOnExit := chkSaveOnExit.Checked;
  //   ShowMessage('The changes will be applied after program restart');
   end;

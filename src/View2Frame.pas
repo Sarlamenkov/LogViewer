@@ -323,7 +323,7 @@ begin
   begin
     TargetCanvas.Font.Color := CalcBrightColor(clBlack, 30);
    // TargetCanvas.Font.Style := [fsBold];
-    TargetCanvas.Font.Height := 6;
+   // TargetCanvas.Font.Height := 6;
   end;
 end;
 
@@ -390,7 +390,7 @@ begin
     ShowMessage(IntToStr(Column) + ' ' + IntToStr(Node.Index));
   end;
   vRect := CellRect;
-  if (Node.Index mod 2 = 0) and (Column <> 0) then
+  if Options.InterlacedBacklight and (Node.Index mod 2 = 0) and (Column <> 0) then
   begin
     TargetCanvas.Brush.Color := CalcBrightColor(clSilver, 80);
     TargetCanvas.FillRect(vRect);

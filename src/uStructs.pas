@@ -146,6 +146,7 @@ type
     FontSize: Integer;
     TwoWindow: Boolean;
     SaveOnExit: Boolean;
+    InterlacedBacklight: Boolean;
     MainWindowState: TWindowState;
 
     constructor Create;
@@ -696,6 +697,8 @@ begin
   FontSize := vIni.ReadInteger('options', 'font_size', 8);
  // CaseSens := vIni.ReadBool('options', 'case_sens', False);
   TwoWindow := vIni.ReadBool('options', 'two_window', False);
+  InterlacedBacklight := vIni.ReadBool('options', 'interlaced_backlight', True);
+
   MainWindowState := TWindowState(vIni.ReadInteger('options', 'main_window_state', Integer(wsNormal)));
   SaveOnExit := True;
   vFiles := TStringList.Create;
@@ -723,6 +726,7 @@ begin
   vIni.WriteInteger('options', 'font_size', FontSize);
  // vIni.WriteBool('options', 'case_sens', CaseSens);
   vIni.WriteBool('options', 'two_window', TwoWindow);
+  vIni.WriteBool('options', 'interlaced_backlight', InterlacedBacklight);
   vIni.WriteInteger('options', 'main_window_state', Integer(MainWindowState));
 
   vIni.EraseSection('files');
