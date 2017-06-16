@@ -7,7 +7,7 @@ uses
   Dialogs, VirtualTrees, ComCtrls, ToolWin, ActnList, ImgList,
 
   uStructs, StdCtrls, ExtCtrls, Menus, CheckLst, System.Actions,
-  System.ImageList, Vcl.Buttons;
+  System.ImageList, Vcl.Buttons, ActiveX;
 
 type
   TTagChangeEvent = procedure() of object;
@@ -61,6 +61,14 @@ type
     procedure btnClearFilterClick(Sender: TObject);
     procedure edFilterChange(Sender: TObject);
     procedure btnAddFromFilterClick(Sender: TObject);
+    procedure vtTagsDragAllowed(Sender: TBaseVirtualTree; Node: PVirtualNode;
+      Column: TColumnIndex; var Allowed: Boolean);
+    procedure vtTagsDragOver(Sender: TBaseVirtualTree; Source: TObject;
+      Shift: TShiftState; State: TDragState; Pt: TPoint; Mode: TDropMode;
+      var Effect: Integer; var Accept: Boolean);
+    procedure vtTagsDragDrop(Sender: TBaseVirtualTree; Source: TObject;
+      DataObject: IDataObject; Formats: TFormatArray; Shift: TShiftState;
+      Pt: TPoint; var Effect: Integer; Mode: TDropMode);
   private
     FTags: TTagList;
     FDataList: TDataList;
@@ -263,6 +271,53 @@ begin
     FTags.Owner.BeginUpdate;
 end;
 
+procedure TTagListFrm.vtTagsDragAllowed(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
+begin
+  Allowed := Node.CheckState = csUncheckedNormal;
+end;
+
+procedure TTagListFrm.vtTagsDragDrop(Sender: TBaseVirtualTree; Source: TObject;
+  DataObject: IDataObject; Formats: TFormatArray; Shift: TShiftState;
+  Pt: TPoint; var Effect: Integer; Mode: TDropMode);
+var
+  pSource, pTarget: PVirtualNode;
+  attMode: TVTNodeAttachMode;
+  vNodeData: ^TNodeData;
+  vTag1, vTag2: TTagInfo;
+begin
+  pSource := TVirtualStringTree(Source).FocusedNode;
+  if TVirtualStringTree(Source).ChildCount[pSource] > 0 then Exit;
+
+  pTarget := Sender.DropTargetNode;
+  attMode := amNoWhere;
+  case Mode of
+    dmNowhere: attMode := amNoWhere;
+    dmAbove: attMode := amInsertBefore;
+    dmOnNode, dmBelow: attMode := amInsertAfter;
+  end;
+  vNodeData := TVirtualStringTree(Source).GetNodeData(pSource);
+  vTag1 := vNodeData.Data;
+  vNodeData := TVirtualStringTree(Source).GetNodeData(pTarget);
+  vTag2 := vNodeData.Data;
+
+  Sender.MoveTo(pSource, pTarget, attMode, False);
+
+  if vTag2 = nil then
+    vTag1.GroupName := ''
+  else
+    vTag1.GroupName := vTag2.GroupName;
+  if FNeedSave then
+    FTags.Save;
+end;
+
+procedure TTagListFrm.vtTagsDragOver(Sender: TBaseVirtualTree; Source: TObject;
+  Shift: TShiftState; State: TDragState; Pt: TPoint; Mode: TDropMode;
+  var Effect: Integer; var Accept: Boolean);
+begin
+  Accept := (Source = Sender) and (Mode in [dmAbove, dmBelow]);
+end;
+
 procedure TTagListFrm.actEditExecute(Sender: TObject);
 var
   vTag: TTagInfo;
@@ -356,7 +411,7 @@ begin
       vNodeData.Data.Color);}
 
     TargetCanvas.Brush.Color := CalcBrightColor(vNodeData.Data.Color, 75);
-    TargetCanvas.Pen.Color := vNodeData.Data.Color;
+    TargetCanvas.Pen.Color := CalcBrightColor(vNodeData.Data.Color, 55);//vNodeData.Data.Color;
     TargetCanvas.RoundRect(CellRect.Left, CellRect.Top + 1, CellRect.Right, CellRect.Bottom - 1, 4, 4);
   end;
 end;

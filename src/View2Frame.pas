@@ -366,7 +366,7 @@ var
           vRect.Left := vMargin + CellRect.Left + TargetCanvas.TextWidth(vBeforeTag);
           vRect.Right := vRect.Left + TargetCanvas.TextWidth(Copy(vRowText, Length(vBeforeTag)+1, Length(ASelText))) + 1;
           TargetCanvas.Brush.Color := CalcBrightColor(AColor, 75);
-          TargetCanvas.Pen.Color := AColor;
+          TargetCanvas.Pen.Color := CalcBrightColor(AColor, 55);
           TargetCanvas.RoundRect(vRect.Left, vRect.Top + 1, vRect.Right, vRect.Bottom - 1, 4, 4);
         end;
 

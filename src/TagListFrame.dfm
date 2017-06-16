@@ -58,6 +58,8 @@ object TagListFrm: TTagListFrm
     Align = alClient
     BevelInner = bvNone
     BevelOuter = bvNone
+    DragMode = dmAutomatic
+    DrawSelectionMode = smBlendedRectangle
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -12
@@ -72,13 +74,18 @@ object TagListFrm: TTagListFrm
     Header.Options = [hoColumnResize, hoDrag]
     ParentFont = False
     PopupMenu = pm1
+    SelectionCurveRadius = 5
     TabOrder = 1
+    TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toDisableAutoscrollOnFocus, toAutoChangeScale]
     TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning]
     TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowRoot, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection]
     OnBeforeCellPaint = vtTagsBeforeCellPaint
     OnChecked = vtTagsChecked
     OnChecking = vtTagsChecking
     OnDblClick = actEditExecute
+    OnDragAllowed = vtTagsDragAllowed
+    OnDragOver = vtTagsDragOver
+    OnDragDrop = vtTagsDragDrop
     OnGetText = vtTagsGetText
     OnGetNodeDataSize = vtTagsGetNodeDataSize
     OnResize = vtTagsResize
@@ -140,7 +147,7 @@ object TagListFrm: TTagListFrm
     Left = 102
     Top = 164
     Bitmap = {
-      494C010107004000400018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010107004000480018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000003000000001002000000000000048
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

@@ -343,9 +343,8 @@ var
   vName: string;
   vTag: TTagInfo;
 begin
-  if not FileExists(gSettingsFileName) then Exit;
-
   FSectionName := ASectionName;
+  if not FileExists(gSettingsFileName) then Exit;
 
   FList.Clear;
 
