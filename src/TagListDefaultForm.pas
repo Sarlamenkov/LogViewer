@@ -3,7 +3,7 @@ unit TagListDefaultForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, TagListFrame, StdCtrls, ExtCtrls;
 
 type

@@ -13,12 +13,12 @@ uses
   uStructs in 'uStructs.pas',
   View2Frame in 'View2Frame.pas' {View2Frm: TFrame},
   TagListDefaultForm in 'TagListDefaultForm.pas' {TagListDefaultFm},
-  uGraphicUtils in 'uGraphicUtils.pas',
   VirtualTrees in 'ThirdParty\VirtualTreeView\Source\VirtualTrees.pas',
   VTAccessibility in 'ThirdParty\VirtualTreeView\Source\VTAccessibility.pas',
   VTAccessibilityFactory in 'ThirdParty\VirtualTreeView\Source\VTAccessibilityFactory.pas',
   VTHeaderPopup in 'ThirdParty\VirtualTreeView\Source\VTHeaderPopup.pas',
-  HelpForm in 'HelpForm.pas' {HelpFm};
+  HelpForm in 'HelpForm.pas' {HelpFm},
+  uGraphicUtils in 'uGraphicUtils.pas';
 
 {$R *.res}
 

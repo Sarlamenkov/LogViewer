@@ -7,7 +7,7 @@ uses
   Dialogs, ExtCtrls, VirtualTrees, ComCtrls, ActnList,
   ShellAPI, StdCtrls, Menus, ImgList, ToolWin,
 
-  View2Frame, uStructs, TagListFrame, System.Actions, System.ImageList;
+  View2Frame, uStructs, TagListFrame;
 
 const
   WM_CommandArrived = WM_USER + 1;  
@@ -124,7 +124,7 @@ begin
   TEventWaitThread.Create(False);
   Options.LoadOptions;
   RefillHistoryFileNames;
-  WindowState := Options.MainWindowState;
+  WindowState := TWindowState(Options.MainWindowState);
 end;
 
 procedure TMainFm.RefillOpenedFileNames;
@@ -154,7 +154,7 @@ procedure TMainFm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   LockControl(Self, True);
   try
-    Options.MainWindowState := WindowState;
+    Options.MainWindowState := Integer(WindowState);
     RefillOpenedFileNames;
     Options.SaveOptions;
     while PageControl1.PageCount > 0 do
@@ -370,8 +370,8 @@ begin
     Info.iMinAnimate := 0;
     SystemParametersInfo(SPI_SETANIMATION, SizeOf(Info), @Info, 0);
   end;
-  if not IsIconic(Application.Handle) then
-    Application.Minimize;
+//  if not IsIconic(Application.Handle) then
+//    Application.Minimize;
   Application.Restore;
   if Animation then
   begin

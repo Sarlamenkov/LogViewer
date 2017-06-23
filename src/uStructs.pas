@@ -3,7 +3,7 @@ unit uStructs;
 interface
 
 uses
-  Graphics, Classes, IniFiles, UITypes;
+  Graphics, Classes, IniFiles;
 
 type
   TDataList = class;
@@ -20,6 +20,7 @@ type
     FIndexRows: TList;
     FIndexed: Boolean;
     FCaseSens: Boolean;
+    FOrder: Integer;
     procedure SetEnabled(const Value: Boolean);
     function GetMatchCount: Integer;
     function GetFullName: string;
@@ -41,6 +42,7 @@ type
     property CaseSens: Boolean read FCaseSens write SetCaseSens;
     property Color: TColor read FColor write FColor;
     property GroupName: string read FGroupName write FGroupName;
+    property Order: Integer read FOrder write FOrder;
   end;
 
   TSortType = (stAlphaSort, stCheckedSort, stNoSort);
@@ -147,7 +149,7 @@ type
     TwoWindow: Boolean;
     SaveOnExit: Boolean;
     InterlacedBacklight: Boolean;
-    MainWindowState: TWindowState;
+    MainWindowState: Integer;
 
     constructor Create;
     destructor Destroy; override;
@@ -166,13 +168,39 @@ function Options: TOptions;
 implementation
 
 uses
-  SysUtils, StrUtils, Forms, Types, Windows,
+  SysUtils, StrUtils, Forms,
 
   uConsts;
 
 const
   cLeftBrace = '(_';
   cRightBrace = '_)';
+
+  function GetBValue(rgb : longint) : BYTE;
+      begin
+         GetBValue:=BYTE(rgb shr 16);
+      end;
+
+    { was #define dname(params) def_expr }
+    { argument types are unknown }
+    function GetGValue(rgb : longint) : BYTE;
+      begin
+         GetGValue:=BYTE((WORD(rgb)) shr 8);
+      end;
+
+    { was #define dname(params) def_expr }
+    { argument types are unknown }
+    function GetRValue(rgb : longint) : BYTE;
+      begin
+         GetRValue:=BYTE(rgb);
+      end;
+
+    { was #define dname(params) def_expr }
+    { argument types are unknown }
+    function RGB(r,g,b : longint) : WORD;
+      begin
+         RGB:=WORD(((WORD(BYTE(r))) or ((WORD(WORD(g))) shl 8)) or ((WORD(BYTE(b))) shl 16));
+      end;
 
 var
   gOptions: TOptions;
@@ -209,7 +237,7 @@ end;
 procedure TTagInfo.DoIndex(const AText: string; const AUpperText: string; const ARowIndex: Integer);
 begin
   if (CaseSens and (Pos(Name, AText) > 0)) or ((not CaseSens) and (Pos(FUpperCaseName, AUpperText) > 0))  then
-    FIndexRows.Add(TObject(ARowIndex));
+    FIndexRows.Add(Pointer(ARowIndex));
 end;
 
 function TTagInfo.GetFullName: string;
@@ -698,7 +726,7 @@ begin
   TwoWindow := vIni.ReadBool('options', 'two_window', False);
   InterlacedBacklight := vIni.ReadBool('options', 'interlaced_backlight', True);
 
-  MainWindowState := TWindowState(vIni.ReadInteger('options', 'main_window_state', Integer(wsNormal)));
+  MainWindowState := vIni.ReadInteger('options', 'main_window_state', 0);
   SaveOnExit := True;
   vFiles := TStringList.Create;
   vIni.ReadSectionValues('files', vFiles);

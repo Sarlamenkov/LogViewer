@@ -6,8 +6,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, ExtCtrls, VirtualTrees, StdCtrls,
   
-  uStructs, ComCtrls, ToolWin, CheckLst, TagListFrame, System.Actions,
-  Vcl.ActnList, System.ImageList, Vcl.ImgList, Vcl.Buttons;
+  uStructs, ComCtrls, ToolWin, CheckLst, TagListFrame,
+  ActnList, ImgList, Buttons;
 
 type
   TView2Frm = class(TFrame)

@@ -6,8 +6,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, VirtualTrees, ComCtrls, ToolWin, ActnList, ImgList,
 
-  uStructs, StdCtrls, ExtCtrls, Menus, CheckLst, System.Actions,
-  System.ImageList, Vcl.Buttons, ActiveX;
+  uStructs, StdCtrls, ExtCtrls, Menus, CheckLst, Actions,
+  ImageList, Buttons, ActiveX;
 
 type
   TTagChangeEvent = procedure() of object;
@@ -35,6 +35,10 @@ type
     edFilter: TEdit;
     btnClearFilter: TSpeedButton;
     btnAddFromFilter: TSpeedButton;
+    actResetToDefault: TAction;
+    ResetToDefaultSelection1: TMenuItem;
+    actStoreAsDefault: TAction;
+    StoreAsDefaultSelection1: TMenuItem;
     procedure actAddExecute(Sender: TObject);
     procedure vtTagsGetNodeDataSize(Sender: TBaseVirtualTree;
       var NodeDataSize: Integer);
@@ -361,7 +365,7 @@ begin
   if vNode = nil then Exit;
 
   vNodeData := vtTags.GetNodeData(vtTags.FocusedNode);
-  Result := vNodeData.data;
+  Result := vNodeData.Data;
 end;
 
 procedure TTagListFrm.actCheckedInTopExecute(Sender: TObject);

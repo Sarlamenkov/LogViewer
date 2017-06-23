@@ -147,7 +147,7 @@ object TagListFrm: TTagListFrm
     Left = 102
     Top = 164
     Bitmap = {
-      494C010107004000480018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101070040004C0018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000003000000001002000000000000048
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -756,6 +756,7 @@ object TagListFrm: TTagListFrm
       Caption = '+'
       Hint = 'New Tag'
       ImageIndex = 1
+      ShortCut = 16462
       OnExecute = actAddExecute
     end
     object actEdit: TAction
@@ -785,6 +786,12 @@ object TagListFrm: TTagListFrm
       ImageIndex = 5
       OnExecute = actCheckedInTopExecute
     end
+    object actResetToDefault: TAction
+      Caption = 'Reset To Default Selection'
+    end
+    object actStoreAsDefault: TAction
+      Caption = 'Store As Default Selection'
+    end
   end
   object pm1: TPopupMenu
     Left = 49
@@ -796,6 +803,12 @@ object TagListFrm: TTagListFrm
     object miUncheckAll: TMenuItem
       Caption = 'Uncheck All'
       OnClick = miUncheckAllClick
+    end
+    object ResetToDefaultSelection1: TMenuItem
+      Action = actResetToDefault
+    end
+    object StoreAsDefaultSelection1: TMenuItem
+      Action = actStoreAsDefault
     end
   end
 end

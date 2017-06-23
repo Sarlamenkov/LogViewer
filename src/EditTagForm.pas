@@ -72,7 +72,7 @@ end;
 procedure TEditTagFm.FormKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if Key = VK_ESCAPE then Close; 
+  if Key = 27 then Close;
 end;
 
 procedure TEditTagFm.UpdateView;
