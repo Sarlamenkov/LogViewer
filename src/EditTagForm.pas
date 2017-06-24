@@ -20,6 +20,9 @@ type
     edGroupName: TEdit;
     lbl1: TLabel;
     chkCaseSensitive: TCheckBox;
+    Edit1: TEdit;
+    Label3: TLabel;
+    chbRegExp: TCheckBox;
     procedure FormShow(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -55,12 +58,14 @@ begin
   SetTagColor(ATag.Color);
   edGroupName.Text := ATag.GroupName;
   chkCaseSensitive.Checked := ATag.CaseSens;
+  chbRegExp.Checked := ATag.RegExp;
   Result := ShowModal = mrOk;
   if not Result then Exit;
   ATag.Name := edtName.Text ;
   ATag.Color := pnlColor.Color;
   ATag.GroupName := edGroupName.Text;
   ATag.CaseSens := chkCaseSensitive.Checked;
+  ATag.RegExp := chbRegExp.Checked;
 end;
 
 procedure TEditTagFm.FormShow(Sender: TObject);

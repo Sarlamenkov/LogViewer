@@ -18,7 +18,8 @@ uses
   VTAccessibilityFactory in 'ThirdParty\VirtualTreeView\Source\VTAccessibilityFactory.pas',
   VTHeaderPopup in 'ThirdParty\VirtualTreeView\Source\VTHeaderPopup.pas',
   HelpForm in 'HelpForm.pas' {HelpFm},
-  uGraphicUtils in 'uGraphicUtils.pas';
+  uGraphicUtils in 'uGraphicUtils.pas',
+  cxRegExpr in 'cxRegExpr.pas';
 
 {$R *.res}
 

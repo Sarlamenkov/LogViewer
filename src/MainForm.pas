@@ -7,7 +7,7 @@ uses
   Dialogs, ExtCtrls, VirtualTrees, ComCtrls, ActnList,
   ShellAPI, StdCtrls, Menus, ImgList, ToolWin,
 
-  View2Frame, uStructs, TagListFrame;
+  View2Frame, uStructs, TagListFrame, System.ImageList, System.Actions;
 
 const
   WM_CommandArrived = WM_USER + 1;  

@@ -21,6 +21,7 @@ type
     FIndexed: Boolean;
     FCaseSens: Boolean;
     FOrder: Integer;
+    FRegExp: Boolean;
     procedure SetEnabled(const Value: Boolean);
     function GetMatchCount: Integer;
     function GetFullName: string;
@@ -28,6 +29,8 @@ type
     function GetMatchRow(const AIndex: Integer): Integer;
     procedure SetCaseSens(const Value: Boolean);
     procedure DoIndex(const AText: string; const AUpperText: string; const ARowIndex: Integer);
+    procedure SetRegExp(const Value: Boolean);
+    procedure RebuildIndex;
   public
     constructor Create(const AName: string = ''; const AEnabled: Boolean = True;
       const AColor: TColor = clHighlightText; const AGroupName: string = '');
@@ -40,6 +43,7 @@ type
     property FullName: string read GetFullName;
     property Enabled: Boolean read FEnabled write SetEnabled;
     property CaseSens: Boolean read FCaseSens write SetCaseSens;
+    property RegExp: Boolean read FRegExp write SetRegExp;
     property Color: TColor read FColor write FColor;
     property GroupName: string read FGroupName write FGroupName;
     property Order: Integer read FOrder write FOrder;
@@ -170,37 +174,11 @@ implementation
 uses
   SysUtils, StrUtils, Forms,
 
-  uConsts;
+  uConsts, cxRegExpr;
 
 const
   cLeftBrace = '(_';
   cRightBrace = '_)';
-
-  function GetBValue(rgb : longint) : BYTE;
-      begin
-         GetBValue:=BYTE(rgb shr 16);
-      end;
-
-    { was #define dname(params) def_expr }
-    { argument types are unknown }
-    function GetGValue(rgb : longint) : BYTE;
-      begin
-         GetGValue:=BYTE((WORD(rgb)) shr 8);
-      end;
-
-    { was #define dname(params) def_expr }
-    { argument types are unknown }
-    function GetRValue(rgb : longint) : BYTE;
-      begin
-         GetRValue:=BYTE(rgb);
-      end;
-
-    { was #define dname(params) def_expr }
-    { argument types are unknown }
-    function RGB(r,g,b : longint) : WORD;
-      begin
-         RGB:=WORD(((WORD(BYTE(r))) or ((WORD(WORD(g))) shl 8)) or ((WORD(BYTE(b))) shl 16));
-      end;
 
 var
   gOptions: TOptions;
@@ -211,6 +189,27 @@ begin
     gOptions := TOptions.Create;
   Result := gOptions;
 end;
+
+function GetBValue(rgb: longint) : BYTE;
+begin
+  GetBValue := BYTE(rgb shr 16);
+end;
+
+function GetGValue(rgb: longint) : BYTE;
+begin
+  GetGValue := BYTE((WORD(rgb)) shr 8);
+end;
+
+function GetRValue(rgb: longint) : BYTE;
+begin
+  GetRValue := BYTE(rgb);
+end;
+
+function RGB(r, g, b: longint) : WORD;
+begin
+  RGB := WORD(((WORD(BYTE(r))) or ((WORD(WORD(g))) shl 8)) or ((WORD(BYTE(b))) shl 16));
+end;
+
 { TTagInfo }
 
 constructor TTagInfo.Create(const AName: string = ''; const AEnabled: Boolean = True; const AColor: TColor = clHighlightText;
@@ -234,9 +233,18 @@ begin
   inherited;
 end;
 
+procedure TTagInfo.RebuildIndex;
+begin
+  if Assigned(FOwner) and Assigned(FOwner.FOwner) then
+    FOwner.FOwner.BuildFilteredIndex;
+end;
+
 procedure TTagInfo.DoIndex(const AText: string; const AUpperText: string; const ARowIndex: Integer);
 begin
-  if (CaseSens and (Pos(Name, AText) > 0)) or ((not CaseSens) and (Pos(FUpperCaseName, AUpperText) > 0))  then
+  if ((not RegExp) and
+     ((CaseSens and (Pos(Name, AText) > 0)) or
+     ((not CaseSens) and (Pos(FUpperCaseName, AUpperText) > 0)))) or
+     (RegExp and IsTextValid(AText, Name)) then
     FIndexRows.Add(Pointer(ARowIndex));
 end;
 
@@ -259,24 +267,33 @@ end;
 
 procedure TTagInfo.SetCaseSens(const Value: Boolean);
 begin
+  if FCaseSens = Value then Exit;
+
   FCaseSens := Value;
   FIndexed := False;
   FIndexRows.Clear;
-  if Assigned(FOwner) and Assigned(FOwner.FOwner) then
-    FOwner.FOwner.BuildFilteredIndex;
+  RebuildIndex;
 end;
 
 procedure TTagInfo.SetEnabled(const Value: Boolean);
 begin
   FEnabled := Value;
-  if Assigned(FOwner) and Assigned(FOwner.FOwner) then
-    FOwner.FOwner.BuildFilteredIndex;
+  RebuildIndex;
 end;
 
 procedure TTagInfo.SetName(const Value: string);
 begin
   FName := Value;
   FUpperCaseName := UpperCase(FName);
+end;
+
+procedure TTagInfo.SetRegExp(const Value: Boolean);
+begin
+  if FRegExp = Value then Exit;
+  FRegExp := Value;
+  FIndexed := False;
+  FIndexRows.Clear;
+  RebuildIndex;
 end;
 
 { TTagList }
@@ -393,6 +410,8 @@ begin
     vTag := TTagInfo.Create(vName, vSplit[0] = '1', StrToIntDef(vSplit[1], 0), vSplit[2]);
     if vSplit.Count > 3 then
       vTag.FCaseSens := vSplit[3] = '1';
+    if vSplit.Count > 4 then
+      vTag.FRegExp := vSplit[4] = '1';
     InternalAdd(vTag);
   end;
 
@@ -434,7 +453,8 @@ begin
     vIni.WriteString(FSectionName, vName,
       IfThen(Items[i].Enabled, '1', '0') + ';' +
       IntToStr(Items[i].Color) + ';' + Items[i].GroupName + ';' +
-      IfThen(Items[i].CaseSens, '1', '0'));
+      IfThen(Items[i].CaseSens, '1', '0') + ';' +
+      IfThen(Items[i].RegExp, '1', '0'));
   end;
 
   vIni.Free;
@@ -590,9 +610,7 @@ begin
       vUpperText := UpperCase(FData[i]);
       for j := 0 to vTagList.Count - 1 do
         TTagInfo(vTagList[j]).DoIndex(FData[i], vUpperText, i);
- //     FTable.AddRow(FData[i]);
     end;
- //   FTable.Build;
   finally
     vTagList.Free;
   end;

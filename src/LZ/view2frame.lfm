@@ -1,0 +1,547 @@
+object View2Frm: TView2Frm
+  Left = 0
+  Height = 498
+  Top = 0
+  Width = 861
+  ClientHeight = 498
+  ClientWidth = 861
+  TabOrder = 0
+  DesignLeft = 374
+  DesignTop = 307
+  object spl3: TSplitter
+    Left = 242
+    Height = 498
+    Top = 0
+    Width = 8
+  end
+  inline tl1: TTagListFrm
+    Height = 498
+    Align = alLeft
+    ClientHeight = 498
+    inherited vtTags: TVirtualStringTree
+      Height = 434
+      Header.Columns = <>
+      Header.MainColumn = -1
+    end
+    inherited pnlFilter: TPanel
+      inherited edFilter: TEdit
+        Left = 3
+        Width = 124
+      end
+    end
+  end
+  object pnlBase: TPanel
+    Left = 250
+    Height = 498
+    Top = 0
+    Width = 590
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 498
+    ClientWidth = 590
+    TabOrder = 1
+    object pnlBottom: TPanel
+      Left = 0
+      Height = 22
+      Top = 476
+      Width = 590
+      Align = alBottom
+      BevelOuter = bvNone
+      ClientHeight = 22
+      ClientWidth = 590
+      TabOrder = 0
+      object lblCount: TLabel
+        Left = 1
+        Height = 14
+        Top = 4
+        Width = 29
+        Caption = '0 / 0'
+        Font.CharSet = RUSSIAN_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Verdana'
+        ParentColor = False
+        ParentFont = False
+      end
+    end
+    object pnlWork: TPanel
+      Left = 0
+      Height = 476
+      Top = 0
+      Width = 590
+      Align = alClient
+      BevelOuter = bvNone
+      Caption = 'pnlWork'
+      ClientHeight = 476
+      ClientWidth = 590
+      TabOrder = 1
+      object pnlTools: TPanel
+        Left = 0
+        Height = 37
+        Top = 0
+        Width = 590
+        Align = alTop
+        BevelOuter = bvNone
+        ClientHeight = 37
+        ClientWidth = 590
+        TabOrder = 0
+        object SpeedButton1: TSpeedButton
+          Left = 168
+          Height = 27
+          Top = 4
+          Width = 39
+          Action = actFindNext
+          Flat = True
+        end
+        object SpeedButton2: TSpeedButton
+          Left = 213
+          Height = 27
+          Top = 4
+          Width = 39
+          Action = actFindPrev
+          Flat = True
+        end
+        object edtSearch: TEdit
+          Left = 0
+          Height = 24
+          Top = 6
+          Width = 159
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 0
+        end
+        object chkFiltered: TCheckBox
+          Left = 360
+          Height = 19
+          Top = 10
+          Width = 59
+          Action = actFiltered
+          TabOrder = 1
+          TabStop = False
+        end
+        object chkTwoWindows: TCheckBox
+          Left = 266
+          Height = 19
+          Top = 9
+          Width = 76
+          Action = act2windows
+          TabOrder = 2
+        end
+      end
+      object pnlLog: TPanel
+        Left = 0
+        Height = 439
+        Top = 37
+        Width = 590
+        Align = alClient
+        BevelOuter = bvNone
+        Caption = 'pnlLog'
+        ClientHeight = 439
+        ClientWidth = 590
+        TabOrder = 1
+        object splVerticalLogs: TSplitter
+          Cursor = crVSplit
+          Left = 0
+          Height = 6
+          Top = 217
+          Width = 590
+          Align = alTop
+          ResizeAnchor = akTop
+        end
+        object pnlFiltered: TPanel
+          Left = 0
+          Height = 216
+          Top = 223
+          Width = 590
+          Align = alClient
+          BevelOuter = bvNone
+          ClientHeight = 216
+          ClientWidth = 590
+          TabOrder = 0
+          object splFiltered: TSplitter
+            Left = 583
+            Height = 216
+            Top = 0
+            Width = 6
+            Align = alRight
+            MinSize = 1
+            ResizeAnchor = akRight
+          end
+          object vtFilteredLog2: TVirtualStringTree
+            Left = 589
+            Height = 216
+            Top = 0
+            Width = 1
+            Align = alRight
+            ClipboardFormats.Strings = (
+              'Plain text'
+            )
+            Colors.UnfocusedSelectionBorderColor = clHighlight
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Courier'
+            Header.AutoSizeIndex = 0
+            Header.Columns = <>
+            Header.Font.Color = clWindowText
+            Header.Font.Height = -11
+            Header.Font.Name = 'MS Sans Serif'
+            Header.MainColumn = -1
+            Header.Options = [hoDblClickResize, hoDrag, hoFullRepaintOnResize]
+            LineStyle = lsSolid
+            ParentFont = False
+            TabOrder = 0
+            TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoTristateTracking, toAutoDeleteMovedNodes, toDisableAutoscrollOnEdit]
+            TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick]
+            TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection, toShowFilteredNodes]
+            TreeOptions.SelectionOptions = [toFullRowSelect, toMiddleClickSelect, toMultiSelect, toRightClickSelect]
+            OnBeforeCellPaint = vtLogBeforeCellPaint
+            OnDblClick = vtFilteredLogDblClick
+            OnEditing = vtLogEditing
+            OnEnter = vtLogEnter
+            OnGetText = vtLogGetText
+            OnPaintText = vtLogPaintText
+            OnKeyDown = vtFilteredLogKeyDown
+            OnMouseDown = vtLogMouseDown
+            OnMouseUp = vtLogMouseUp
+          end
+          object vtFilteredLog: TVirtualStringTree
+            Left = 0
+            Height = 216
+            Top = 0
+            Width = 583
+            Align = alClient
+            ClipboardFormats.Strings = (
+              'Plain text'
+            )
+            Colors.UnfocusedSelectionBorderColor = clHighlight
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Courier'
+            Header.AutoSizeIndex = 0
+            Header.Columns = <            
+              item
+                Position = 0
+              end            
+              item
+                Position = 1
+              end>
+            Header.Font.Color = clWindowText
+            Header.Font.Height = -11
+            Header.Font.Name = 'MS Sans Serif'
+            Header.Options = [hoDblClickResize, hoDrag, hoFullRepaintOnResize]
+            LineStyle = lsSolid
+            ParentFont = False
+            TabOrder = 1
+            TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoTristateTracking, toAutoDeleteMovedNodes, toDisableAutoscrollOnEdit]
+            TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick]
+            TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection, toShowFilteredNodes]
+            TreeOptions.SelectionOptions = [toFullRowSelect, toMiddleClickSelect, toMultiSelect, toRightClickSelect]
+            OnBeforeCellPaint = vtLogBeforeCellPaint
+            OnDblClick = vtFilteredLogDblClick
+            OnEditing = vtLogEditing
+            OnEnter = vtLogEnter
+            OnFocusChanged = vtFilteredLogFocusChanged
+            OnGetText = vtLogGetText
+            OnPaintText = vtLogPaintText
+            OnKeyDown = vtFilteredLogKeyDown
+            OnMouseDown = vtLogMouseDown
+            OnMouseUp = vtLogMouseUp
+          end
+        end
+        object pnlFull: TPanel
+          Left = 0
+          Height = 217
+          Top = 0
+          Width = 590
+          Align = alTop
+          BevelOuter = bvNone
+          Caption = 'pnlFull'
+          ClientHeight = 217
+          ClientWidth = 590
+          TabOrder = 1
+          object splFullLog: TSplitter
+            Left = 583
+            Height = 217
+            Top = 0
+            Width = 6
+            Align = alRight
+            ResizeAnchor = akRight
+          end
+          object vtLog: TVirtualStringTree
+            Left = 0
+            Height = 217
+            Top = 0
+            Width = 583
+            Align = alClient
+            ClipboardFormats.Strings = (
+              'Plain text'
+            )
+            Colors.UnfocusedSelectionBorderColor = clHighlight
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Courier'
+            Header.AutoSizeIndex = 0
+            Header.Columns = <            
+              item
+                Position = 0
+              end            
+              item
+                Position = 1
+              end>
+            Header.Font.Color = clWindowText
+            Header.Font.Height = -11
+            Header.Font.Name = 'MS Sans Serif'
+            Header.Options = [hoDblClickResize, hoDrag, hoFullRepaintOnResize]
+            LineStyle = lsSolid
+            ParentFont = False
+            TabOrder = 0
+            TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoTristateTracking, toAutoDeleteMovedNodes, toDisableAutoscrollOnEdit]
+            TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick]
+            TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection, toShowFilteredNodes]
+            TreeOptions.SelectionOptions = [toFullRowSelect, toMiddleClickSelect, toMultiSelect, toRightClickSelect]
+            OnBeforeCellPaint = vtLogBeforeCellPaint
+            OnEditing = vtLogEditing
+            OnEnter = vtLogEnter
+            OnFocusChanged = vtLogFocusChanged
+            OnGetText = vtLogGetText
+            OnPaintText = vtLogPaintText
+            OnKeyDown = vtFilteredLogKeyDown
+            OnMouseDown = vtLogMouseDown
+            OnMouseUp = vtLogMouseUp
+          end
+          object vtLog2: TVirtualStringTree
+            Left = 589
+            Height = 217
+            Top = 0
+            Width = 1
+            Align = alRight
+            ClipboardFormats.Strings = (
+              'Plain text'
+            )
+            Colors.UnfocusedSelectionBorderColor = clHighlight
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Courier'
+            Header.AutoSizeIndex = 0
+            Header.Columns = <>
+            Header.Font.Color = clWindowText
+            Header.Font.Height = -11
+            Header.Font.Name = 'MS Sans Serif'
+            Header.MainColumn = -1
+            Header.Options = [hoDblClickResize, hoDrag, hoFullRepaintOnResize]
+            LineStyle = lsSolid
+            ParentFont = False
+            TabOrder = 1
+            TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoTristateTracking, toAutoDeleteMovedNodes, toDisableAutoscrollOnEdit]
+            TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick]
+            TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages, toUseBlendedSelection, toShowFilteredNodes]
+            TreeOptions.SelectionOptions = [toFullRowSelect, toMiddleClickSelect, toMultiSelect, toRightClickSelect]
+            OnBeforeCellPaint = vtLogBeforeCellPaint
+            OnGetText = vtLogGetText
+            OnPaintText = vtLogPaintText
+            OnMouseDown = vtLogMouseDown
+          end
+        end
+      end
+    end
+  end
+  object pnlMarks: TPanel
+    Left = 840
+    Height = 498
+    Top = 0
+    Width = 21
+    Align = alRight
+    BevelOuter = bvLowered
+    ClientHeight = 498
+    ClientWidth = 21
+    TabOrder = 2
+    object pb1: TPaintBox
+      Left = 1
+      Height = 496
+      Top = 1
+      Width = 19
+      Align = alClient
+      OnMouseUp = pb1MouseUp
+      OnPaint = pb1Paint
+    end
+  end
+  object ActionList1: TActionList
+    Images = ImageList1
+    left = 337
+    top = 81
+    object act2windows: TAction
+      AutoCheck = True
+      Caption = '2 windows'
+      OnExecute = act2windowsExecute
+    end
+    object actFiltered: TAction
+      Caption = 'Filtered'
+      OnExecute = actFilteredExecute
+    end
+    object actFindNext: TAction
+      Hint = 'Find Next'
+      ImageIndex = 1
+      OnExecute = btnFindNextClick
+    end
+    object actFindPrev: TAction
+      Hint = 'Find Prev'
+      ImageIndex = 0
+      OnExecute = actFindPrevExecute
+    end
+  end
+  object ImageList1: TImageList
+    Height = 24
+    Width = 24
+    left = 408
+    top = 88
+    Bitmap = {
+      4C69020000001800000018000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000808080FF808080FF0000
+      0000000000000000000000000000808080FF808080FF00000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000808080FF000000FF030303FFD4D4
+      D4FF0000000000000000808080FF000000FF030303FFD4D4D4FF000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000808080FF000000FF030303FFAAAAAAFF0000
+      000000000000808080FF000000FF030303FFAAAAAAFF00000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000808080FF000000FF030303FFA9A9A9FF000000000000
+      0000808080FF000000FF030303FFA9A9A9FF0000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000808080FF000000FF030303FFA9A9A9FF00000000000000008080
+      80FF000000FF030303FFA9A9A9FF000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000808080FF000000FF030303FFA8A8A8FF0000000000000000808080FF0000
+      00FF030303FFA8A8A8FF00000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00007F7F7FFF000000FF030303FFA8A8A8FF00000000000000007F7F7FFF0000
+      00FF030303FFA8A8A8FF00000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000007F7F7FFF000000FF030303FFA9A9A9FF00000000000000007F7F
+      7FFF000000FF030303FFA9A9A9FF000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000007F7F7FFF000000FF030303FFA9A9A9FF000000000000
+      00007F7F7FFF000000FF030303FFA9A9A9FF0000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000007F7F7FFF000000FF030303FFAAAAAAFF0000
+      0000000000007F7F7FFF000000FF030303FFAAAAAAFF00000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000007F7F7FFF000000FF030303FFD4D4
+      D4FF00000000000000007F7F7FFF000000FF030303FFD4D4D4FF000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000007F7F7FFF7F7F7FFF0000
+      00000000000000000000000000007F7F7FFF7F7F7FFF00000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000808080FF808080FF000000000000000000000000000000008080
+      80FF808080FF0000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000D4D4D4FF030303FF000000FF808080FF0000000000000000D4D4D4FF0303
+      03FF000000FF808080FF00000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000AAAAAAFF030303FF000000FF808080FF0000000000000000AAAA
+      AAFF030303FF000000FF808080FF000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000A9A9A9FF030303FF000000FF808080FF000000000000
+      0000A9A9A9FF030303FF000000FF808080FF0000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000A9A9A9FF030303FF000000FF808080FF0000
+      000000000000A9A9A9FF030303FF000000FF808080FF00000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000A8A8A8FF030303FF000000FF8080
+      80FF0000000000000000A8A8A8FF030303FF000000FF808080FF000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000A8A8A8FF030303FF000000FF7F7F
+      7FFF0000000000000000A8A8A8FF030303FF000000FF7F7F7FFF000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000A9A9A9FF030303FF000000FF7F7F7FFF0000
+      000000000000A9A9A9FF030303FF000000FF7F7F7FFF00000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000A9A9A9FF030303FF000000FF7F7F7FFF000000000000
+      0000A9A9A9FF030303FF000000FF7F7F7FFF0000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000AAAAAAFF030303FF000000FF7F7F7FFF0000000000000000AAAA
+      AAFF030303FF000000FF7F7F7FFF000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000D4D4D4FF030303FF000000FF7F7F7FFF0000000000000000D4D4D4FF0303
+      03FF000000FF7F7F7FFF00000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000007F7F7FFF7F7F7FFF000000000000000000000000000000007F7F
+      7FFF7F7F7FFF0000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000
+    }
+  end
+end

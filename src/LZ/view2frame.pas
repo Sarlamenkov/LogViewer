@@ -7,7 +7,7 @@ uses
   Dialogs, ExtCtrls, VirtualTrees, StdCtrls,
   
   uStructs, ComCtrls, ToolWin, CheckLst, TagListFrame,
-  ActnList, ImgList, Buttons, System.ImageList, System.Actions;
+  ActnList, ImgList, Buttons;
 
 type
   TView2Frm = class(TFrame)
@@ -103,7 +103,7 @@ type
 
 implementation
 
-{$R *.dfm}
+{$R *.lfm}
 
 uses
   Clipbrd, StrUtils, Math,
