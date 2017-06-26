@@ -19,7 +19,7 @@ uses
   VTHeaderPopup in 'ThirdParty\VirtualTreeView\Source\VTHeaderPopup.pas',
   HelpForm in 'HelpForm.pas' {HelpFm},
   uGraphicUtils in 'uGraphicUtils.pas',
-  cxRegExpr in 'cxRegExpr.pas';
+  RegExpr in 'RegExpr.pas';
 
 {$R *.res}
 

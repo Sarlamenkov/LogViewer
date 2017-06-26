@@ -22,6 +22,7 @@ type
     FCaseSens: Boolean;
     FOrder: Integer;
     FRegExp: Boolean;
+    FDesc: string;
     procedure SetEnabled(const Value: Boolean);
     function GetMatchCount: Integer;
     function GetFullName: string;
@@ -36,9 +37,12 @@ type
       const AColor: TColor = clHighlightText; const AGroupName: string = '');
     destructor Destroy; override;
 
+    function IsMatchToRow(const ARowIndex): Boolean;
+
     property MatchRows[const AIndex: Integer]: Integer read GetMatchRow;
     property MatchCount: Integer read GetMatchCount;
     property Name: string read FName write SetName;
+    property Description: string read FDesc write FDesc;
     property UpperCaseName: string read FUpperCaseName;
     property FullName: string read GetFullName;
     property Enabled: Boolean read FEnabled write SetEnabled;
@@ -130,6 +134,7 @@ type
     procedure EndUpdate;
 
     function GetFilteredRowNumber(const ACurrentRow: Integer): Integer;
+    function RowInFilter(const ACurrentRow: Integer): Boolean;
 
     property Rows[const AIndex: Integer]: string read GetRow;
     property RowCount: Integer read GetRowCount;
@@ -174,11 +179,12 @@ implementation
 uses
   SysUtils, StrUtils, Forms,
 
-  uConsts, cxRegExpr;
+  uConsts, RegExpr, uGraphicUtils;
 
 const
   cLeftBrace = '(_';
   cRightBrace = '_)';
+  cDelim = '_!_';
 
 var
   gOptions: TOptions;
@@ -190,41 +196,21 @@ begin
   Result := gOptions;
 end;
 
-function GetBValue(rgb: longint) : BYTE;
-begin
-  GetBValue := BYTE(rgb shr 16);
-end;
-
-function GetGValue(rgb: longint) : BYTE;
-begin
-  GetGValue := BYTE((WORD(rgb)) shr 8);
-end;
-
-function GetRValue(rgb: longint) : BYTE;
-begin
-  GetRValue := BYTE(rgb);
-end;
-
-function RGB(r, g, b: longint) : WORD;
-begin
-  RGB := WORD(((WORD(BYTE(r))) or ((WORD(WORD(g))) shl 8)) or ((WORD(BYTE(b))) shl 16));
-end;
-
 { TTagInfo }
 
 constructor TTagInfo.Create(const AName: string = ''; const AEnabled: Boolean = True; const AColor: TColor = clHighlightText;
   const AGroupName: string = '');
 begin
-  Name := AName;
+  FIndexRows := TList.Create;
+  FIndexed := False;
+  FCaseSens := False;
   FEnabled := AEnabled;
   FColor := AColor;
+  Name := AName;
   if Length(AGroupName) = 0 then
     FGroupName := 'No Group'
   else
     FGroupName := AGroupName;
-  FIndexRows := TList.Create;
-  FIndexed := False;
-  FCaseSens := False;
 end;
 
 destructor TTagInfo.Destroy;
@@ -244,7 +230,7 @@ begin
   if ((not RegExp) and
      ((CaseSens and (Pos(Name, AText) > 0)) or
      ((not CaseSens) and (Pos(FUpperCaseName, AUpperText) > 0)))) or
-     (RegExp and IsTextValid(AText, Name)) then
+     (RegExp and ExecRegExpr(Name, AText)) then
     FIndexRows.Add(Pointer(ARowIndex));
 end;
 
@@ -263,6 +249,11 @@ end;
 function TTagInfo.GetMatchRow(const AIndex: Integer): Integer;
 begin
   Result := Integer(FIndexRows[AIndex]); 
+end;
+
+function TTagInfo.IsMatchToRow(const ARowIndex): Boolean;
+begin
+  Result := FIndexRows.IndexOf(Pointer(ARowIndex)) > -1;
 end;
 
 procedure TTagInfo.SetCaseSens(const Value: Boolean);
@@ -285,6 +276,9 @@ procedure TTagInfo.SetName(const Value: string);
 begin
   FName := Value;
   FUpperCaseName := UpperCase(FName);
+  FIndexed := False;
+  FIndexRows.Clear;
+  RebuildIndex;
 end;
 
 procedure TTagInfo.SetRegExp(const Value: Boolean);
@@ -385,7 +379,7 @@ var
   i: Integer;
   vIni: TMemIniFile;
   vValues, vSplit: TStringList;
-  vName: string;
+  vName, vDesc: string;
   vTag: TTagInfo;
 begin
   FSectionName := ASectionName;
@@ -402,16 +396,28 @@ begin
   begin
     vName := vValues[i];
     vSplit.DelimitedText := vIni.ReadString(FSectionName, vName, '0;0;[dt]');
-    if (Pos(cLeftBrace, vName) > 0) or (Pos(cRightBrace, vName) > 0) then
-    begin
-      vName := AnsiReplaceText(vName, cLeftBrace, '[');
-      vName := AnsiReplaceText(vName, cRightBrace, ']');
-    end;
+//    if (Pos(cLeftBrace, vName) > 0) or (Pos(cRightBrace, vName) > 0) then
+//    begin
+    vName := AnsiReplaceText(vName, cLeftBrace, '[');
+    vName := AnsiReplaceText(vName, cRightBrace, ']');
+    vName := AnsiReplaceText(vName, cDelim, ';');
+
+//    end;
+
     vTag := TTagInfo.Create(vName, vSplit[0] = '1', StrToIntDef(vSplit[1], 0), vSplit[2]);
     if vSplit.Count > 3 then
       vTag.FCaseSens := vSplit[3] = '1';
     if vSplit.Count > 4 then
       vTag.FRegExp := vSplit[4] = '1';
+    if vSplit.Count > 5 then
+    begin
+      vDesc := vSplit[5];
+      vDesc := AnsiReplaceText(vDesc, cLeftBrace, '[');
+      vDesc := AnsiReplaceText(vDesc, cRightBrace, ']');
+      vDesc := AnsiReplaceText(vDesc, cDelim, ';');
+      vTag.Description := vDesc;
+    end;
+
     InternalAdd(vTag);
   end;
 
@@ -436,7 +442,7 @@ procedure TTagList.Save;
 var
   vIni: TIniFile;
   i: Integer;
-  vName: string;
+  vName, vDesc: string;
 begin
   vIni := TIniFile.Create(gSettingsFileName);
 
@@ -444,17 +450,21 @@ begin
 
   for i := 0 to FList.Count - 1 do
   begin
-    vName := Items[i].Name;
-    if (Pos('[', vName) > 0) or (Pos(']', vName) > 0) then
-    begin
-      vName := AnsiReplaceText(vName, '[', cLeftBrace);
-      vName := AnsiReplaceText(vName, ']', cRightBrace);
-    end;
+   // if (Pos('[', vName) > 0) or (Pos(']', vName) > 0) then
+   // begin
+    vName := AnsiReplaceText(Items[i].Name, '[', cLeftBrace);
+    vName := AnsiReplaceText(vName, ']', cRightBrace);
+    vName := AnsiReplaceText(vName, ';', cDelim);
+    vDesc := AnsiReplaceText(Items[i].Description, '[', cLeftBrace);
+    vDesc := AnsiReplaceText(vDesc, ']', cRightBrace);
+    vDesc := AnsiReplaceText(vDesc, ';', cDelim);
+   // end;
     vIni.WriteString(FSectionName, vName,
       IfThen(Items[i].Enabled, '1', '0') + ';' +
       IntToStr(Items[i].Color) + ';' + Items[i].GroupName + ';' +
       IfThen(Items[i].CaseSens, '1', '0') + ';' +
-      IfThen(Items[i].RegExp, '1', '0'));
+      IfThen(Items[i].RegExp, '1', '0') + ';' +
+      vDesc);
   end;
 
   vIni.Free;
@@ -670,7 +680,7 @@ end;
 
 function TDataList.GetFilteredRowNumber(const ACurrentRow: Integer): Integer;
 begin
-  if FBuildInProgress or (ACurrentRow - 1 > FFilteredInds.Count) then
+  if FBuildInProgress or (ACurrentRow > FFilteredInds.Count - 1) then
     Result := -1
   else
     Result := Integer(FFilteredInds[ACurrentRow]);
@@ -704,7 +714,11 @@ begin
   FTagList.Load('tags');
   DoOnLoading(10);
   BuildFilteredIndex;
+end;
 
+function TDataList.RowInFilter(const ACurrentRow: Integer): Boolean;
+begin
+  Result := FFilteredInds.IndexOf(Pointer(ACurrentRow)) > -1;
 end;
 
 { TOptions }

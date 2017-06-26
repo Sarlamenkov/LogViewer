@@ -332,7 +332,7 @@ procedure TView2Frm.vtLogBeforeCellPaint(Sender: TBaseVirtualTree;
   CellPaintMode: TVTCellPaintMode; CellRect: TRect;
   var ContentRect: TRect);
 var
-  i, vPos, vMargin: Integer;
+  i, vPos, vMargin, vFilteredRowNumber: Integer;
   vTag: TTagInfo;
   vRowText, vBeforeTag: string;
   vRect: TRect;
@@ -385,6 +385,10 @@ begin
   end;
 
   try
+    if (Sender = vtLog) or (Sender = vtLog2) then
+      vFilteredRowNumber := Node.Index
+    else
+      vFilteredRowNumber := FDataList.GetFilteredRowNumber(Node.Index);
     vRowText := GetText(Sender, Column, Node.Index);
   except
     ShowMessage(IntToStr(Column) + ' ' + IntToStr(Node.Index));
@@ -399,8 +403,8 @@ begin
   for i := 0 to FDataList.TagCount - 1 do
   begin
     vTag := FDataList.Tags[i];
-    if (vTag.Enabled) and (vTag.MatchCount > 0) then
-      DrawSelection(vTag.Color, vTag.Name, False, vTag.CaseSens);
+    if vTag.Enabled and (vTag.MatchCount > 0) and vTag.IsMatchToRow(vFilteredRowNumber) {and vRowMatchFilter} then
+      DrawSelection(vTag.Color, IfThen(vTag.RegExp, vRowText, vTag.Name), False, vTag.CaseSens);
   end;
 
   DrawSelection(clGray, edtSearch.Text);

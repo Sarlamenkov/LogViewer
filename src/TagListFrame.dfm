@@ -72,9 +72,12 @@ object TagListFrm: TTagListFrm
     Header.Font.Name = 'MS Sans Serif'
     Header.Font.Style = []
     Header.Options = [hoColumnResize, hoDrag]
+    HintMode = hmHint
     ParentFont = False
+    ParentShowHint = False
     PopupMenu = pm1
     SelectionCurveRadius = 5
+    ShowHint = True
     TabOrder = 1
     TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toDisableAutoscrollOnFocus, toAutoChangeScale]
     TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning]
@@ -87,6 +90,7 @@ object TagListFrm: TTagListFrm
     OnDragOver = vtTagsDragOver
     OnDragDrop = vtTagsDragDrop
     OnGetText = vtTagsGetText
+    OnGetHint = vtTagsGetHint
     OnGetNodeDataSize = vtTagsGetNodeDataSize
     OnResize = vtTagsResize
     Columns = <
@@ -147,7 +151,7 @@ object TagListFrm: TTagListFrm
     Left = 102
     Top = 164
     Bitmap = {
-      494C0101070040004C0018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010107004000500018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000003000000001002000000000000048
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

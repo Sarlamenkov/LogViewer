@@ -20,7 +20,7 @@ type
     edGroupName: TEdit;
     lbl1: TLabel;
     chkCaseSensitive: TCheckBox;
-    Edit1: TEdit;
+    edDesc: TEdit;
     Label3: TLabel;
     chbRegExp: TCheckBox;
     procedure FormShow(Sender: TObject);
@@ -59,6 +59,7 @@ begin
   edGroupName.Text := ATag.GroupName;
   chkCaseSensitive.Checked := ATag.CaseSens;
   chbRegExp.Checked := ATag.RegExp;
+  edDesc.Text := ATag.Description;
   Result := ShowModal = mrOk;
   if not Result then Exit;
   ATag.Name := edtName.Text ;
@@ -66,6 +67,7 @@ begin
   ATag.GroupName := edGroupName.Text;
   ATag.CaseSens := chkCaseSensitive.Checked;
   ATag.RegExp := chbRegExp.Checked;
+  ATag.Description := edDesc.Text;
 end;
 
 procedure TEditTagFm.FormShow(Sender: TObject);

@@ -3,8 +3,9 @@ unit uGraphicUtils;
 interface
 
 uses
-  Windows, Graphics, Classes;
+  Graphics, Classes;
 
+function RGB(r, g, b: longint) : LongWord;
 function CalcBrightColor(const AColor: TColor; const ALightPercent: Integer): TColor;
 
 
@@ -12,6 +13,26 @@ implementation
 
 uses
   SysUtils;
+
+function GetBValue(rgb: longint) : BYTE;
+begin
+  GetBValue := BYTE(rgb shr 16);
+end;
+
+function GetGValue(rgb: longint) : BYTE;
+begin
+  GetGValue := BYTE((WORD(rgb)) shr 8);
+end;
+
+function GetRValue(rgb: longint) : BYTE;
+begin
+  GetRValue := BYTE(rgb);
+end;
+
+function RGB(r, g, b: longint) : LongWord;
+begin
+  RGB := LongWord(((WORD(BYTE(r))) or ((WORD(WORD(g))) shl 8)) or ((WORD(BYTE(b))) shl 16));
+end;
 
 function CalcBrightColor(const AColor: TColor; const ALightPercent: Integer): TColor;
 var

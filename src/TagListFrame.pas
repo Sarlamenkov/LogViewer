@@ -73,6 +73,9 @@ type
     procedure vtTagsDragDrop(Sender: TBaseVirtualTree; Source: TObject;
       DataObject: IDataObject; Formats: TFormatArray; Shift: TShiftState;
       Pt: TPoint; var Effect: Integer; Mode: TDropMode);
+    procedure vtTagsGetHint(Sender: TBaseVirtualTree; Node: PVirtualNode;
+      Column: TColumnIndex; var LineBreakStyle: TVTTooltipLineBreakStyle;
+      var HintText: string);
   private
     FTags: TTagList;
     FDataList: TDataList;
@@ -86,6 +89,7 @@ type
     procedure CheckAll(const ACheck: Boolean);
     procedure DoOnChangeTag;
     procedure UpdateColumns;
+    function NodeText(Node: PVirtualNode; const AIncludeDesc: Boolean = False): string;
   public
     procedure Init(const ADataList: TDataList);
     procedure Init2(const ATagList: TTagList);
@@ -201,6 +205,7 @@ begin
   FSortedTags := TList.Create;
   FSort := stAlphaSort;
   FillTreeTags;
+
 end;
 
 procedure TTagListFrm.actAddExecute(Sender: TObject);
@@ -224,6 +229,13 @@ begin
   end;
 end;
 
+procedure TTagListFrm.vtTagsGetHint(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; Column: TColumnIndex;
+  var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: string);
+begin
+  HintText := NodeText(Node, True);
+end;
+
 procedure TTagListFrm.vtTagsGetNodeDataSize(Sender: TBaseVirtualTree;
   var NodeDataSize: Integer);
 begin
@@ -233,6 +245,11 @@ end;
 procedure TTagListFrm.vtTagsGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
   var CellText: string);
+begin
+  CellText := NodeText(Node);
+end;
+
+function TTagListFrm.NodeText(Node: PVirtualNode; const AIncludeDesc: Boolean = False): string;
 var
   vNodeData: ^TNodeData;
   vTag: TTagInfo;
@@ -240,10 +257,12 @@ begin
   vNodeData := vtTags.GetNodeData(Node);
   vTag := vNodeData.Data;
   if vTag = nil then
-    CellText := vNodeData.GroupName
+    Result := vNodeData.GroupName
   else
   begin
-    CellText := vTag.FullName;
+    Result := vTag.FullName;
+    if AIncludeDesc then
+      Result := Result + '  ' + vTag.Description + '';
   end;
 end;
 
