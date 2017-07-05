@@ -5,9 +5,10 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, VirtualTrees, ComCtrls, ActnList,
-  ShellAPI, StdCtrls, Menus, ImgList, ToolWin,
+  ShellAPI, StdCtrls, Menus, ImgList, ToolWin, ImageList, Actions,
 
-  View2Frame, uStructs, TagListFrame, System.ImageList, System.Actions;
+  View2Frame, uStructs, TagListFrame,
+  uPageControlWithCloseButtons;
 
 const
   WM_CommandArrived = WM_USER + 1;  
@@ -20,7 +21,7 @@ type
 
   TMainFm = class(TForm)
     dlgOpen1: TOpenDialog;
-    PageControl1: TPageControl;
+
     Timer1: TTimer;
     ToolBar1: TToolBar;
     ActionList1: TActionList;
@@ -50,15 +51,13 @@ type
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure actCloseTabExecute(Sender: TObject);
-    procedure PageControl1MouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+
     procedure btn3Click(Sender: TObject);
     procedure Exit1Click(Sender: TObject);
     procedure Closeall1Click(Sender: TObject);
     procedure About1Click(Sender: TObject);
     procedure Options1Click(Sender: TObject);
-    procedure PageControl1MouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure DefaultTags1Click(Sender: TObject);
@@ -71,10 +70,15 @@ type
     procedure actAboutExecute(Sender: TObject);
     procedure tbHistoryClick(Sender: TObject);
     procedure actHelpExecute(Sender: TObject);
-
   private
+    PageControl1: TPageControlWithCloseButtons;
+    procedure PageControl1MouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure PageControl1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure ActivateTab(const AFileName: string);
     procedure CloseCurrentTab(const AQuick: Boolean = False);
+    procedure CloseTab(const AIndex: Integer; const AQuick: Boolean = False);
     procedure ActualizeCurrentView;
     procedure WMCommandArrived(var AMessage: TMessage); message WM_CommandArrived;
     procedure GoToForeground;
@@ -84,6 +88,7 @@ type
     procedure RefillHistoryFileNames;
     procedure OnSelectHistoryFile(Sender: TObject);
     procedure FirstActivate;
+    procedure OnCloseTab(const ATabIndex: Integer);
   protected
     procedure WMDropFiles(var Msg: TMessage); message wm_DropFiles;
   public
@@ -110,7 +115,7 @@ uses
 procedure TEventWaitThread.Execute;
 begin
   while True do
-  begin            
+  begin
     if WaitForSingleObject(CommandEvent, INFINITE) <> WAIT_OBJECT_0 then
       Exit;
     PostMessage(MainFm.Handle, WM_CommandArrived, 0, 0);
@@ -189,7 +194,9 @@ begin
   begin
     vTabSheet := TTabSheet.Create(nil);
     vTabSheet.PageControl := PageControl1;
+    PageControl1.PageCountChanged;
     vTabSheet.Caption := ExtractFileName(AFileName);
+    vTabSheet.Width := PageControl1.Canvas.TextWidth(vTabSheet.Caption) + 120;
     vView := TView2Frm.Create(nil);
     vView.Parent := vTabSheet;
     vView.Align := alClient;
@@ -264,27 +271,39 @@ end;
 procedure TMainFm.FormCreate(Sender: TObject);
 begin
   DragAcceptFiles(Handle, True); // разрешаем форме принимать файлы
+  PageControl1 := TPageControlWithCloseButtons.Create(Self);
+  PageControl1.Align := alClient;
+  PageControl1.Parent := Self;
+  PageControl1.OnMouseUp2 := PageControl1MouseUp;
+  PageControl1.OnMouseDown2 := PageControl1MouseDown;
+  PageControl1.OnCloseTab := OnCloseTab;
 end;
 
 procedure TMainFm.CloseCurrentTab(const AQuick: Boolean = False);
+begin
+  CloseTab(PageControl1.ActivePage.TabIndex, AQuick);
+end;
+
+procedure TMainFm.CloseTab(const AIndex: Integer; const AQuick: Boolean);
 var
   vView: TView2Frm;
 begin
   if PageControl1.PageCount = 0 then Exit;
 
-  vView := TView2Frm(PageControl1.ActivePage.Tag);
+  vView := TView2Frm(PageControl1.Pages[AIndex].Tag);
 
   Options.AddToHistory(vView.FileName);
 
   vView.Deinit;
   vView.Free;
-  PageControl1.ActivePage.Free;
+  PageControl1.Pages[AIndex].Free;
+  PageControl1.PageCountChanged;
   if not AQuick then
   begin
     RefillHistoryFileNames;
     ActualizeCurrentView;
     Options.SaveOptions;
-  end;  
+  end;
 end;
 
 procedure TMainFm.actAboutExecute(Sender: TObject);
@@ -407,9 +426,7 @@ procedure TMainFm.PageControl1MouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   if Button = mbLeft then
-    ActualizeCurrentView
-  else if Button = mbMiddle then
-    CloseCurrentTab;
+    ActualizeCurrentView;
 end;
 
 procedure TMainFm.btn3Click(Sender: TObject);
@@ -505,6 +522,11 @@ begin
     vMI.Hint := Options.HistoryFileNames[i];
     pmReopen.Items.Add(vMI);
   end;
+end;
+
+procedure TMainFm.OnCloseTab(const ATabIndex: Integer);
+begin
+  CloseTab(ATabIndex);
 end;
 
 procedure TMainFm.OnSelectHistoryFile(Sender: TObject);

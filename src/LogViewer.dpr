@@ -19,7 +19,10 @@ uses
   VTHeaderPopup in 'ThirdParty\VirtualTreeView\Source\VTHeaderPopup.pas',
   HelpForm in 'HelpForm.pas' {HelpFm},
   uGraphicUtils in 'uGraphicUtils.pas',
-  RegExpr in 'RegExpr.pas';
+  RegExpr in 'RegExpr.pas',
+  Vcl.Themes,
+  Vcl.Styles,
+  uPageControlWithCloseButtons in 'uPageControlWithCloseButtons.pas';
 
 {$R *.res}
 

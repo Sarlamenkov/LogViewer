@@ -20,15 +20,6 @@ object MainFm: TMainFm
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object PageControl1: TPageControl
-    Left = 0
-    Top = 30
-    Width = 932
-    Height = 609
-    Align = alClient
-    TabOrder = 0
-    OnMouseUp = PageControl1MouseUp
-  end
   object ToolBar1: TToolBar
     Left = 0
     Top = 0
@@ -39,7 +30,7 @@ object MainFm: TMainFm
     ButtonWidth = 41
     Caption = 'ToolBar1'
     Images = ImageList1
-    TabOrder = 1
+    TabOrder = 0
     object ToolButton1: TToolButton
       Left = 0
       Top = 0
@@ -56,7 +47,7 @@ object MainFm: TMainFm
       OnClick = tbHistoryClick
     end
     object ToolButton11: TToolButton
-      Left = 95
+      Left = 97
       Top = 0
       Width = 18
       Caption = 'ToolButton11'
@@ -64,17 +55,17 @@ object MainFm: TMainFm
       Style = tbsSeparator
     end
     object ToolButton2: TToolButton
-      Left = 113
+      Left = 115
       Top = 0
       Action = actCloseCurrent
     end
     object ToolButton3: TToolButton
-      Left = 154
+      Left = 156
       Top = 0
       Action = actCloseAll
     end
     object ToolButton10: TToolButton
-      Left = 195
+      Left = 197
       Top = 0
       Width = 18
       Caption = 'ToolButton10'
@@ -82,12 +73,12 @@ object MainFm: TMainFm
       Style = tbsSeparator
     end
     object ToolButton4: TToolButton
-      Left = 213
+      Left = 215
       Top = 0
       Action = actDefaultTags
     end
     object ToolButton7: TToolButton
-      Left = 254
+      Left = 256
       Top = 0
       Width = 18
       Caption = 'ToolButton7'
@@ -95,12 +86,12 @@ object MainFm: TMainFm
       Style = tbsSeparator
     end
     object ToolButton5: TToolButton
-      Left = 272
+      Left = 274
       Top = 0
       Action = actOptions
     end
     object ToolButton8: TToolButton
-      Left = 313
+      Left = 315
       Top = 0
       Width = 18
       Caption = 'ToolButton8'
@@ -108,12 +99,12 @@ object MainFm: TMainFm
       Style = tbsSeparator
     end
     object ToolButton9: TToolButton
-      Left = 331
+      Left = 333
       Top = 0
       Action = actHelp
     end
     object ToolButton6: TToolButton
-      Left = 372
+      Left = 374
       Top = 0
       Action = actAbout
     end
@@ -182,7 +173,7 @@ object MainFm: TMainFm
     Left = 400
     Top = 184
     Bitmap = {
-      494C010109005000500018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101090050005C0018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000060000000480000000100200000000000006C
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
