@@ -109,6 +109,17 @@ object MainFm: TMainFm
       Action = actAbout
     end
   end
+  object PageControl1: TPageControl
+    Left = 392
+    Top = 248
+    Width = 289
+    Height = 193
+    ActivePage = TabSheet1
+    TabOrder = 1
+    object TabSheet1: TTabSheet
+      Caption = 'TabSheet1'
+    end
+  end
   object dlgOpen1: TOpenDialog
     Options = [ofHideReadOnly, ofAllowMultiSelect, ofFileMustExist, ofEnableSizing]
     Left = 107
@@ -173,7 +184,7 @@ object MainFm: TMainFm
     Left = 400
     Top = 184
     Bitmap = {
-      494C0101090050005C0018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010109005000640018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000060000000480000000100200000000000006C
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -1074,5 +1085,15 @@ object MainFm: TMainFm
   object pmReopen: TPopupMenu
     Left = 88
     Top = 208
+  end
+  object pmClose: TPopupMenu
+    Left = 272
+    Top = 280
+    object est1: TMenuItem
+      Caption = 'Test'
+    end
+    object est21: TMenuItem
+      Caption = 'Test 2'
+    end
   end
 end

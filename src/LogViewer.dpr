@@ -20,8 +20,6 @@ uses
   HelpForm in 'HelpForm.pas' {HelpFm},
   uGraphicUtils in 'uGraphicUtils.pas',
   RegExpr in 'RegExpr.pas',
-  Vcl.Themes,
-  Vcl.Styles,
   uPageControlWithCloseButtons in 'uPageControlWithCloseButtons.pas';
 
 {$R *.res}

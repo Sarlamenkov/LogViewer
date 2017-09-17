@@ -73,6 +73,7 @@ type
       Node: PVirtualNode; Column: TColumnIndex);
     procedure vtLogFocusChanged(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex);
+    procedure tl1btnAddClick(Sender: TObject);
   private
     FFileName: string;
     FDataList: TDataList;
@@ -95,6 +96,9 @@ type
   public
     procedure Init(const AFileName: string);
     procedure Deinit;
+
+    procedure AfterConstruction; override;
+    procedure BeforeDestruction; override;
 
     procedure AddTagFromSelection;
     procedure Reload;
@@ -160,6 +164,25 @@ begin
   vTI := TTagInfo.Create(FSelectedWords[0], True, clSkyBlue, 'Temp');
   FDataList.TagList.Add(vTI);
   tl1.UpdateLists;
+end;
+
+procedure TView2Frm.AfterConstruction;
+begin
+  inherited;
+  FDataList := TDataList.Create;
+  FSortedTags := TList.Create;
+  FSelectedWords := TStringList.Create;
+  FDataList.OnChanged := OnChangeTags;
+  FDataList.OnLoading := OnLoading;
+  FDataList.OnLoaded := OnLoaded;
+end;
+
+procedure TView2Frm.BeforeDestruction;
+begin
+  FreeAndNil(FDataList);
+  FreeAndNil(FSelectedWords);
+  FreeAndNil(FSortedTags);
+  inherited;
 end;
 
 procedure TView2Frm.btnFindNextClick(Sender: TObject);
@@ -234,9 +257,6 @@ begin
   vtFilteredLog.RootNodeCount := 0;
   vtFilteredLog2.RootNodeCount := 0;
   tl1.Deinit;
-  FreeAndNil(FDataList);
-  FreeAndNil(FSelectedWords);
-  FreeAndNil(FSortedTags);
 end;
 
 function TView2Frm.GetText(Sender: TBaseVirtualTree; Column: TColumnIndex;
@@ -266,17 +286,16 @@ begin
 end;
 
 procedure TView2Frm.Init(const AFileName: string);
+var
+  vPrevCursor: TCursor;
 begin
+  vPrevCursor := Screen.Cursor;
+  Screen.Cursor := crHourGlass;
   LockControl(Self, True);
   try
     Deinit;
     FFileName := AFileName;
-    FDataList := TDataList.Create;
-    FSortedTags := TList.Create;
-    FSelectedWords := TStringList.Create;
-    FDataList.OnChanged := OnChangeTags;
-    FDataList.OnLoading := OnLoading;
-    FDataList.OnLoaded := OnLoaded;
+
     FDataList.LoadFromFile(AFileName);
     tl1.Init(FDataList);
 
@@ -290,6 +309,7 @@ begin
     act2windowsExecute(chkTwoWindows);
   finally
     LockControl(Self, False);
+    Screen.Cursor := vPrevCursor;
   end;
 end;
 
@@ -599,8 +619,14 @@ end;
 
 procedure TView2Frm.Reload;
 begin
-  Deinit;
+ // FDataList.LoadFromFile(FFileName);
   Init(FFileName);
+end;
+
+procedure TView2Frm.tl1btnAddClick(Sender: TObject);
+begin
+  tl1.actAddExecute(Sender);
+
 end;
 
 procedure TView2Frm.OnLoaded(Sender: TObject);

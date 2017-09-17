@@ -151,7 +151,10 @@ var
         vNodeData := vtTags.GetNodeData(vGroupNode);
         vNodeData.GroupName := vTag.GroupName;
       end;
+      if vtTags.RootNodeCount mod 2 = 0 then
+        Include(vGroupNode.States, vsExpanded);
       Result := vtTags.AddChild(vGroupNode);
+
     end;
   end;
 begin
@@ -185,8 +188,6 @@ begin
   end;
   if (vtTags.RootNodeCount > 0) and (vtTags.FocusedNode = nil) then
     vtTags.FocusedNode := vtTags.GetFirst;
-
-  vtTags.FullExpand;
 end;
 
 procedure TTagListFrm.Init(const ADataList: TDataList);

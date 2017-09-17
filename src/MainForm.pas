@@ -46,6 +46,11 @@ type
     ToolButton9: TToolButton;
     ToolButton10: TToolButton;
     ToolButton11: TToolButton;
+    pmClose: TPopupMenu;
+    est1: TMenuItem;
+    est21: TMenuItem;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -70,10 +75,13 @@ type
     procedure actAboutExecute(Sender: TObject);
     procedure tbHistoryClick(Sender: TObject);
     procedure actHelpExecute(Sender: TObject);
+
   private
-    PageControl1: TPageControlWithCloseButtons;
+    PageControlWithCB: TPageControlWithCloseButtons;
     procedure PageControl1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure TabSheetContextPopup(Sender: TObject; MousePos: TPoint;
+      var Handled: Boolean);
     procedure PageControl1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure ActivateTab(const AFileName: string);
@@ -137,8 +145,14 @@ var
   i: Integer;
 begin
   Options.OpenedFileNames.Clear;
-  for i := 0 to PageControl1.PageCount - 1 do
-    Options.OpenedFileNames.Add(TView2Frm(PageControl1.Pages[i].Tag).FileName);
+  for i := 0 to PageControlWithCB.PageCount - 1 do
+    Options.OpenedFileNames.Add(TView2Frm(PageControlWithCB.Pages[i].Tag).FileName);
+end;
+
+procedure TMainFm.TabSheetContextPopup(Sender: TObject; MousePos: TPoint;
+  var Handled: Boolean);
+begin
+  //pmClose.Popup(MousePos.X , MousePos.Y);
 end;
 
 procedure TMainFm.Timer1Timer(Sender: TObject);
@@ -162,7 +176,7 @@ begin
     Options.MainWindowState := Integer(WindowState);
     RefillOpenedFileNames;
     Options.SaveOptions;
-    while PageControl1.PageCount > 0 do
+    while PageControlWithCB.PageCount > 0 do
       CloseCurrentTab(True);
   finally
     LockControl(Self, False);
@@ -173,16 +187,15 @@ procedure TMainFm.ActivateTab(const AFileName: string);
 var
   vTabSheet: TTabSheet;
   vView: TView2Frm;
-  vPrevCursor: TCursor;
   function GetTab: TTabSheet;
   var
     i: Integer;
   begin
     Result := nil;
-    for i := 0 to PageControl1.PageCount - 1 do
-      if TView2Frm(PageControl1.Pages[i].Tag).FileName = AFileName then
+    for i := 0 to PageControlWithCB.PageCount - 1 do
+      if TView2Frm(PageControlWithCB.Pages[i].Tag).FileName = AFileName then
       begin
-        Result := PageControl1.Pages[i];
+        Result := PageControlWithCB.Pages[i];
         Break;
       end;
   end;
@@ -193,10 +206,10 @@ begin
   if vTabSheet = nil then
   begin
     vTabSheet := TTabSheet.Create(nil);
-    vTabSheet.PageControl := PageControl1;
-    PageControl1.PageCountChanged;
-    vTabSheet.Caption := ExtractFileName(AFileName);
-    vTabSheet.Width := PageControl1.Canvas.TextWidth(vTabSheet.Caption) + 120;
+    vTabSheet.PageControl := PageControlWithCB;
+    PageControlWithCB.PageCountChanged;
+    vTabSheet.Caption := ExtractFileName(AFileName) + '      ';
+    vTabSheet.Width := PageControlWithCB.Canvas.TextWidth(vTabSheet.Caption) + 120;
     vView := TView2Frm.Create(nil);
     vView.Parent := vTabSheet;
     vView.Align := alClient;
@@ -205,15 +218,10 @@ begin
   else
     vView := TView2Frm(vTabSheet.Tag);
 
-  PageControl1.ActivePage := vTabSheet;
+  PageControlWithCB.ActivePage := vTabSheet;
+  PageControlWithCB.OnContextPopup := TabSheetContextPopup;
 
-  vPrevCursor := Screen.Cursor;
-  Screen.Cursor := crHourGlass;
-  try
-    vView.Init(AFileName);
-  finally
-    Screen.Cursor := vPrevCursor;
-  end;
+  vView.Init(AFileName);
 
   UpdateCaption(vView.FileName);
 end;
@@ -271,33 +279,33 @@ end;
 procedure TMainFm.FormCreate(Sender: TObject);
 begin
   DragAcceptFiles(Handle, True); // разрешаем форме принимать файлы
-  PageControl1 := TPageControlWithCloseButtons.Create(Self);
-  PageControl1.Align := alClient;
-  PageControl1.Parent := Self;
-  PageControl1.OnMouseUp2 := PageControl1MouseUp;
-  PageControl1.OnMouseDown2 := PageControl1MouseDown;
-  PageControl1.OnCloseTab := OnCloseTab;
+  PageControlWithCB := TPageControlWithCloseButtons.Create(Self);
+  PageControlWithCB.Align := alClient;
+  PageControlWithCB.Parent := Self;
+  PageControlWithCB.OnMouseUp2 := PageControl1MouseUp;
+  PageControlWithCB.OnMouseDown2 := PageControl1MouseDown;
+  PageControlWithCB.OnCloseTab := OnCloseTab;
 end;
 
 procedure TMainFm.CloseCurrentTab(const AQuick: Boolean = False);
 begin
-  CloseTab(PageControl1.ActivePage.TabIndex, AQuick);
+  CloseTab(PageControlWithCB.ActivePage.TabIndex, AQuick);
 end;
 
 procedure TMainFm.CloseTab(const AIndex: Integer; const AQuick: Boolean);
 var
   vView: TView2Frm;
 begin
-  if PageControl1.PageCount = 0 then Exit;
+  if PageControlWithCB.PageCount = 0 then Exit;
 
-  vView := TView2Frm(PageControl1.Pages[AIndex].Tag);
+  vView := TView2Frm(PageControlWithCB.Pages[AIndex].Tag);
 
   Options.AddToHistory(vView.FileName);
 
   vView.Deinit;
   vView.Free;
-  PageControl1.Pages[AIndex].Free;
-  PageControl1.PageCountChanged;
+  PageControlWithCB.Pages[AIndex].Free;
+  PageControlWithCB.PageCountChanged;
   if not AQuick then
   begin
     RefillHistoryFileNames;
@@ -313,7 +321,7 @@ end;
 
 procedure TMainFm.actCloseAllExecute(Sender: TObject);
 begin
-  while PageControl1.PageCount > 0 do
+  while PageControlWithCB.PageCount > 0 do
     CloseCurrentTab(True);
   RefillOpenedFileNames;
   Options.SaveOptions;
@@ -345,12 +353,12 @@ procedure TMainFm.ActualizeCurrentView;
 var
   vView: TView2Frm;
 begin
-  if PageControl1.ActivePage = nil then
+  if PageControlWithCB.ActivePage = nil then
   begin
     UpdateCaption('');
     Exit;
   end;
-  vView := TView2Frm(PageControl1.ActivePage.Tag);
+  vView := TView2Frm(PageControlWithCB.ActivePage.Tag);
 //  vView.Actualize;
   UpdateCaption(vView.FileName);
 end;
@@ -457,7 +465,7 @@ end;
 
 procedure TMainFm.Closeall1Click(Sender: TObject);
 begin
-  while PageControl1.PageCount > 0 do
+  while PageControlWithCB.PageCount > 0 do
     CloseCurrentTab(True);
   RefillOpenedFileNames;
   RefillHistoryFileNames;
@@ -486,22 +494,22 @@ begin
   if (Key = Ord('F')) then
   begin
     if Shift = [ssCtrl] then begin
-      if TView2Frm(PageControl1.ActivePage.Tag).edtSearch.CanFocus then
-        TView2Frm(PageControl1.ActivePage.Tag).edtSearch.SetFocus;
+      if TView2Frm(PageControlWithCB.ActivePage.Tag).edtSearch.CanFocus then
+        TView2Frm(PageControlWithCB.ActivePage.Tag).edtSearch.SetFocus;
     end
     else if Shift = [] then
        // TView2Frm(PageControl1.ActivePage.Tag).SwitchFilter;
   end
   else if (Key = Ord('T')) and (Shift = [ssCtrl]) then
   begin
-    if PageControl1.PageCount = 0 then Exit;
+    if PageControlWithCB.PageCount = 0 then Exit;
 
-    vView := TView2Frm(PageControl1.ActivePage.Tag);
+    vView := TView2Frm(PageControlWithCB.ActivePage.Tag);
     vView.AddTagFromSelection;
   end
   else if (Key = VK_F5) then
   begin
-    TView2Frm(PageControl1.ActivePage.Tag).Reload;
+    TView2Frm(PageControlWithCB.ActivePage.Tag).Reload;
   end;
 end;
 

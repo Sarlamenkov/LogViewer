@@ -37,7 +37,7 @@ type
       const AColor: TColor = clHighlightText; const AGroupName: string = '');
     destructor Destroy; override;
 
-    function IsMatchToRow(const ARowIndex): Boolean;
+    function IsMatchToRow(const ARowIndex: Integer): Boolean;
 
     property MatchRows[const AIndex: Integer]: Integer read GetMatchRow;
     property MatchCount: Integer read GetMatchCount;
@@ -251,7 +251,7 @@ begin
   Result := Integer(FIndexRows[AIndex]); 
 end;
 
-function TTagInfo.IsMatchToRow(const ARowIndex): Boolean;
+function TTagInfo.IsMatchToRow(const ARowIndex: Integer): Boolean;
 begin
   Result := FIndexRows.IndexOf(Pointer(ARowIndex)) > -1;
 end;
