@@ -74,6 +74,7 @@ type
     procedure vtLogFocusChanged(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex);
     procedure tl1btnAddClick(Sender: TObject);
+    procedure splFullLogMoved(Sender: TObject);
   private
     FFileName: string;
     FDataList: TDataList;
@@ -82,6 +83,7 @@ type
     FFindWindow: TVirtualStringTree;
     FFindNextNode: PVirtualNode;
     FCurrRowLog, FCurrRowFilteredLog: Integer;
+    FLoaded: Boolean;
     function GetText(Sender: TBaseVirtualTree; Column: TColumnIndex; NodeIndex: Integer): string;
     procedure OnChangeTags(Sender: TObject);
     procedure OnLoaded(Sender: TObject);
@@ -96,6 +98,8 @@ type
   public
     procedure Init(const AFileName: string);
     procedure Deinit;
+
+    procedure Actualize;
 
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
@@ -154,6 +158,24 @@ end;
 procedure TView2Frm.actFindPrevExecute(Sender: TObject);
 begin
   FindNext(False);
+end;
+
+procedure TView2Frm.Actualize;
+var
+  vPrevCursor: TCursor;
+begin
+  if FLoaded then Exit;
+
+  vPrevCursor := Screen.Cursor;
+  Screen.Cursor := crHourGlass;
+  LockControl(Self, True);
+  try
+    FDataList.LoadFromFile(FFileName);
+    FLoaded := True;
+  finally
+    LockControl(Self, False);
+    Screen.Cursor := vPrevCursor;
+  end;
 end;
 
 procedure TView2Frm.AddTagFromSelection;
@@ -286,31 +308,22 @@ begin
 end;
 
 procedure TView2Frm.Init(const AFileName: string);
-var
-  vPrevCursor: TCursor;
 begin
-  vPrevCursor := Screen.Cursor;
-  Screen.Cursor := crHourGlass;
-  LockControl(Self, True);
-  try
-    Deinit;
-    FFileName := AFileName;
+  FLoaded := False;
 
-    FDataList.LoadFromFile(AFileName);
-    tl1.Init(FDataList);
+  Deinit;
+  FFileName := AFileName;
 
-    vtLog.Font.Name := Options.FontName;
-    vtLog.Font.Size := Options.FontSize;
-    vtFilteredLog.Font.Name := Options.FontName;
-    vtFilteredLog.Font.Size := Options.FontSize;
-    vtFilteredLog2.Font.Name := Options.FontName;
-    vtFilteredLog2.Font.Size := Options.FontSize;
-    chkTwoWindows.Checked := Options.TwoWindow;
-    act2windowsExecute(chkTwoWindows);
-  finally
-    LockControl(Self, False);
-    Screen.Cursor := vPrevCursor;
-  end;
+  tl1.Init(FDataList);
+
+  vtLog.Font.Name := Options.FontName;
+  vtLog.Font.Size := Options.FontSize;
+  vtFilteredLog.Font.Name := Options.FontName;
+  vtFilteredLog.Font.Size := Options.FontSize;
+  vtFilteredLog2.Font.Name := Options.FontName;
+  vtFilteredLog2.Font.Size := Options.FontSize;
+  chkTwoWindows.Checked := Options.TwoWindow;
+  act2windowsExecute(chkTwoWindows);
 end;
 
 procedure TView2Frm.vtLogGetText(Sender: TBaseVirtualTree;
@@ -403,7 +416,7 @@ begin
     TargetCanvas.Font.Color := clSilver;
     Exit;
   end;
-
+  vFilteredRowNumber := 0;
   try
     if (Sender = vtLog) or (Sender = vtLog2) then
       vFilteredRowNumber := Node.Index
@@ -621,6 +634,11 @@ procedure TView2Frm.Reload;
 begin
  // FDataList.LoadFromFile(FFileName);
   Init(FFileName);
+end;
+
+procedure TView2Frm.splFullLogMoved(Sender: TObject);
+begin
+//
 end;
 
 procedure TView2Frm.tl1btnAddClick(Sender: TObject);

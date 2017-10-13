@@ -3,7 +3,7 @@ unit uStructs;
 interface
 
 uses
-  Graphics, Classes, IniFiles;
+  SysUtils, Graphics, Classes, IniFiles;
 
 type
   TDataList = class;
@@ -13,7 +13,7 @@ type
   private
     FOwner: TTagList;
     FName: string;
-    FUpperCaseName: string;
+    FUpperCaseName: AnsiString;
     FColor: TColor;
     FEnabled: Boolean;
     FGroupName: string;
@@ -30,6 +30,7 @@ type
     function GetMatchRow(const AIndex: Integer): Integer;
     procedure SetCaseSens(const Value: Boolean);
     procedure DoIndex(const AText: string; const AUpperText: string; const ARowIndex: Integer);
+    procedure DoIndexAnsi(const AText: AnsiString; const AUpperText: AnsiString; const ARowIndex: Integer);
     procedure SetRegExp(const Value: Boolean);
     procedure RebuildIndex;
   public
@@ -43,7 +44,7 @@ type
     property MatchCount: Integer read GetMatchCount;
     property Name: string read FName write SetName;
     property Description: string read FDesc write FDesc;
-    property UpperCaseName: string read FUpperCaseName;
+    property UpperCaseName: AnsiString read FUpperCaseName;
     property FullName: string read GetFullName;
     property Enabled: Boolean read FEnabled write SetEnabled;
     property CaseSens: Boolean read FCaseSens write SetCaseSens;
@@ -97,6 +98,26 @@ type
     procedure LoadFromFile(const FileName: string); override;
   end;
 
+  TMyStringList3 = class
+  private
+    FList: array of AnsiString;
+    FCount: Integer;
+    FCapacity: Integer;
+    function GetItem(const AIndex: Integer): AnsiString;
+    procedure LoadFromStream(Stream: TStream; Encoding: TEncoding);
+    procedure SetTextStr(const Value: AnsiString);
+    procedure Add(const S: AnsiString);
+    procedure Grow;
+    procedure SetCapacity(NewCapacity: Integer);
+    procedure Clear;
+  public
+    procedure LoadFromFile(const FileName: string);
+
+    property Count: Integer read FCount;
+    property Items[const AIndex: Integer]: AnsiString read GetItem; default;
+  end;
+
+
   PNodeData = ^TNodeData;
   TNodeData = record
     Data: TTagInfo;
@@ -108,7 +129,7 @@ type
   TDataList = class
   private
     FTagList: TTagList;
-    FData: TMyStringList;
+    FData: TMyStringList3;
     FFilteredInds: TList;
     FOnChanged: TNotifyEvent;
     FOnLoading: TOnLoadingEvent;
@@ -177,7 +198,7 @@ function Options: TOptions;
 implementation
 
 uses
-  SysUtils, StrUtils, Forms,
+  StrUtils, Forms,
 
   uConsts, RegExpr, uGraphicUtils;
 
@@ -226,6 +247,16 @@ begin
 end;
 
 procedure TTagInfo.DoIndex(const AText: string; const AUpperText: string; const ARowIndex: Integer);
+begin
+  if ((not RegExp) and
+     ((CaseSens and (Pos(Name, AText) > 0)) or
+     ((not CaseSens) and (Pos(FUpperCaseName, AUpperText) > 0)))) or
+     (RegExp and ExecRegExpr(Name, AText)) then
+    FIndexRows.Add(Pointer(ARowIndex));
+end;
+
+procedure TTagInfo.DoIndexAnsi(const AText, AUpperText: AnsiString;
+  const ARowIndex: Integer);
 begin
   if ((not RegExp) and
      ((CaseSens and (Pos(Name, AText) > 0)) or
@@ -598,7 +629,7 @@ var
   i, j: Integer;
   vTag: TTagInfo;
   vTagList: TList;
-  vUpperText: String;
+  vUpperText: AnsiString;
 begin
   vTagList := TList.Create;
   try
@@ -619,7 +650,7 @@ begin
     begin
       vUpperText := UpperCase(FData[i]);
       for j := 0 to vTagList.Count - 1 do
-        TTagInfo(vTagList[j]).DoIndex(FData[i], vUpperText, i);
+        TTagInfo(vTagList[j]).DoIndexAnsi(FData[i], vUpperText, i);
     end;
   finally
     vTagList.Free;
@@ -628,12 +659,13 @@ end;
 
 constructor TDataList.Create;
 begin
-  FData := TMyStringList.Create;
+  FData := TMyStringList3.Create;
   FTagList := TTagList.Create;
   FTagList.FOwner := Self;
   FFilteredInds := TList.Create;
   FBuildInProgress := False;
   FUpdateCount := 0;
+  FTagList.Load('tags');
 end;
 
 destructor TDataList.Destroy;
@@ -710,9 +742,6 @@ procedure TDataList.LoadFromFile(const AFileName: string);
 begin
   Application.ProcessMessages;
   FData.LoadFromFile(AFileName);
-  DoOnLoading(5);
-  FTagList.Load('tags');
-  DoOnLoading(10);
   BuildFilteredIndex;
 end;
 
@@ -797,6 +826,111 @@ begin
     vIni.WriteString('history', 'file' + IntToStr(i), FHistoryFileNames[i]);
 
   vIni.Free;
+end;
+
+{ TMyStringList3 }
+
+procedure TMyStringList3.SetCapacity(NewCapacity: Integer);
+begin
+  if NewCapacity <> FCapacity then
+  begin
+    SetLength(FList, NewCapacity);
+    FCapacity := NewCapacity;
+  end;
+end;
+
+procedure TMyStringList3.Grow;
+var
+  Delta: Integer;
+begin
+  if FCapacity > 64 then Delta := FCapacity div 4 else
+    if FCapacity > 8 then Delta := 16 else
+      Delta := 4;
+  SetCapacity(FCapacity + Delta);
+end;
+
+procedure TMyStringList3.Add(const S: AnsiString);
+begin
+  if FCount = FCapacity then Grow;
+  FList[FCount] := S;
+  Inc(FCount);
+end;
+
+procedure TMyStringList3.Clear;
+begin
+  FCount := 0;
+  SetCapacity(0);
+end;
+
+function TMyStringList3.GetItem(const AIndex: Integer): AnsiString;
+begin
+  Result := FList[AIndex];
+end;
+
+procedure TMyStringList3.SetTextStr(const Value: AnsiString);
+var
+  P, vStrStart, vStart: PAnsiChar;
+  S: AnsiString;
+  vL: Integer;
+begin
+  Clear;
+  P := Pointer(Value);
+  if P <> nil then
+  begin
+    vStart := P;
+    vL := Length(Value);
+    while P - vStart < vL do
+    begin
+      vStrStart := P;
+      if P^ = #0 then
+        P^ := #42
+      else if P^ = #9 then
+        P^ := #95;
+      while (not (P^ in [#10, #13])) and (P - vStart < vL) do Inc(P);
+      SetString(S, vStrStart, P - vStrStart);
+      Add(S);
+      if P^ = #13 then Inc(P);
+      if P^ = #10 then Inc(P);
+    end;
+  end;
+end;
+
+procedure TMyStringList3.LoadFromStream(Stream: TStream; Encoding: TEncoding);
+var
+  Size: Integer;
+  S: AnsiString;
+  P, Start: PAnsiChar;
+begin
+  Size := Stream.Size - Stream.Position;
+  SetString(S, nil, Size);
+  Stream.Read(Pointer(S)^, Size);
+
+{  P := PAnsiChar(S);
+  if P <> nil then
+  begin
+    Start := P;
+    while P - Start < Size do
+    begin
+      if P^ = #0 then
+        P^ := #42
+      else if P^ = #9 then
+        P^ := #95;
+      Inc(P);
+    end;
+  end;   }
+  SetTextStr(S);
+end;
+
+procedure TMyStringList3.LoadFromFile(const FileName: string);
+var
+  Stream: TStream;
+begin
+  Stream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
+  try
+    LoadFromStream(Stream, nil);
+  finally
+    Stream.Free;
+  end;
 end;
 
 end.

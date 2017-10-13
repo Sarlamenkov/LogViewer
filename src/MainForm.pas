@@ -84,7 +84,7 @@ type
       var Handled: Boolean);
     procedure PageControl1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure ActivateTab(const AFileName: string);
+    function CreateTab(const AFileName: string): TTabSheet;
     procedure CloseCurrentTab(const AQuick: Boolean = False);
     procedure CloseTab(const AIndex: Integer; const AQuick: Boolean = False);
     procedure ActualizeCurrentView;
@@ -97,6 +97,7 @@ type
     procedure OnSelectHistoryFile(Sender: TObject);
     procedure FirstActivate;
     procedure OnCloseTab(const ATabIndex: Integer);
+    procedure OnPageChange(ASender: TObject);
   protected
     procedure WMDropFiles(var Msg: TMessage); message wm_DropFiles;
   public
@@ -138,6 +139,7 @@ begin
   Options.LoadOptions;
   RefillHistoryFileNames;
   WindowState := TWindowState(Options.MainWindowState);
+  PageControlWithCB.OnChange := OnPageChange;
 end;
 
 procedure TMainFm.RefillOpenedFileNames;
@@ -183,9 +185,8 @@ begin
   end;
 end;
 
-procedure TMainFm.ActivateTab(const AFileName: string);
+function TMainFm.CreateTab(const AFileName: string): TTabSheet;
 var
-  vTabSheet: TTabSheet;
   vView: TView2Frm;
   function GetTab: TTabSheet;
   var
@@ -202,23 +203,22 @@ var
 begin
   if not FileExists(AFileName) then Exit;
     
-  vTabSheet := GetTab;
-  if vTabSheet = nil then
+  Result := GetTab;
+  if Result = nil then
   begin
-    vTabSheet := TTabSheet.Create(nil);
-    vTabSheet.PageControl := PageControlWithCB;
+    Result := TTabSheet.Create(nil);
+    Result.PageControl := PageControlWithCB;
     PageControlWithCB.PageCountChanged;
-    vTabSheet.Caption := ExtractFileName(AFileName) + '      ';
-    vTabSheet.Width := PageControlWithCB.Canvas.TextWidth(vTabSheet.Caption) + 120;
+    Result.Caption := ExtractFileName(AFileName) + '      ';
+    Result.Width := PageControlWithCB.Canvas.TextWidth(Result.Caption) + 120;
     vView := TView2Frm.Create(nil);
-    vView.Parent := vTabSheet;
+    vView.Parent := Result;
     vView.Align := alClient;
-    vTabSheet.Tag := Integer(vView);
+    Result.Tag := Integer(vView);
   end
   else
-    vView := TView2Frm(vTabSheet.Tag);
+    vView := TView2Frm(Result.Tag);
 
-  PageControlWithCB.ActivePage := vTabSheet;
   PageControlWithCB.OnContextPopup := TabSheetContextPopup;
 
   vView.Init(AFileName);
@@ -229,14 +229,18 @@ end;
 procedure TMainFm.actOpenExecute(Sender: TObject);
 var
   i: Integer;
+  vLastTab: TTabSheet;
 begin
   if not dlgOpen1.Execute then Exit;
 
   for i := 0 to dlgOpen1.Files.Count - 1 do
-    ActivateTab(dlgOpen1.Files[i]);
+    vLastTab := CreateTab(dlgOpen1.Files[i]);
 
   RefillOpenedFileNames;
   Options.SaveOptions;
+
+  PageControlWithCB.ActivePage := vLastTab;
+  ActualizeCurrentView;
 end;
 
 procedure TMainFm.actOptionsExecute(Sender: TObject);
@@ -260,7 +264,7 @@ begin
   begin
     DragQueryFile(THandle(Msg.WParam), i, { םמלונ פאיכא } vFilename, SizeOf(vFilename));
     vFile := vFilename;
-    ActivateTab(vFile);
+    CreateTab(vFile);
   end;
   DragFinish(THandle(Msg.WParam));
 //  SaveOptions;
@@ -271,9 +275,11 @@ var
   i: Integer;
 begin
   for i := 0 to Options.OpenedFileNames.Count - 1 do
-    ActivateTab(Options.OpenedFileNames[i]);
+    CreateTab(Options.OpenedFileNames[i]);
   if ParamCount > 0 then
-    ActivateTab(ParamStr(1));
+    CreateTab(ParamStr(1));
+
+  ActualizeCurrentView;
 end;
 
 procedure TMainFm.FormCreate(Sender: TObject);
@@ -359,7 +365,7 @@ begin
     Exit;
   end;
   vView := TView2Frm(PageControlWithCB.ActivePage.Tag);
-//  vView.Actualize;
+  vView.Actualize;
   UpdateCaption(vView.FileName);
 end;
 
@@ -375,7 +381,7 @@ begin
       'e':
         begin
           vFileName := Copy(Letter, 2, MaxInt);
-          ActivateTab(vFileName);
+          CreateTab(vFileName);
         end;
 //      'v': OpenFile(Copy(Letter, 2, MaxInt), True);
     end;
@@ -444,7 +450,7 @@ begin
   if not dlgOpen1.Execute then Exit;
 
   for i := 0 to dlgOpen1.Files.Count - 1 do
-    ActivateTab(dlgOpen1.Files[i]);
+    CreateTab(dlgOpen1.Files[i]);
 
   RefillOpenedFileNames;
   Options.SaveOptions;
@@ -537,18 +543,25 @@ begin
   CloseTab(ATabIndex);
 end;
 
+procedure TMainFm.OnPageChange(ASender: TObject);
+begin
+  ActualizeCurrentView;
+end;
+
 procedure TMainFm.OnSelectHistoryFile(Sender: TObject);
 var
   i: Integer;
 begin
-  ActivateTab(TMenuItem(Sender).Hint);
+  PageControlWithCB.ActivePage := CreateTab(TMenuItem(Sender).Hint);
   i := Options.HistoryFileNames.IndexOf(TMenuItem(Sender).Hint);
   if i > -1 then
   begin
     Options.HistoryFileNames.Delete(i);
     RefillHistoryFileNames;
     Options.SaveOptions;
-  end;  
+  end;
+
+  ActualizeCurrentView;
 end;
 
 procedure TMainFm.DefaultTags1Click(Sender: TObject);
