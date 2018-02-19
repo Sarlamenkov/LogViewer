@@ -201,6 +201,8 @@ var
       end;
   end;
 begin
+  Result := nil;
+
   if not FileExists(AFileName) then Exit;
     
   Result := GetTab;
@@ -233,6 +235,7 @@ var
 begin
   if not dlgOpen1.Execute then Exit;
 
+  vLastTab := nil;
   for i := 0 to dlgOpen1.Files.Count - 1 do
     vLastTab := CreateTab(dlgOpen1.Files[i]);
 

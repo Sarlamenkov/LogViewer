@@ -632,8 +632,11 @@ end;
 
 procedure TView2Frm.Reload;
 begin
- // FDataList.LoadFromFile(FFileName);
-  Init(FFileName);
+  vtLog.RootNodeCount := 0;
+  vtLog2.RootNodeCount := 0;
+  vtFilteredLog.RootNodeCount := 0;
+  vtFilteredLog2.RootNodeCount := 0;
+  FDataList.LoadFromFile(FFileName);
 end;
 
 procedure TView2Frm.splFullLogMoved(Sender: TObject);

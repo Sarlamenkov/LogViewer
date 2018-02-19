@@ -12,7 +12,7 @@ type
   TTagInfo = class
   private
     FOwner: TTagList;
-    FName: string;
+    FName: AnsiString;
     FUpperCaseName: AnsiString;
     FColor: TColor;
     FEnabled: Boolean;
@@ -26,10 +26,9 @@ type
     procedure SetEnabled(const Value: Boolean);
     function GetMatchCount: Integer;
     function GetFullName: string;
-    procedure SetName(const Value: string);
+    procedure SetName(const Value: AnsiString);
     function GetMatchRow(const AIndex: Integer): Integer;
     procedure SetCaseSens(const Value: Boolean);
-    procedure DoIndex(const AText: string; const AUpperText: string; const ARowIndex: Integer);
     procedure DoIndexAnsi(const AText: AnsiString; const AUpperText: AnsiString; const ARowIndex: Integer);
     procedure SetRegExp(const Value: Boolean);
     procedure RebuildIndex;
@@ -42,7 +41,7 @@ type
 
     property MatchRows[const AIndex: Integer]: Integer read GetMatchRow;
     property MatchCount: Integer read GetMatchCount;
-    property Name: string read FName write SetName;
+    property Name: AnsiString read FName write SetName;
     property Description: string read FDesc write FDesc;
     property UpperCaseName: AnsiString read FUpperCaseName;
     property FullName: string read GetFullName;
@@ -145,7 +144,6 @@ type
     function GetTag(const AIndex: Integer): TTagInfo;
     function GetTagCount: Integer;
     procedure DoOnChange;
-    procedure DoOnLoading(const APercent: Byte);
   public
     constructor Create;
     destructor Destroy; override;
@@ -246,15 +244,6 @@ begin
     FOwner.FOwner.BuildFilteredIndex;
 end;
 
-procedure TTagInfo.DoIndex(const AText: string; const AUpperText: string; const ARowIndex: Integer);
-begin
-  if ((not RegExp) and
-     ((CaseSens and (Pos(Name, AText) > 0)) or
-     ((not CaseSens) and (Pos(FUpperCaseName, AUpperText) > 0)))) or
-     (RegExp and ExecRegExpr(Name, AText)) then
-    FIndexRows.Add(Pointer(ARowIndex));
-end;
-
 procedure TTagInfo.DoIndexAnsi(const AText, AUpperText: AnsiString;
   const ARowIndex: Integer);
 begin
@@ -303,7 +292,7 @@ begin
   RebuildIndex;
 end;
 
-procedure TTagInfo.SetName(const Value: string);
+procedure TTagInfo.SetName(const Value: AnsiString);
 begin
   FName := Value;
   FUpperCaseName := UpperCase(FName);
@@ -682,13 +671,6 @@ begin
     FOnChanged(Self);
 end;
 
-procedure TDataList.DoOnLoading(const APercent: Byte);
-begin
-  if not Assigned(FOnLoading) then Exit;
-  Application.ProcessMessages;
-  FOnLoading(APercent);
-end;
-
 procedure TDataList.EndUpdate;
 begin
   if FUpdateCount = 0 then Exit;
@@ -899,7 +881,7 @@ procedure TMyStringList3.LoadFromStream(Stream: TStream; Encoding: TEncoding);
 var
   Size: Integer;
   S: AnsiString;
-  P, Start: PAnsiChar;
+//  P, Start: PAnsiChar;
 begin
   Size := Stream.Size - Stream.Position;
   SetString(S, nil, Size);
