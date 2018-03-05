@@ -381,7 +381,8 @@ begin
       'e':
         begin
           vFileName := Copy(Letter, 2, MaxInt);
-          CreateTab(vFileName);
+          PageControlWithCB.ActivePage := CreateTab(vFileName);
+          TView2Frm(PageControlWithCB.ActivePage.Tag).Actualize;
         end;
 //      'v': OpenFile(Copy(Letter, 2, MaxInt), True);
     end;
