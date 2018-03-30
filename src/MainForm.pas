@@ -298,7 +298,8 @@ end;
 
 procedure TMainFm.CloseCurrentTab(const AQuick: Boolean = False);
 begin
-  CloseTab(PageControlWithCB.ActivePage.TabIndex, AQuick);
+  if PageControlWithCB.ActivePage <> nil then
+    CloseTab(PageControlWithCB.ActivePage.TabIndex, AQuick);
 end;
 
 procedure TMainFm.CloseTab(const AIndex: Integer; const AQuick: Boolean);
